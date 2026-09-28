@@ -5,7 +5,7 @@ Status: MVP → Production build. Source prompts: `docs/prompt-pack/` (01–06).
 ## 1. Confirmed requirements
 
 - WordPress plugin, installable on any WP + Breakdance site without visually touching unrelated pages.
-- 7 MVP content components (see §3) that render a premium, neumorphic, editorial EV-charging article.
+- 9 content widgets (12 registered elements — three of them are nested item elements, see §3) that render a premium, neumorphic, editorial EV-charging article.
 - GSAP-driven motion that respects `prefers-reduced-motion`, never runs in the Breakdance builder canvas.
 - Everything namespaced (`EVPX`), CSS/JS isolated, assets conditionally loaded.
 - No fatal errors with or without Breakdance active; safe activate/deactivate.
@@ -37,9 +37,9 @@ builder breakage the SOP forbids. Instead:
    and `docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md` gives exact copy/paste HTML+CSS and the
    control list for each widget, so wiring up a fully native drag-in element inside
    Element Studio on the real site is a short, mechanical task rather than a rebuild.
-4. Dynamic Data fields (reading time, hero image, published date) are registered via the
-   documented `\Breakdance\DynamicData\*` classes so native Breakdance elements elsewhere
-   on the page can also pull EV article data.
+4. One Dynamic Data field (EV Reading Time) is registered via the documented
+   `\Breakdance\DynamicData\*` classes so native Breakdance elements elsewhere on the
+   page can also show it.
 
 Every Breakdance API call is guarded with `function_exists()` / `class_exists()` before
 use, per Breakdance's own documented pattern — the plugin is fully inert (but still
@@ -49,21 +49,23 @@ renders shortcodes/blocks) with Breakdance deactivated.
 
 ```text
 Electric-Website-Plugin/
-├── ev-charging-experience.php      # main plugin bootstrap
-├── composer.json                   # PSR-4 autoload: EVPX\ → src/
+├── ev-charging-experience.php      # bootstrap + hand-rolled PSR-4 autoloader (no vendor/ needed)
+├── composer.json                   # PSR-4 metadata + dev tooling only
+├── phpcs.xml.dist                  # WordPress coding standards ruleset (exclusions explained inline)
 ├── src/
 │   ├── Core/                       # Plugin, Activation, Deactivation
-│   ├── Breakdance/                 # Compatibility, ElementStudioBridge, DynamicData
-│   ├── Elements/                   # One class per widget (shortcode + block renderer)
-│   ├── Assets/                     # Conditional CSS/JS loader
-│   ├── Admin/                      # Settings/help screen (production phase)
-│   └── Support/                    # Sanitizers, view helpers
+│   ├── Breakdance/                 # Compatibility, ElementStudioBridge, DynamicData (+ Fields/)
+│   ├── Elements/                   # Element (shared contract), Registry, Widgets/ (one class each)
+│   ├── Assets/                     # Loader — conditional CSS/JS, GSAP source filters
+│   ├── Admin/                      # Notices (informational only; no settings screen)
+│   └── Support/                    # ReadingTime
 ├── assets/
-│   ├── css/                        # tokens.css, components/*.css
-│   ├── js/                         # evpx.js (namespace), motion.js (GSAP)
-│   └── images/
-├── templates/                      # PHP view partials per element
-├── tests/                          # smoke + docker QA scripts
+│   ├── css/evpx.css                # tokens + every component, one file, everything under .evpx-*
+│   ├── js/                         # evpx.js (vanilla core), motion.js (GSAP), block-editor.js
+│   └── fonts/                      # Fraunces + Libre Franklin woff2 (SIL OFL) + licence
+├── templates/                      # one PHP view partial per element
+├── languages/                      # .pot translation template
+├── tests/                          # docker/setup.sh, playwright/qa.mjs, contrast-check.mjs, build-zip.sh
 └── docs/
 ```
 
@@ -76,21 +78,27 @@ Electric-Website-Plugin/
 - Block namespace: `evpx/*` (e.g. `evpx/hero`)
 - DB options / postmeta prefix: `evpx_`
 
-## 3. Element inventory (MVP)
+## 3. Element inventory
 
-| # | Element | Shortcode | Block | Key controls |
+| # | Element | Shortcode | Block | Notes |
 |---|---|---|---|---|
-| 1 | EV Article Hero | `[evpx_hero]` | `evpx/hero` | category, title, excerpt, author, date, reading_time, media, cta_label, cta_url, animate |
-| 2 | EV Section | `[evpx_section]` | `evpx/section` | eyebrow, heading, body, media, layout (text-left/right/stacked), surface (flat/raised/recessed) |
-| 3 | EV AC/DC Comparison | `[evpx_comparison]` | `evpx/comparison` | ac_* / dc_* (title, description, power_range, dwell_label, best_for), mode (toggle/side-by-side), animation_intensity |
-| 4 | EV Scenario Cards | `[evpx_scenarios]` | `evpx/scenarios` | repeater: scenario, title, description, icon, requirement, recommendation |
-| 5 | EV Technical Flow | `[evpx_flow]` | `evpx/flow` | steps (Grid→Site→Charger→Vehicle→Battery), direction, compact |
-| 6 | EV FAQ | `[evpx_faq]` | `evpx/faq` | repeater: question/answer, default_open, schema_output |
-| 7 | EV CTA | `[evpx_cta]` | `evpx/cta` | eyebrow, title, body, button_label, button_url, variant |
+| 1 | EV Article Hero | `[evpx_hero]` | `evpx/hero` | also owns the reading-progress bar (`progress_bar`) |
+| 2 | EV Section | `[evpx_section]` | `evpx/section` | general editorial block; flat/raised/recessed surface |
+| 3 | EV AC/DC Comparison | `[evpx_comparison]` | `evpx/comparison` | signature component; toggle or side-by-side |
+| 4 | EV Scenario Cards | `[evpx_scenarios]` | `evpx/scenarios` | container; children are `[evpx_scenario_card]` |
+| 5 | EV Technical Flow | `[evpx_flow]` | `evpx/flow` | Grid → Site → Charger → Vehicle → Battery |
+| 6 | EV Decision Factors | `[evpx_decision_factors]` | `evpx/decision-factors` | container; children are `[evpx_decision_factor]`; numbered flat list |
+| 7 | EV FAQ | `[evpx_faq]` | `evpx/faq` | container; children are `[evpx_faq_item]`; optional FAQPage JSON-LD |
+| 8 | EV Related Articles | `[evpx_related]` | `evpx/related` | lists real published posts; nothing for visitors when empty |
+| 9 | EV CTA | `[evpx_cta]` | `evpx/cta` | accent / dark / media variants |
 
-Full attribute lists are enforced in code via each Element class's `sanitize_attributes()`
-— this table is the contract, not the final word; see class docblocks for the authoritative
-list.
+Each element declares its controls once (`Element::controls()`); defaults, sanitization, the
+shortcode attribute set, the block attribute schema and the block-editor Inspector panels are
+all derived from that one list. `docs/WIDGETS.md` is the human-readable reference.
+
+Not built, deliberately: separate Article Meta / Intro / Infrastructure Panel widgets (Hero,
+Section and Technical Flow already cover them) and a Media Showcase (it would need real
+photography, which this build environment could not source — see `docs/MEDIA-BRIEF.md`).
 
 ## 4. Content model
 
@@ -101,11 +109,12 @@ Article flow (reconciles PRD content direction + UX section blueprint):
 3. AC charging explained
 4. DC charging explained
 5. AC vs DC comparison (signature interactive section)
-6. What determines the choice (dwell time, energy, capacity, turnover, install complexity, growth)
+6. What determines the choice — Decision Factors (dwell time, energy, capacity, turnover, install complexity, operating model, growth)
 7. Scenario storytelling (workplace, hotel, residential, fleet depot, retail, highway)
 8. Infrastructure (grid → site → charger → vehicle → battery)
 9. FAQ
 10. Closing CTA
+11. Related articles
 
 Copy is original, rephrased from AC/DC charging fundamentals (verified against ChargePoint,
 Power Sonic, EV Connect public explainers — see sources in final report), not copied from
@@ -123,62 +132,56 @@ WCAG 1.4.3/1.4.11 failure mode neumorphism is known for.
 Avoids the neon-cyan/blue-gradient EV cliché. Ink-graphite base, warm copper as the single
 confident accent (energy/CTA), desaturated blue reserved for technical/data moments only.
 
+Tokens live on `.evpx-root` (every top-level element carries it), never on `:root`, so nothing
+leaks to the rest of the page. Dark values are applied by `data-evpx-theme="dark"` (or `auto`,
+gated on `prefers-color-scheme`) on that same element.
+
 ```css
-:root {
-  /* Light mode surfaces */
-  --evpx-surface-base: #EEF0F3;
-  --evpx-surface-raised-hi: #FFFFFF;
-  --evpx-surface-raised-lo: #C7CED6;
-  --evpx-surface-recessed-hi: #D7DCE2;
-  --evpx-surface-recessed-lo: #FFFFFF;
-  --evpx-ink: #14171C;
-  --evpx-ink-muted: #4B535E;
-  --evpx-ink-faint: #7C8590;
-  --evpx-border: #D7DCE2;
+.evpx-root {
+  /* Light surfaces */
+  --evpx-surface-base: #eef0f3;
+  --evpx-surface-raised-hi: #ffffff;   --evpx-surface-raised-lo: #c7ced6;
+  --evpx-surface-recessed-hi: #d7dce2; --evpx-surface-recessed-lo: #ffffff;
+  --evpx-ink: #14171c;  --evpx-ink-muted: #4b535e;  --evpx-ink-faint: #626b76;
+  --evpx-border: #d7dce2;
 
-  /* Accents */
-  --evpx-accent: #B9662F;       /* copper — CTA, active states, highlights */
-  --evpx-accent-ink: #FFFFFF;    /* text on accent */
-  --evpx-technical: #4E75A6;    /* desaturated blue — data/infra diagrams only */
-
-  /* Dark mode surfaces */
-  --evpx-surface-base-dark: #14171C;
-  --evpx-surface-raised-hi-dark: #1E232A;
-  --evpx-surface-raised-lo-dark: #05070A;
-  --evpx-surface-recessed-hi-dark: #0A0D11;
-  --evpx-surface-recessed-lo-dark: #22282F;
-  --evpx-ink-dark: #EDEFF2;
-  --evpx-ink-muted-dark: #A7AEB6;
-  --evpx-ink-faint-dark: #6D7580;
-  --evpx-border-dark: #262C34;
+  /* Accents. Fill = surfaces that carry --evpx-accent-ink text (buttons, flow nodes,
+     the accent CTA). Text = the same hue as text/icon/focus ring on a surface. */
+  --evpx-accent: #a4531f;
+  --evpx-accent-text: #a4531f;         /* dark mode: #d98a5a */
+  --evpx-accent-ink: #ffffff;
+  --evpx-technical: #4e75a6;           /* data/infra moments only */
 }
+/* Dark: surface-base #14171c, raised #1e232a / #05070a, recessed #0a0d11 / #22282f,
+   ink #edeff2, muted #a7aeb6, faint #838b96, border #262c34. */
 ```
 
-`--evpx-accent` (#B9662F on #EEF0F3) and `--evpx-ink` (#14171C on #EEF0F3) both clear
-4.5:1 body-text contrast; verified numerically in `tests/contrast-check.mjs`, not eyeballed.
+Every pairing the components use is asserted by `node tests/contrast-check.mjs`, which reads
+the tokens straight out of `assets/css/evpx.css`: body 6.8:1, small labels 4.7:1, accent text
+4.8:1 on the light surface (6.6:1 in dark), white-on-accent 5.5:1. (An earlier copper,
+`#b9662f`, was documented here as passing. It did not — 3.7:1 as text, 4.2:1 as a button —
+and was darkened once the check existed. `axe-core` then confirmed zero violations across
+the widgets; see `docs/QA-REPORT.md`.)
 
 ### 5.2 Surfaces (the neumorphism formula)
 
 ```css
-.evpx-surface-raised {
+.evpx-surface--raised {
   background: var(--evpx-surface-base);
   border-radius: var(--evpx-radius-lg);
   box-shadow:
     8px 8px 16px var(--evpx-surface-raised-lo),
     -8px -8px 16px var(--evpx-surface-raised-hi);
 }
-.evpx-surface-recessed {
+.evpx-surface--recessed {
   background: var(--evpx-surface-base);
   border-radius: var(--evpx-radius-md);
   box-shadow:
-    inset 6px 6px 12px var(--evpx-surface-recessed-hi),
-    inset -6px -6px 12px var(--evpx-surface-recessed-lo);
+    inset 5px 5px 10px var(--evpx-surface-recessed-hi),
+    inset -5px -5px 10px var(--evpx-surface-recessed-lo);
 }
-.evpx-surface-flat {
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-}
+.evpx-surface--flat { background: transparent; box-shadow: none; border-radius: 0; }
+/* plus .evpx-surface--raised-sm (cards, controls) and .evpx-surface--accent */
 ```
 
 Four surfaces total: `raised` (cards, controls), `recessed` (technical-data panels, inputs),
@@ -189,15 +192,17 @@ text blocks/media — most of the page; neumorphism is used *selectively*, per t
 
 - Display/headings: **Fraunces** (variable serif — cinematic, editorial, distinctive without being loud)
 - Body/UI/labels/data: **Libre Franklin** (sturdy grotesque, strong tabular numerals for kW/min values)
-- Self-hosted woff2 where the build can fetch them; Google Fonts CSS API fallback with
-  `preconnect` + `display=swap` otherwise (see `src/Assets/FontLoader.php`).
+- Self-hosted: variable woff2 (Latin subset, ~96 KB together) bundled in `assets/fonts/` under
+  the SIL OFL with the licence file alongside. Declared as `EVPX Fraunces` / `EVPX Libre
+  Franklin` so they can never merge with a site's own copy, `font-display: swap`, with system
+  serif/sans fallbacks. No request to a third-party font host is made (asserted by the QA suite).
 
 Scale (fluid via `clamp()`): eyebrow 13px, body 17px/1.65, section-heading
 clamp(28px,4vw,40px), display clamp(40px,7vw,88px).
 
 ### 5.4 Spacing / radii / breakpoints
 
-- Spacing unit 4px: tokens `--evpx-space-1` (4px) … `--evpx-space-12` (128px)
+- Spacing unit 4px: tokens `--evpx-space-1` (0.25rem) … `--evpx-space-32` (8rem)
 - Radii: `--evpx-radius-sm` 8px, `--evpx-radius-md` 16px, `--evpx-radius-lg` 24px (no pills on cards/buttons)
 - Breakpoints tested: 320, 375, 390, 430, 768, 1024, 1280, 1440, 1920
 
@@ -214,16 +219,21 @@ clamp(28px,4vw,40px), display clamp(40px,7vw,88px).
 ```
 
 Motion hierarchy: hero (strongest) → comparison (medium) → supporting sections (subtle) →
-body text (static). GSAP layer detailed in `src/Assets` + `assets/js/motion.js`.
+body text (static). Implemented in `assets/js/motion.js`; `assets/js/evpx.js` is the
+dependency-free core (FAQ accordion, tabs, builder/reduced-motion detection) and works alone.
 
 ## 6. Asset strategy
 
 - CSS/JS enqueued only when `has_shortcode()` / block presence is detected on the
   rendered content, or a plugin block/shortcode fires during a Breakdance builder request.
-- GSAP + ScrollTrigger loaded from a single conditional bundle; before enqueuing, the
-  runtime checks `window.gsap`/`window.ScrollTrigger` so it never double-loads if
-  Breakdance's own reusable-dependency system (`%%BREAKDANCE_REUSABLE_GSAP%%`) already
-  provided a copy on the page.
+- GSAP + ScrollTrigger come from cdnjs by default and are only enqueued alongside an EV
+  element. They are not bundled (GSAP's licence restricts redistribution inside builder
+  add-ons); `evpx_gsap_src` / `evpx_scrolltrigger_src` filters point them at a self-hosted
+  copy. `motion.js` only initialises if `window.gsap` exists and does nothing otherwise,
+  and the fully working baseline never depends on it.
+- Nothing hides content waiting for JavaScript: the hero's hold-back has a pure-CSS failsafe
+  and is skipped for reduced motion and `scripting: none`; scroll reveals only apply to
+  content that starts below the fold.
 - Builder-mode detection (`EVPX\Breakdance\Compatibility::isBuilderContext()`) disables
   autoplay/ScrollTrigger/observers while editing.
 
@@ -248,6 +258,7 @@ zero JS console errors, zero PHP notices/warnings under `WP_DEBUG`.
 |---|---|
 | No licensed Breakdance to verify Element Studio rendering | Shortcode/block path is the verified-safe primary delivery; bridge doc for native Element Studio |
 | Reference article unreachable (egress-blocked) | Rebuilt content model from the prompt pack's own detailed structure + independently verified AC/DC facts |
-| Neumorphism hurting contrast/accessibility | Decorative-shadow-only rule (§5); numeric contrast check in `tests/` |
-| GSAP double-loading with Breakdance's own dependency system | Runtime `window.gsap` existence check before enqueue |
-| Font fetch blocked by sandbox egress | Google Fonts CSS API fallback path built in |
+| Neumorphism hurting contrast/accessibility | Decorative-shadow-only rule (§5); `tests/contrast-check.mjs` + `axe-core` in the QA suite |
+| GSAP double-loading with Breakdance's own dependency system | Runtime `window.gsap` existence check; motion is a pure enhancement |
+| GSAP unavailable (blocked CDN, strict CSP) | Filters to self-host; every widget stays complete and interactive without it |
+| Third-party font requests / privacy | Fonts bundled (OFL); QA asserts no font-host request |

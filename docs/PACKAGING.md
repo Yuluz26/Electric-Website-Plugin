@@ -13,15 +13,16 @@ ev-charging-experience/
 ├── ev-charging-experience.php
 ├── composer.json
 ├── src/
-├── assets/
+├── assets/                (css, js, fonts)
 ├── templates/
+├── languages/
 ├── element-studio/        (empty save-location folders + .gitkeep)
 ├── docs/
 ├── README.md
 └── CHANGELOG.md
 ```
 
-Explicitly excluded: `.git`, `tests/` (Docker QA harness — dev-only),
+Explicitly excluded: `.git`, `phpcs.xml.dist`, `tests/` (Docker QA harness — dev-only),
 `.claude/`, `.agents/`, `skills-lock.json` (this repository's Claude Code
 tooling, unrelated to the WordPress plugin), and any OS/editor cruft
 (`.DS_Store`, `*.log`). There is no `node_modules` or `vendor/` to exclude

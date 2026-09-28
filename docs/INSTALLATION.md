@@ -54,18 +54,41 @@ For fully native, visually-controlled elements inside Element Studio, see
 - **SEO plugins**: the FAQ widget's JSON-LD `FAQPage` schema can be
   disabled per-instance (`schema_output="false"`) if Yoast/RankMath/etc.
   already emit FAQ schema on the same page.
-- **Caching/minification/CDN**: all assets are registered through
-  WordPress's standard `wp_enqueue_style`/`wp_enqueue_script`, so
-  concatenation/minification plugins handle them normally. GSAP and the
-  fonts are loaded from cdnjs.cloudflare.com / fonts.googleapis.com by
-  default — self-host them instead (swap the URLs in
-  `src/Assets/Loader.php`) if your site's CSP or offline requirements need
-  that.
+- **Caching/minification/CDN**: all assets are registered through WordPress's standard
+  `wp_enqueue_style`/`wp_enqueue_script`, so concatenation/minification plugins handle them
+  normally. Fonts are bundled with the plugin (SIL OFL) — a page view makes no request to a
+  font host. GSAP + ScrollTrigger load from cdnjs.cloudflare.com by default; they are not
+  bundled because GSAP's licence restricts redistribution inside builder add-ons. To
+  self-host them (strict CSP, privacy policy, offline), point the filters at your own copies:
+
+  ```php
+  add_filter( 'evpx_gsap_src', fn() => content_url( 'uploads/gsap/gsap.min.js' ) );
+  add_filter( 'evpx_scrolltrigger_src', fn() => content_url( 'uploads/gsap/ScrollTrigger.min.js' ) );
+  ```
+
+  If GSAP never loads, nothing breaks: every widget stays complete and interactive, only the
+  animation is absent.
 - **Other plugins/builders**: nothing is hooked into anything global —
   no `.bde-*` selectors, no bare element selectors (`h1`, `img`,
   `.container`…), no core file overrides. Deactivating the plugin leaves
   existing content untouched (shortcodes simply stop expanding; the raw
   `[evpx_...]` text is not deleted from the database).
+
+## Trying the demo article
+
+`docs/demo-article.txt` is the full "Choosing AC or DC Charging for Your Site" article as
+shortcodes. To load it as a post:
+
+```
+wp post create docs/demo-article.txt --post_type=post --post_status=draft \
+  --post_title="Choosing AC or DC Charging for Your Site"
+```
+
+or paste its contents into a Custom HTML block / a Breakdance Shortcode element. The hero in the
+demo sets `title_tag="h2"` because a WordPress post's theme already prints the title as `h1`;
+remove that attribute on a page where the hero is the only title. It has no
+images — see `docs/MEDIA-BRIEF.md`. The Related Articles row lists other published posts in the
+same category, so it appears empty until you have some.
 
 ## Uninstalling
 

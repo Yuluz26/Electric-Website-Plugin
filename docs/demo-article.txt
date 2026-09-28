@@ -1,4 +1,4 @@
-[evpx_hero category="EV Infrastructure" title="Choosing AC or DC Charging for Your Site" excerpt="The right charging technology depends less on what a charger can do and more on how people actually use your site. Here's how to think it through." author="EV Charging Experience Editorial" date="September 2026" cta_label="Jump to the decision framework" cta_url="#decision" visual_mode="dark" animate="true"]
+[evpx_hero category="EV Infrastructure" title="Choosing AC or DC Charging for Your Site" excerpt="The right charging technology depends less on what a charger can do and more on how people actually use your site. Here's how to think it through." author="EV Charging Experience Editorial" date="September 2026" cta_label="Jump to the decision framework" cta_url="#decision" visual_mode="dark" animate="true" title_tag="h2"]
 
 [evpx_section eyebrow="Why this decision matters" heading="The charger is the easy part" body="Most site owners start by comparing charger specs. Kilowatts, connector types, brand reputations. That's the wrong starting point.
 

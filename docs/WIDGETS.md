@@ -1,8 +1,11 @@
 # Widget & control reference
 
-Every widget works two ways: as a shortcode (`[evpx_xxx attr="value"]`) and
-as a Gutenberg block (`EV Charging Experience` category in the block
-inserter). Both use the exact same PHP renderer — output is identical.
+Twelve elements: nine widgets you place on a page, plus three item elements that only make
+sense inside their container (Scenario Card, Decision Factor, FAQ Item).
+
+Every element works two ways: as a shortcode (`[evpx_xxx attr="value"]`) and as a Gutenberg
+block (`EV Charging Experience` category in the block inserter). Both use the exact same PHP
+renderer — output is identical.
 
 Groups map to the editor organization the PRD specifies: Content, Media,
 Layout, Visual, Motion, Responsive, Advanced.
@@ -22,6 +25,7 @@ Layout, Visual, Motion, Responsive, Advanced.
 | `cta_label` / `cta_url` | text / url | content | — |
 | `visual_mode` | select: dark/light/auto | visual | dark |
 | `animate` | toggle | motion | true |
+| `title_tag` | select: h1/h2 | advanced | h1 — set h2 if your theme already prints the page title as h1 |
 | `progress_bar` | toggle | motion | true — fixed top-of-viewport bar tracking scroll through the whole page |
 
 ## EV Section — `[evpx_section]` / `evpx/section`
@@ -68,6 +72,26 @@ children.
 
 `question` (text), `answer` (textarea), `default_open` (toggle).
 
+## EV Decision Factors — `[evpx_decision_factors]` / `evpx/decision-factors` (container)
+
+`eyebrow`, `heading`, `intro` (content), `animate` toggle (motion). A numbered, deliberately
+flat editorial list — the numbers come from a CSS counter, so reordering children renumbers
+them. Holds one or more **EV Decision Factor** children.
+
+### EV Decision Factor — `[evpx_decision_factor]` / `evpx/decision-factor` (child)
+
+`title` (the factor), `description`, `question` (the "Ask" line) — all content.
+
+## EV Related Articles — `[evpx_related]` / `evpx/related`
+
+`eyebrow`, `heading` (content); `source` select (category / latest / manual, content);
+`post_ids` (comma-separated, manual mode only); `post_type` (advanced; only public types are
+accepted, otherwise falls back to `post`); `count` select 2/3 (layout); `animate` toggle
+(motion). Lists real published posts, excluding the current page and password-protected
+posts. With nothing to list, visitors see nothing and editors see a one-line note. If no
+listed article has a featured image the image slot is omitted entirely rather than showing
+empty boxes.
+
 ## EV CTA — `[evpx_cta]` / `evpx/cta`
 
 `eyebrow`, `title`, `body`, `button_label`/`button_url` (content), `media`
@@ -83,5 +107,6 @@ children.
 [/evpx_scenarios]
 ```
 
-`[evpx_faq]…[/evpx_faq]` with nested `[evpx_faq_item question="…" answer="…"]`
-follows the same pattern.
+`[evpx_faq]…[/evpx_faq]` with nested `[evpx_faq_item question="…" answer="…"]` and
+`[evpx_decision_factors]…[/evpx_decision_factors]` with nested `[evpx_decision_factor …]`
+follow the same pattern.

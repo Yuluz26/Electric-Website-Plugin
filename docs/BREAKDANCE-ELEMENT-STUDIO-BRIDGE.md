@@ -64,6 +64,8 @@ Root CSS class per widget (apply to Element Studio's root element):
 | Scenario Cards | `evpx-root evpx-scenarios` |
 | Scenario Card | `evpx-scenario-card evpx-surface--raised-sm` |
 | Technical Flow | `evpx-root evpx-flow evpx-flow--{direction}` |
+| Decision Factors | `evpx-root evpx-decision` (children: `li.evpx-decision__item`) |
+| Related Articles | `evpx-root evpx-related` |
 | FAQ | `evpx-root evpx-faq` |
 | FAQ Item | `evpx-faq__item evpx-surface--raised-sm` |
 | CTA | `evpx-root evpx-cta evpx-cta--{variant}` |

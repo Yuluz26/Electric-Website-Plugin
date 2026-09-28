@@ -11,16 +11,16 @@ element inventory: `docs/ARCHITECTURE.md`.
 
 ## What's in the box
 
-9 elements — each a shortcode *and* a Gutenberg block, same renderer, same
-output: **EV Article Hero**, **EV Section**, **EV AC/DC Comparison**
-(signature component), **EV Scenario Cards** + **EV Scenario Card**, **EV
-Technical Flow**, **EV FAQ** + **EV FAQ Item**, **EV CTA**. Full control
-reference: `docs/WIDGETS.md`.
+Nine widgets — **EV Article Hero**, **EV Section**, **EV AC/DC Comparison**
+(signature component), **EV Scenario Cards**, **EV Technical Flow**, **EV Decision
+Factors**, **EV FAQ**, **EV Related Articles**, **EV CTA** — plus the three item elements
+that nest inside the container widgets. Each is a shortcode *and* a Gutenberg block, same
+renderer, same output. Full control reference: `docs/WIDGETS.md`.
 
-A complete demo article — "Choosing AC or DC Charging for Your Site,"
-original copy grounded in independently-verified AC/DC charging facts, not
-copied from any reference — is assembled from these 9 widgets and was used
-as the end-to-end QA fixture (`docs/QA-REPORT.md`).
+A complete demo article — "Choosing AC or DC Charging for Your Site," original copy
+grounded in independently-verified AC/DC charging facts, not copied from any reference — is
+in `docs/demo-article.txt` and is the end-to-end QA fixture (`docs/QA-REPORT.md`). It ships
+without photography; `docs/MEDIA-BRIEF.md` is the shot list.
 
 ## Quick start
 
@@ -42,19 +42,26 @@ Element Studio bridge for native drag-in controls: `docs/INSTALLATION.md`.
 | `docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md` | Building native Breakdance elements |
 | `docs/TROUBLESHOOTING.md` | Common issues |
 | `docs/QA-REPORT.md` | What was tested, bugs found and fixed, what's unverified |
+| `docs/MEDIA-BRIEF.md` | Photography shot list, sourcing and alt-text rules |
 | `docs/PACKAGING.md` | Building a distributable ZIP |
 | `CHANGELOG.md` | Version history |
 
 ## Development
 
-No build step. PHP is autoloaded (PSR-4, `EVPX\` → `src/`) with a
-hand-rolled autoloader — no `composer install` required to run the plugin.
-CSS/JS are hand-authored, no bundler.
+No build step, no runtime dependencies. PHP is autoloaded (PSR-4, `EVPX\` → `src/`) by a
+hand-rolled autoloader, so a plain ZIP upload always works. CSS and JS are hand-authored.
 
 ```
-php -l ev-charging-experience.php src/**/*.php templates/*.php   # syntax check
-docker compose -f tests/docker/docker-compose.yml up -d          # local WP QA env
+bash tests/docker/setup.sh                      # WordPress + MySQL in Docker, plugin active, demo imported
+node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"   # 20 browser checks incl. axe-core
+node tests/contrast-check.mjs                   # WCAG pairings, read from the real tokens
+composer install && composer lint               # WordPress coding standards (see phpcs.xml.dist)
+bash tests/build-zip.sh                         # dist/ev-charging-experience.zip
 ```
+
+`tests/playwright/qa.mjs` needs `playwright` (and optionally `axe-core`) installed in
+`tests/playwright/`; if your network blocks cdnjs, run `setup.sh` with `EVPX_GSAP_DIR` so GSAP
+is served locally — the header of each script explains the details.
 
 ## Non-negotiables this plugin follows
 
@@ -63,5 +70,6 @@ for shortcodes/blocks). No bare-element or global CSS selectors. No
 Breakdance core files, templates, or global styles touched. Every
 Breakdance API call guarded with `function_exists()`/`class_exists()` —
 the plugin never fatals with Breakdance absent. Assets load only on pages
-that actually use an EV element. Motion is progressive enhancement — every
-widget is fully functional with GSAP absent or failed to load.
+that actually use an EV element. Fonts are bundled, so a page view contacts no font host.
+Motion is progressive enhancement — every widget is complete and interactive with GSAP
+absent, with JavaScript off, and under `prefers-reduced-motion`.

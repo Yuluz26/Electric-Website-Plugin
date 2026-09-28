@@ -11,17 +11,28 @@ a widget is inserted through a mechanism that doesn't store the shortcode
 text in `post_content` (some page builders), the plugin falls back to
 enqueuing in the footer the moment any `[evpx_*]` shortcode actually
 renders — reload the page once; if it's still missing, check your browser
-console for a blocked request to `cdnjs.cloudflare.com` or
-`fonts.googleapis.com` (see below).
+console for a failed request to the plugin's own
+`assets/css/evpx.css` (a path or permissions problem) — the plugin makes no other
+style requests.
 
 **GSAP animations don't play, but the page looks and works fine otherwise.**
-This is by design, not a bug: if `cdnjs.cloudflare.com` is unreachable (a
-strict CSP, an offline environment, an ad-blocker) the whole motion layer
-no-ops and every widget falls back to fully static, fully interactive
-markup — FAQ accordions and the AC/DC toggle still work via plain
-JavaScript with zero animation dependency. Self-host GSAP (see
-`docs/INSTALLATION.md` → Compatibility notes) if you need animation
-guaranteed in a locked-down network.
+This is by design, not a bug: if `cdnjs.cloudflare.com` is unreachable (a strict CSP, an
+offline environment, an ad-blocker) the motion layer simply doesn't start and every widget
+falls back to fully static, fully interactive markup — FAQ accordions and the AC/DC tabs still
+work via plain JavaScript. Self-host GSAP with the `evpx_gsap_src` / `evpx_scrolltrigger_src`
+filters (see `docs/INSTALLATION.md`) if you need animation guaranteed on a locked-down network.
+
+**The hero (or a section) stays invisible.**
+It shouldn't: the hero's entrance is held back in CSS only until the scripts take over, and a
+CSS failsafe reveals it after ~1.6 s if they never do; it isn't held back at all for
+reduced-motion visitors, with JavaScript off, or inside a builder canvas. If you see it,
+check whether another plugin strips `data-*` attributes or injects a stylesheet that sets
+`opacity` on `.evpx-hero *`.
+
+**Cards stopped lifting on hover.**
+Something is leaving an inline `transform` on them. The plugin's own reveal clears its
+transform when it finishes; a third-party animation plugin targeting the same elements is
+the usual cause.
 
 **A Scenario Card / FAQ Item shortcode isn't rendering inside its
 container.**
