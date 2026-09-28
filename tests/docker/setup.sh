@@ -6,6 +6,9 @@
 #   bash tests/docker/setup.sh
 #   node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"
 #
+# Optional: EVPX_BREAKDANCE_STUB=1 installs tests/docker/breakdance-stub.php as a
+# mu-plugin and runs tests/docker/breakdance-contract-check.php against it.
+#
 # Optional: EVPX_GSAP_DIR=/path/with/gsap.min.js+ScrollTrigger.min.js serves
 # GSAP from inside the container via the evpx_gsap_src filters — for networks
 # where cdnjs is unreachable. GSAP itself is never committed to this repo.
@@ -58,6 +61,13 @@ add_filter( 'evpx_gsap_src', fn() => content_url( 'uploads/evpx-test/gsap.min.js
 add_filter( 'evpx_scrolltrigger_src', fn() => content_url( 'uploads/evpx-test/ScrollTrigger.min.js' ) );
 PHP"
 	echo "GSAP served locally via evpx_gsap_src / evpx_scrolltrigger_src."
+fi
+
+if [ -n "${EVPX_BREAKDANCE_STUB:-}" ]; then
+	"${COMPOSE[@]}" exec -T wordpress mkdir -p /var/www/html/wp-content/mu-plugins
+	docker cp tests/docker/breakdance-stub.php "${WP_CID}:/var/www/html/wp-content/mu-plugins/breakdance-stub.php"
+	docker cp tests/docker/breakdance-contract-check.php "${WP_CID}:/tmp/breakdance-contract-check.php"
+	wp eval-file /tmp/breakdance-contract-check.php
 fi
 
 # Demo content: a category, sibling posts, then the demo article itself.

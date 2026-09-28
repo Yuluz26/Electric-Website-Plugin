@@ -103,6 +103,15 @@ check(
 	})
 );
 
+const headings = await page.$$eval('h1, .evpx-root h2, .evpx-root h3, .evpx-root h4', (els) =>
+	els.filter((e) => e.tagName === 'H1' || e.closest('.evpx-root')).map((e) => +e.tagName[1])
+);
+const h1Count = headings.filter((l) => l === 1).length;
+let skipped = false;
+const evLevels = await page.$$eval('.evpx-root h1, .evpx-root h2, .evpx-root h3, .evpx-root h4', (els) => els.map((e) => +e.tagName[1]));
+for (let i = 1; i < evLevels.length; i++) if (evLevels[i] > evLevels[i - 1] + 1) skipped = true;
+check('heading hierarchy: at most one h1 on the page, no skipped levels inside EV widgets', h1Count <= 1 && !skipped, `h1=${h1Count} levels=${evLevels.join('')}`);
+
 const decisionItems = await page.$$eval('.evpx-decision__item', (e) => e.length);
 if (decisionItems) check('decision factors render as a numbered list', decisionItems >= 3);
 const relatedItems = await page.$$eval('.evpx-related__item', (e) => e.length);
