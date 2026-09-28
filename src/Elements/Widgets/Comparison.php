@@ -89,6 +89,7 @@ final class Comparison extends Element {
 				'accent_treatment'    => $atts['accent_treatment'],
 				'animation_intensity' => $atts['animation_intensity'],
 				'mobile_mode'         => $atts['mobile_mode'],
+				'id'                  => $this->uniqueId( 'evpx-cmp' ),
 			)
 		);
 	}

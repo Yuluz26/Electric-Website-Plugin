@@ -12,6 +12,31 @@
  */
 
 /* ----------------------------------------------------------------------
+   0. Fonts — self-hosted (SIL OFL, see assets/fonts/LICENSE-OFL.txt), so a
+   page view makes no request to a third-party font host. Family names are
+   namespaced so they can never merge with a site's own Fraunces/Libre
+   Franklin @font-face rules.
+   -------------------------------------------------------------------- */
+
+@font-face {
+	font-family: 'EVPX Fraunces';
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url('../fonts/fraunces-latin-opsz-normal.woff2') format('woff2-variations');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: 'EVPX Libre Franklin';
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url('../fonts/libre-franklin-latin-wght-normal.woff2') format('woff2-variations');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ----------------------------------------------------------------------
    1. Tokens
    -------------------------------------------------------------------- */
 
@@ -24,10 +49,14 @@
 	--evpx-surface-recessed-lo: #ffffff;
 	--evpx-ink: #14171c;
 	--evpx-ink-muted: #4b535e;
-	--evpx-ink-faint: #626b76; /* 4.7:1 on --evpx-surface-base — verified, not eyeballed; see docs/QA-REPORT.md */
+	--evpx-ink-faint: #626b76; /* verified by tests/contrast-check.mjs */
 	--evpx-border: #d7dce2;
 
-	--evpx-accent: #b9662f;
+	/* Fill for surfaces that carry --evpx-accent-ink text (buttons, flow nodes,
+	   the accent CTA). --evpx-accent-text is the same hue used *as* text, icon or
+	   focus ring on a surface — it lightens in dark mode so it stays legible. */
+	--evpx-accent: #a4531f;
+	--evpx-accent-text: #a4531f;
 	--evpx-accent-ink: #ffffff;
 	--evpx-technical: #4e75a6;
 
@@ -35,8 +64,8 @@
 	--evpx-success: #3f7a52;
 
 	/* Type */
-	--evpx-font-display: 'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
-	--evpx-font-body: 'Libre Franklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--evpx-font-display: 'EVPX Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
+	--evpx-font-body: 'EVPX Libre Franklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
 	--evpx-size-eyebrow: 0.8125rem;
 	--evpx-size-body: 1.0625rem;
@@ -84,7 +113,8 @@
 	--evpx-surface-recessed-lo: #22282f;
 	--evpx-ink: #edeff2;
 	--evpx-ink-muted: #a7aeb6;
-	--evpx-ink-faint: #838b96; /* 5.2:1 on --evpx-surface-base-dark — verified, not eyeballed */
+	--evpx-ink-faint: #838b96; /* verified by tests/contrast-check.mjs */
+	--evpx-accent-text: #d98a5a;
 	--evpx-border: #262c34;
 
 	color-scheme: dark;
@@ -103,6 +133,7 @@
 		--evpx-ink: #edeff2;
 		--evpx-ink-muted: #a7aeb6;
 		--evpx-ink-faint: #838b96;
+		--evpx-accent-text: #d98a5a;
 		--evpx-border: #262c34;
 
 		color-scheme: dark;
@@ -155,7 +186,7 @@
 	font-weight: 600;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
-	color: var(--evpx-accent);
+	color: var(--evpx-accent-text);
 	display: inline-flex;
 	align-items: center;
 	gap: var(--evpx-space-2);
@@ -289,7 +320,7 @@
 }
 
 .evpx-button:focus-visible {
-	outline: 2px solid var(--evpx-accent);
+	outline: 2px solid var(--evpx-accent-text);
 	outline-offset: 3px;
 }
 
@@ -304,7 +335,7 @@
 .evpx-root a:focus-visible,
 .evpx-root button:focus-visible,
 .evpx-root [tabindex]:focus-visible {
-	outline: 2px solid var(--evpx-accent);
+	outline: 2px solid var(--evpx-accent-text);
 	outline-offset: 3px;
 }
 
@@ -358,7 +389,7 @@
 }
 
 .evpx-hero[data-evpx-hero-mode='light'] .evpx-eyebrow {
-	color: var(--evpx-accent);
+	color: var(--evpx-accent-text);
 	opacity: 1;
 }
 
@@ -492,6 +523,10 @@
 		inset -4px -4px 8px var(--evpx-surface-recessed-lo);
 }
 
+.evpx-comparison__tabs[hidden] {
+	display: none; /* author display:inline-flex would otherwise beat the UA [hidden] rule */
+}
+
 .evpx-comparison__tab {
 	font-family: var(--evpx-font-body);
 	font-weight: 600;
@@ -554,7 +589,7 @@
 }
 
 .evpx-comparison--split .evpx-comparison__panel--dc .evpx-comparison__data {
-	border-left-color: var(--evpx-accent);
+	border-left-color: var(--evpx-accent-text);
 }
 
 .evpx-comparison__data-row {
@@ -689,7 +724,7 @@
 	gap: var(--evpx-space-2);
 	font-weight: 600;
 	font-size: 0.9375rem;
-	color: var(--evpx-accent);
+	color: var(--evpx-accent-text);
 	text-decoration: none;
 }
 
@@ -872,7 +907,7 @@
 .evpx-faq__icon::after {
 	content: '';
 	position: absolute;
-	background: var(--evpx-accent);
+	background: var(--evpx-accent-text);
 	border-radius: 1px;
 	transition: transform var(--evpx-dur-micro) var(--evpx-ease-premium);
 }
@@ -958,8 +993,10 @@
 	opacity: 0.85;
 }
 
-.evpx-cta--accent .evpx-eyebrow {
+.evpx-cta--accent .evpx-eyebrow,
+.evpx-cta--accent .evpx-cta__body {
 	color: var(--evpx-accent-ink);
+	opacity: 1; /* dimming white on copper drops it below 4.5:1 */
 }
 
 .evpx-cta__title {
@@ -1019,7 +1056,58 @@
 	display: block;
 	height: 100%;
 	width: 100%;
-	background: var(--evpx-accent);
+	background: var(--evpx-accent-text);
 	transform: scaleX(0);
 	transform-origin: left center;
+}
+
+/* ----------------------------------------------------------------------
+   15. Hero entrance — no flash of final state before the animation.
+   The hero's content is held invisible only until evpx.js/motion.js mark it
+   ready; the keyframe is a pure-CSS failsafe so nothing stays hidden if
+   neither script ever runs (JS disabled, both files blocked). Reduced-motion
+   users never get the hold-back at all.
+   -------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+	.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__media,
+	.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__content > * {
+		opacity: 0;
+		animation: evpx-failsafe-reveal 0.01s linear 1.6s forwards;
+	}
+}
+
+@keyframes evpx-failsafe-reveal {
+	to {
+		opacity: 1;
+	}
+}
+
+/* ----------------------------------------------------------------------
+   16. No-JavaScript baseline. Everything that only works with a script
+   (collapsed FAQ answers, tab switching, the held-back hero entrance) falls
+   back to fully visible, fully readable content instead of dead controls.
+   -------------------------------------------------------------------- */
+
+@media (scripting: none) {
+	.evpx-faq__answer[hidden] {
+		display: block;
+	}
+
+	.evpx-faq__icon,
+	.evpx-comparison__tabs {
+		display: none;
+	}
+
+	.evpx-faq__question {
+		cursor: default;
+	}
+
+	/* Same selectors as the hold-back in section 15 (equal specificity, later
+	   in the file) so this actually wins. */
+	.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__media,
+	.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__content > * {
+		opacity: 1;
+		animation: none;
+	}
 }

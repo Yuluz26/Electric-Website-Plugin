@@ -27,7 +27,6 @@ final class Loader {
 	private static bool $active = false;
 
 	public const CSS_HANDLE     = 'evpx-styles';
-	public const FONTS_HANDLE   = 'evpx-fonts';
 	public const JS_HANDLE      = 'evpx-script';
 	public const GSAP_HANDLE    = 'evpx-gsap';
 	public const ST_HANDLE      = 'evpx-gsap-scrolltrigger';
@@ -52,34 +51,27 @@ final class Loader {
 
 	public function registerAssets(): void {
 		wp_register_style(
-			self::FONTS_HANDLE,
-			'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Libre+Franklin:wght@400;500;600;700&display=swap',
-			array(),
-			null
-		);
-
-		wp_register_style(
 			self::CSS_HANDLE,
 			EVPX_URL . 'assets/css/evpx.css',
-			array( self::FONTS_HANDLE ),
+			array(),
 			EVPX_VERSION
 		);
 
-		wp_register_script(
-			self::GSAP_HANDLE,
-			'https://cdnjs.cloudflare.com/ajax/libs/gsap/' . self::GSAP_VERSION . '/gsap.min.js',
-			array(),
-			self::GSAP_VERSION,
-			true
+		// GSAP is not bundled (its licence restricts redistribution inside
+		// products like page-builder add-ons), so it loads from cdnjs by
+		// default. Sites that need it self-hosted (strict CSP, privacy policy,
+		// offline) can point these filters at their own copy.
+		$gsap_src = apply_filters(
+			'evpx_gsap_src',
+			'https://cdnjs.cloudflare.com/ajax/libs/gsap/' . self::GSAP_VERSION . '/gsap.min.js'
+		);
+		$st_src = apply_filters(
+			'evpx_scrolltrigger_src',
+			'https://cdnjs.cloudflare.com/ajax/libs/gsap/' . self::GSAP_VERSION . '/ScrollTrigger.min.js'
 		);
 
-		wp_register_script(
-			self::ST_HANDLE,
-			'https://cdnjs.cloudflare.com/ajax/libs/gsap/' . self::GSAP_VERSION . '/ScrollTrigger.min.js',
-			array( self::GSAP_HANDLE ),
-			self::GSAP_VERSION,
-			true
-		);
+		wp_register_script( self::GSAP_HANDLE, $gsap_src, array(), self::GSAP_VERSION, true );
+		wp_register_script( self::ST_HANDLE, $st_src, array( self::GSAP_HANDLE ), self::GSAP_VERSION, true );
 
 		wp_register_script(
 			self::JS_HANDLE,
@@ -121,7 +113,7 @@ final class Loader {
 			$this->enqueueAll();
 			// <head> already closed for this request — force the stylesheet
 			// tags out now instead of silently shipping unstyled markup.
-			wp_print_styles( array( self::FONTS_HANDLE, self::CSS_HANDLE ) );
+			wp_print_styles( array( self::CSS_HANDLE ) );
 		}
 	}
 
@@ -144,7 +136,6 @@ final class Loader {
 	}
 
 	private function enqueueAll(): void {
-		wp_enqueue_style( self::FONTS_HANDLE );
 		wp_enqueue_style( self::CSS_HANDLE );
 		wp_enqueue_script( self::JS_HANDLE );
 		wp_enqueue_script( self::GSAP_HANDLE );

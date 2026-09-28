@@ -56,6 +56,17 @@
 		return true;
 	};
 
+	/**
+	 * The hero's entrance is held back in CSS until motion.js takes over
+	 * (data-evpx-ready). Whenever motion isn't going to run at all — builder
+	 * canvas, reduced motion, GSAP missing — release it so nothing stays hidden.
+	 */
+	EVPX.releaseHeroes = function () {
+		EVPX.each( '.evpx-hero[data-evpx-animate="1"]', document, function ( hero ) {
+			hero.setAttribute( 'data-evpx-ready', '1' );
+		} );
+	};
+
 	/** Runs `fn` once per matched element, skipping already-bound nodes. */
 	EVPX.each = function ( selector, root, fn ) {
 		var scope = root || document;
@@ -118,6 +129,7 @@
 				return;
 			}
 
+			var tabsWrap = comparison.querySelector( '.evpx-comparison__tabs' );
 			var tabs = comparison.querySelectorAll( '.evpx-comparison__tab' );
 			var panels = {
 				ac: comparison.querySelector( '.evpx-comparison__panel--ac' ),
@@ -128,6 +140,36 @@
 				tabs[ i ].addEventListener( 'click', function ( event ) {
 					var target = event.currentTarget.getAttribute( 'data-target' );
 					setComparisonState( comparison, tabs, panels, target );
+				} );
+			}
+
+			if ( tabsWrap ) {
+				tabsWrap.hidden = false; // rendered hidden: dead buttons without JS
+
+				// WAI-ARIA tabs pattern: arrow keys move between tabs, Home/End jump.
+				tabsWrap.addEventListener( 'keydown', function ( event ) {
+					var moves = { ArrowLeft: -1, ArrowRight: 1, Home: 'first', End: 'last' };
+					if ( ! ( event.key in moves ) ) {
+						return;
+					}
+
+					var index = Array.prototype.indexOf.call( tabs, document.activeElement );
+					if ( index < 0 ) {
+						return;
+					}
+
+					event.preventDefault();
+					var next;
+					if ( moves[ event.key ] === 'first' ) {
+						next = 0;
+					} else if ( moves[ event.key ] === 'last' ) {
+						next = tabs.length - 1;
+					} else {
+						next = ( index + moves[ event.key ] + tabs.length ) % tabs.length;
+					}
+
+					tabs[ next ].focus();
+					setComparisonState( comparison, tabs, panels, tabs[ next ].getAttribute( 'data-target' ) );
 				} );
 			}
 
@@ -144,6 +186,7 @@
 		for ( var i = 0; i < tabs.length; i++ ) {
 			var isActive = tabs[ i ].getAttribute( 'data-target' ) === target;
 			tabs[ i ].setAttribute( 'aria-selected', isActive ? 'true' : 'false' );
+			tabs[ i ].setAttribute( 'tabindex', isActive ? '0' : '-1' );
 			tabs[ i ].classList.toggle( 'evpx-comparison__tab--active', isActive );
 		}
 
@@ -169,6 +212,10 @@
 	function init( root ) {
 		initFaq( root );
 		initComparison( root );
+
+		if ( ! EVPX.motionAllowed() ) {
+			EVPX.releaseHeroes();
+		}
 	}
 
 	if ( document.readyState === 'loading' ) {

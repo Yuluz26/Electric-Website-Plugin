@@ -20,11 +20,19 @@
 	}
 	EVPX.__motionInitialized = true;
 
+	function release() {
+		if ( EVPX.releaseHeroes ) {
+			EVPX.releaseHeroes();
+		}
+	}
+
 	if ( typeof window.gsap === 'undefined' ) {
-		return; // No GSAP on the page — baseline vanilla behaviour stands.
+		release(); // No GSAP on the page — baseline vanilla behaviour stands.
+		return;
 	}
 
 	if ( ! EVPX.motionAllowed || ! EVPX.motionAllowed() ) {
+		release();
 		return;
 	}
 
@@ -50,25 +58,28 @@
 	   ------------------------------------------------------------------ */
 	function heroReveal() {
 		EVPX.each( '.evpx-hero[data-evpx-animate="1"]', document, function ( hero ) {
-			var eyebrow = hero.querySelector( '.evpx-eyebrow' );
-			var title = hero.querySelector( '.evpx-hero__title' );
-			var meta = hero.querySelector( '.evpx-hero__meta' );
 			var media = hero.querySelector( '.evpx-hero__media' );
+			var items = hero.querySelectorAll( '.evpx-hero__content > *' );
 
 			var tl = gsap.timeline( { defaults: { ease: EASE } } );
 
 			if ( media ) {
-				tl.fromTo( media, { autoAlpha: 0, scale: 1.04 }, { autoAlpha: 1, scale: 1, duration: 1.2 }, 0 );
+				tl.fromTo( media, { autoAlpha: 0, scale: 1.04 }, { autoAlpha: 1, scale: 1, duration: 1.2, clearProps: 'transform' }, 0 );
 			}
-			if ( eyebrow ) {
-				tl.fromTo( eyebrow, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.2 );
+			if ( items.length ) {
+				tl.fromTo(
+					items,
+					{ autoAlpha: 0, y: 20 },
+					// clearProps: GSAP's leftover inline transform would otherwise
+					// beat the CSS :hover transform on the CTA button.
+					{ autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.1, clearProps: 'transform' },
+					0.2
+				);
 			}
-			if ( title ) {
-				tl.fromTo( title, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.32 );
-			}
-			if ( meta ) {
-				tl.fromTo( meta, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.5 );
-			}
+
+			// The timeline has already applied its from-state inline, so the
+			// CSS hold-back (see "Hero entrance" in evpx.css) can let go now.
+			hero.setAttribute( 'data-evpx-ready', '1' );
 		} );
 	}
 
@@ -80,7 +91,16 @@
 			return;
 		}
 
+		var fold = window.innerHeight * 0.85;
+
 		EVPX.each( '[data-evpx-reveal]', document, function ( el ) {
+			// Already on screen at load: hiding it just to fade it back in
+			// reads as a flicker, so leave it be. Only content that starts
+			// below the fold is held back and revealed on approach.
+			if ( el.getBoundingClientRect().top < fold ) {
+				return;
+			}
+
 			track(
 				gsap.fromTo(
 					el,
@@ -90,6 +110,7 @@
 						y: 0,
 						duration: 0.9,
 						ease: EASE,
+						clearProps: 'transform', // keep CSS :hover transforms working
 						scrollTrigger: {
 							trigger: el,
 							start: 'top 85%',
@@ -123,7 +144,7 @@
 					.fromTo(
 						steps,
 						{ autoAlpha: 0, y: 16 },
-						{ autoAlpha: 1, y: 0, duration: 0.5, ease: EASE, stagger: 0.12 }
+						{ autoAlpha: 1, y: 0, duration: 0.5, ease: EASE, stagger: 0.12, clearProps: 'transform' }
 					).scrollTrigger
 			);
 		} );

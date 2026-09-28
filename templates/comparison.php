@@ -6,6 +6,7 @@
  * @var string $accent_treatment
  * @var string $animation_intensity
  * @var string $mobile_mode
+ * @var string $id Unique per instance; ties each tab to its panel.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -26,14 +27,18 @@ $panels = array(
 >
 	<div class="evpx-container">
 		<?php if ( 'toggle' === $mode ) : ?>
-			<div class="evpx-comparison__tabs" role="tablist" aria-label="<?php esc_attr_e( 'Charging type', 'ev-charging-experience' ); ?>">
+			<?php // Rendered hidden: without JS the tabs would be dead buttons, so evpx.js reveals them when it takes over. ?>
+			<div class="evpx-comparison__tabs" role="tablist" hidden aria-label="<?php esc_attr_e( 'Charging type', 'ev-charging-experience' ); ?>">
 				<?php foreach ( $panels as $key => $panel ) : ?>
 					<button
 						type="button"
 						class="evpx-comparison__tab evpx-comparison__tab--<?php echo esc_attr( $key ); ?><?php echo 'ac' === $key ? ' evpx-comparison__tab--active' : ''; ?>"
 						role="tab"
+						id="<?php echo esc_attr( $id . '-tab-' . $key ); ?>"
+						aria-controls="<?php echo esc_attr( $id . '-panel-' . $key ); ?>"
 						data-target="<?php echo esc_attr( $key ); ?>"
 						aria-selected="<?php echo 'ac' === $key ? 'true' : 'false'; ?>"
+						tabindex="<?php echo 'ac' === $key ? '0' : '-1'; ?>"
 					>
 						<?php echo esc_html( $panel['title'] ); ?>
 					</button>
@@ -43,9 +48,13 @@ $panels = array(
 
 		<div class="evpx-comparison__panels">
 			<?php foreach ( $panels as $key => $panel ) : ?>
-				<article
+				<div
 					class="evpx-comparison__panel evpx-comparison__panel--<?php echo esc_attr( $key ); ?><?php echo 'ac' === $key ? ' evpx-comparison__panel--active' : ''; ?>"
-					role="tabpanel"
+					<?php if ( 'toggle' === $mode ) : ?>
+						id="<?php echo esc_attr( $id . '-panel-' . $key ); ?>"
+						role="tabpanel"
+						aria-labelledby="<?php echo esc_attr( $id . '-tab-' . $key ); ?>"
+					<?php endif; ?>
 				>
 					<h3 class="evpx-heading evpx-comparison__title"><?php echo esc_html( $panel['title'] ); ?></h3>
 
@@ -67,7 +76,7 @@ $panels = array(
 							<dd><?php echo esc_html( $panel['best_for'] ); ?></dd>
 						</div>
 					</dl>
-				</article>
+				</div>
 			<?php endforeach; ?>
 		</div>
 	</div>
