@@ -18,7 +18,7 @@ $has_any_image = (bool) array_filter( array_column( $items, 'image_html' ) );
 <section class="evpx-root alignfull evpx-related">
 	<div class="evpx-container">
 		<?php if ( $eyebrow || $heading ) : ?>
-			<div class="evpx-related__intro" <?php echo $animate ? 'data-evpx-reveal' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static string ?>>
+			<div class="evpx-related__intro" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
 				<?php if ( $eyebrow ) : ?><p class="evpx-eyebrow"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>
 				<?php if ( $heading ) : ?><h2 class="evpx-heading evpx-related__heading"><?php echo esc_html( $heading ); ?></h2><?php endif; ?>
 			</div>

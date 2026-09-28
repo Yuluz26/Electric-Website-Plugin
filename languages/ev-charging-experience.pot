@@ -1,0 +1,614 @@
+# Copyright (C) 2026 Marco Polo Supplies
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: EV Charging Experience 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ev-charging-experience\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-28T23:34:06+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: ev-charging-experience\n"
+
+#. Plugin Name of the plugin
+#: ev-charging-experience.php
+#: src/Admin/Notices.php:39
+#: src/Breakdance/Fields/ReadingTimeField.php:23
+#: src/Elements/Registry.php:46
+msgid "EV Charging Experience"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: ev-charging-experience.php
+msgid "https://marcopolosupplies.com/"
+msgstr ""
+
+#. Description of the plugin
+#: ev-charging-experience.php
+msgid "Premium, neumorphic, editorial EV-charging article components for WordPress + Breakdance. Adds capabilities to Breakdance; never overrides it."
+msgstr ""
+
+#. Author of the plugin
+#: ev-charging-experience.php
+msgid "Marco Polo Supplies"
+msgstr ""
+
+#. translators: 1: required PHP version, 2: current PHP version
+#: ev-charging-experience.php:69
+#, php-format
+msgid "EV Charging Experience requires PHP %1$s or higher. You are running %2$s. The plugin has been deactivated."
+msgstr ""
+
+#. translators: %s: plugin name
+#: src/Admin/Notices.php:38
+#, php-format
+msgid "<strong>%s</strong> is active and its shortcodes/blocks work on any WordPress site. Breakdance was not detected — install it to also unlock the Element Studio bridge (see the plugin's docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md)."
+msgstr ""
+
+#: src/Breakdance/Fields/ReadingTimeField.php:19
+msgid "EV Reading Time"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:19
+msgid "EV AC/DC Comparison"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:24
+msgid "AC title"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:24
+msgid "AC Charging"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:25
+msgid "AC description"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:26
+msgid "AC power range"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:27
+msgid "AC dwell-time label"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:27
+msgid "Best for 2+ hour stays"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:28
+msgid "AC best-for"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:28
+msgid "Workplaces, hotels, residential"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:30
+msgid "DC title"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:30
+msgid "DC Fast Charging"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:31
+msgid "DC description"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:32
+msgid "DC power range"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:33
+msgid "DC dwell-time label"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:33
+msgid "Best for under 45 minutes"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:34
+msgid "DC best-for"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:34
+msgid "Highway corridors, fleet depots, retail"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:38
+msgid "Interaction mode"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:43
+msgid "Toggle (tabs)"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:44
+msgid "Side-by-side"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:49
+msgid "Accent treatment"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:54
+msgid "Split accent (AC blue / DC copper)"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:55
+msgid "Neutral"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:58
+msgid "Animation intensity"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:59
+msgid "Standard"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:60
+msgid "Subtle"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:61
+msgid "Off"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:63
+msgid "Mobile layout"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:64
+msgid "Tabs"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:65
+msgid "Stacked cards"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:18
+msgid "EV CTA"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:23
+#: src/Elements/Widgets/DecisionFactors.php:24
+#: src/Elements/Widgets/Faq.php:24
+#: src/Elements/Widgets/RelatedArticles.php:27
+#: src/Elements/Widgets/ScenarioCards.php:24
+#: src/Elements/Widgets/Section.php:23
+msgid "Eyebrow"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:24
+#: src/Elements/Widgets/Hero.php:25
+#: src/Elements/Widgets/ScenarioCard.php:25
+msgid "Title"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:24
+msgid "Plan the charging system around how your site actually works."
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:25
+msgid "Body"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:26
+msgid "Button label"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:26
+msgid "Start the conversation"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:27
+msgid "Button URL"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:28
+msgid "Background media"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:31
+msgid "Visual variant"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:36
+msgid "Accent (copper)"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:37
+msgid "Dark"
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:38
+msgid "Media background"
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactor.php:19
+msgid "EV Decision Factor"
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactor.php:24
+msgid "Factor"
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactor.php:25
+#: src/Elements/Widgets/ScenarioCard.php:26
+msgid "Description"
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactor.php:26
+msgid "Question to ask"
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactors.php:19
+msgid "EV Decision Factors"
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactors.php:25
+#: src/Elements/Widgets/Faq.php:25
+#: src/Elements/Widgets/RelatedArticles.php:28
+#: src/Elements/Widgets/ScenarioCards.php:25
+#: src/Elements/Widgets/Section.php:24
+#: src/Elements/Widgets/TechnicalFlow.php:32
+msgid "Heading"
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactors.php:26
+msgid "Intro"
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactors.php:27
+#: src/Elements/Widgets/RelatedArticles.php:54
+#: src/Elements/Widgets/ScenarioCards.php:30
+#: src/Elements/Widgets/Section.php:53
+msgid "Enable scroll reveal"
+msgstr ""
+
+#: src/Elements/Widgets/Faq.php:19
+msgid "EV FAQ"
+msgstr ""
+
+#: src/Elements/Widgets/Faq.php:24
+msgid "FAQ"
+msgstr ""
+
+#: src/Elements/Widgets/Faq.php:25
+msgid "Common Questions"
+msgstr ""
+
+#: src/Elements/Widgets/Faq.php:26
+msgid "Output FAQPage schema (disable if an SEO plugin already handles FAQ schema)"
+msgstr ""
+
+#: src/Elements/Widgets/Faq.php:27
+msgid "Enable panel animation"
+msgstr ""
+
+#: src/Elements/Widgets/FaqItem.php:19
+msgid "EV FAQ Item"
+msgstr ""
+
+#: src/Elements/Widgets/FaqItem.php:24
+msgid "Question"
+msgstr ""
+
+#: src/Elements/Widgets/FaqItem.php:25
+msgid "Answer"
+msgstr ""
+
+#: src/Elements/Widgets/FaqItem.php:26
+msgid "Open by default"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:19
+msgid "EV Article Hero"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:24
+msgid "Category label"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:24
+msgid "EV Infrastructure"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:25
+msgid "Choosing AC or DC Charging for Your Site"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:26
+msgid "Dek / summary"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:27
+msgid "Author"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:28
+msgid "Published date"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:29
+msgid "Reading time (blank = auto)"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:30
+msgid "Hero media"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:31
+#: src/Elements/Widgets/Section.php:27
+msgid "Media alt text override"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:32
+#: src/Elements/Widgets/ScenarioCard.php:30
+msgid "CTA label"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:33
+#: src/Elements/Widgets/ScenarioCard.php:31
+msgid "CTA URL"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:36
+msgid "Visual mode"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:41
+msgid "Dark (cinematic)"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:42
+msgid "Light"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:43
+msgid "Follow system"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:46
+msgid "Enable entrance animation"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:49
+msgid "Title heading level (use h2 if your theme already prints the page title as h1)"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:54
+msgid "h1"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:55
+msgid "h2"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:58
+msgid "Show reading progress bar"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:22
+msgid "EV Related Articles"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:27
+msgid "Keep reading"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:28
+msgid "Related articles"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:31
+msgid "Which articles"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:36
+msgid "Same category as this page (falls back to latest)"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:37
+msgid "Latest published"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:38
+msgid "Hand-picked by ID"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:41
+msgid "Post IDs, comma-separated (hand-picked only)"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:42
+msgid "Post type"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:45
+msgid "How many"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:50
+#: src/Elements/Widgets/ScenarioCards.php:27
+msgid "2"
+msgstr ""
+
+#: src/Elements/Widgets/RelatedArticles.php:51
+#: src/Elements/Widgets/ScenarioCards.php:28
+msgid "3"
+msgstr ""
+
+#: src/Elements/Widgets/ScenarioCard.php:19
+msgid "EV Scenario Card"
+msgstr ""
+
+#: src/Elements/Widgets/ScenarioCard.php:24
+msgid "Scenario label"
+msgstr ""
+
+#: src/Elements/Widgets/ScenarioCard.php:27
+msgid "Icon / media"
+msgstr ""
+
+#: src/Elements/Widgets/ScenarioCard.php:28
+#: templates/scenario-card.php:35
+msgid "Key requirement"
+msgstr ""
+
+#: src/Elements/Widgets/ScenarioCard.php:29
+msgid "Recommended charging approach"
+msgstr ""
+
+#: src/Elements/Widgets/ScenarioCards.php:19
+msgid "EV Scenario Cards"
+msgstr ""
+
+#: src/Elements/Widgets/ScenarioCards.php:26
+msgid "Columns (desktop)"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:18
+msgid "EV Section"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:25
+msgid "Body copy"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:26
+msgid "Media"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:30
+msgid "Layout"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:35
+msgid "Text left, media right"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:36
+msgid "Media left, text right"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:37
+msgid "Media above text"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:38
+msgid "Text only"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:43
+msgid "Surface treatment"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:48
+msgid "Flat (editorial)"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:49
+msgid "Raised (neumorphic)"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:50
+msgid "Recessed (neumorphic)"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:19
+msgid "EV Technical Flow"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:24
+msgid "Grid"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:25
+msgid "Site Infrastructure"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:26
+msgid "Charger"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:27
+msgid "Vehicle"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:28
+msgid "Battery"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:32
+msgid "How Charging Reaches the Vehicle"
+msgstr ""
+
+#. translators: %d: step number
+#: src/Elements/Widgets/TechnicalFlow.php:39
+#, php-format
+msgid "Step %d label"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:48
+msgid "Direction"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:53
+msgid "Horizontal"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:54
+msgid "Vertical"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:57
+msgid "Compact mode"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:58
+msgid "Enable sequence animation"
+msgstr ""
+
+#. translators: %d: number of minutes
+#: src/Support/ReadingTime.php:29
+#, php-format
+msgid "%d min read"
+msgid_plural "%d min read"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/comparison.php:31
+msgid "Charging type"
+msgstr ""
+
+#: templates/comparison.php:67
+msgid "Power range"
+msgstr ""
+
+#: templates/comparison.php:71
+msgid "Dwell time"
+msgstr ""
+
+#: templates/comparison.php:75
+msgid "Best for"
+msgstr ""
+
+#: templates/decision-factor.php:20
+msgid "Ask"
+msgstr ""
+
+#: templates/related-empty.php:10
+msgid "Related articles will appear here once other published posts match. Visitors see nothing until then."
+msgstr ""
+
+#: templates/scenario-card.php:38
+msgid "Recommended approach"
+msgstr ""

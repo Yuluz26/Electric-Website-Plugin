@@ -44,6 +44,17 @@ final class Hero extends Element {
 				),
 			),
 			array( 'key' => 'animate', 'label' => __( 'Enable entrance animation', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true ),
+			array(
+				'key'     => 'title_tag',
+				'label'   => __( 'Title heading level (use h2 if your theme already prints the page title as h1)', 'ev-charging-experience' ),
+				'type'    => 'select',
+				'group'   => 'advanced',
+				'default' => 'h1',
+				'options' => array(
+					'h1' => __( 'h1', 'ev-charging-experience' ),
+					'h2' => __( 'h2', 'ev-charging-experience' ),
+				),
+			),
 			array( 'key' => 'progress_bar', 'label' => __( 'Show reading progress bar', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true ),
 		);
 	}
@@ -70,6 +81,7 @@ final class Hero extends Element {
 			array(
 				'category'     => $atts['category'],
 				'title'        => $atts['title'],
+				'title_tag'    => $atts['title_tag'],
 				'excerpt'      => $this->autop( $atts['excerpt'] ),
 				'author'       => $atts['author'],
 				'date'         => $atts['date'],

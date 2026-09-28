@@ -2,6 +2,7 @@
 /**
  * @var string $category
  * @var string $title
+ * @var string $title_tag h1|h2 (whitelisted by the control's options)
  * @var string $excerpt HTML, already wpautop'd + kses'd.
  * @var string $author
  * @var string $date
@@ -38,7 +39,7 @@ $has_meta = $author || $date || $reading_time;
 			<p class="evpx-eyebrow"><?php echo esc_html( $category ); ?></p>
 		<?php endif; ?>
 
-		<h1 class="evpx-heading evpx-hero__title"><?php echo esc_html( $title ); ?></h1>
+		<<?php echo esc_attr( tag_escape( $title_tag ) ); ?> class="evpx-heading evpx-hero__title"><?php echo esc_html( $title ); ?></<?php echo esc_attr( tag_escape( $title_tag ) ); ?>>
 
 		<?php if ( $excerpt ) : ?>
 			<div class="evpx-body evpx-hero__excerpt"><?php echo $excerpt; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wpautop + wp_kses_post already applied */ ?></div>

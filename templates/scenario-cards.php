@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <section class="evpx-root alignfull evpx-scenarios">
 	<div class="evpx-container">
 		<?php if ( $eyebrow || $heading ) : ?>
-			<div class="evpx-scenarios__intro" <?php echo $animate ? 'data-evpx-reveal' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<div class="evpx-scenarios__intro" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
 				<?php if ( $eyebrow ) : ?><p class="evpx-eyebrow"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>
 				<?php if ( $heading ) : ?><h2 class="evpx-heading evpx-scenarios__heading"><?php echo esc_html( $heading ); ?></h2><?php endif; ?>
 			</div>

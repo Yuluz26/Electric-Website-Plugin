@@ -22,6 +22,8 @@ rm -rf \
 	"${STAGE_DIR}/.claude" \
 	"${STAGE_DIR}/.agents" \
 	"${STAGE_DIR}/skills-lock.json" \
+	"${STAGE_DIR}/phpcs.xml.dist" \
+	"${STAGE_DIR}/composer.lock" \
 	"${STAGE_DIR}/tests" \
 	"${STAGE_DIR}/dist" \
 	"${STAGE_DIR}/node_modules" \

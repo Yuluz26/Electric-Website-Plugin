@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 >
 	<div class="evpx-container">
 		<?php if ( $heading ) : ?>
-			<h2 class="evpx-heading evpx-flow__heading" <?php echo $animate ? 'data-evpx-reveal' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<h2 class="evpx-heading evpx-flow__heading" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
 				<?php echo esc_html( $heading ); ?>
 			</h2>
 		<?php endif; ?>

@@ -214,8 +214,8 @@ abstract class Element {
 		return $schema;
 	}
 
-	protected function jsonSchemaType( string $controlType ): string {
-		switch ( $controlType ) {
+	protected function jsonSchemaType( string $control_type ): string {
+		switch ( $control_type ) {
 			case 'toggle':
 				return 'boolean';
 			case 'number':

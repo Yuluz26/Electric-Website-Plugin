@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<ruleset name="EV Charging Experience">
+	<description>WordPress coding standards for the EV Charging Experience plugin.</description>
+
+	<file>ev-charging-experience.php</file>
+	<file>src</file>
+	<file>templates</file>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="ps"/>
+
+	<rule ref="WordPress-Core">
+		<!-- PSR-4 class files (Element.php, not class-element.php) are a deliberate choice. -->
+		<exclude name="WordPress.Files.FileName"/>
+		<!-- PSR-4 camelCase method names, per the project's "PSR-style organisation" brief. -->
+		<exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+		<!-- Each control is one compact line in controls(); expanding ~70 of them to
+		     6-7 lines apiece would bury the schema that is the point of that method. -->
+		<exclude name="WordPress.Arrays.ArrayDeclarationSpacing"/>
+		<exclude name="WordPress.Arrays.MultipleStatementAlignment"/>
+		<exclude name="WordPress.Arrays.ArrayIndentation"/>
+		<exclude name="NormalizedArrays.Arrays"/>
+		<exclude name="Generic.Formatting.MultipleStatementAlignment"/>
+	</rule>
+	<rule ref="WordPress-Extra"/>
+
+	<!-- Every global must carry the plugin prefix. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="EVPX"/>
+				<element value="evpx"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="ev-charging-experience"/>
+			</property>
+		</properties>
+	</rule>
+
+	<config name="minimum_supported_wp_version" value="6.0"/>
+
+	<!-- Header promises PHP 7.4+. -->
+	<rule ref="PHPCompatibilityWP"/>
+	<config name="testVersion" value="7.4-"/>
+
+	<!-- The alternative-syntax one-liners templates use (<?php if ( $x ) : ?><p>..</p><?php endif; ?>)
+	     make this sniff demand a newline inside the PHP tag, which is uglier, not cleaner. -->
+	<rule ref="Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace">
+		<exclude-pattern>templates/*</exclude-pattern>
+	</rule>
+
+	<!-- Templates are included from Element::view() with variables extract()ed into scope. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
+		<exclude-pattern>templates/*</exclude-pattern>
+	</rule>
+</ruleset>

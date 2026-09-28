@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="evpx-container evpx-section__grid">
 		<div
 			class="evpx-section__text evpx-surface--<?php echo esc_attr( $surface ); ?>"
-			<?php echo $animate ? 'data-evpx-reveal' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static string ?>
+			<?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>
 		>
 			<?php if ( $eyebrow ) : ?>
 				<p class="evpx-eyebrow"><?php echo esc_html( $eyebrow ); ?></p>
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<?php if ( $media_html ) : ?>
-			<div class="evpx-section__media" <?php echo $animate ? 'data-evpx-reveal' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<div class="evpx-section__media" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
 				<?php echo $media_html; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() output */ ?>
 			</div>
 		<?php endif; ?>
