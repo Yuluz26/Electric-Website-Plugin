@@ -19,6 +19,9 @@ final class Registry {
 			new Widgets\TechnicalFlow(),
 			new Widgets\Faq(),
 			new Widgets\FaqItem(),
+			new Widgets\DecisionFactors(),
+			new Widgets\DecisionFactor(),
+			new Widgets\RelatedArticles(),
 			new Widgets\Cta(),
 		);
 	}

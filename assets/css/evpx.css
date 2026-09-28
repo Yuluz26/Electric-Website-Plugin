@@ -1062,6 +1062,220 @@
 }
 
 /* ----------------------------------------------------------------------
+   13. Decision Factors — numbered editorial list, deliberately flat: after
+   the neumorphic comparison and scenario cards this section is where the
+   page should read quietly and be easy to scan.
+   -------------------------------------------------------------------- */
+
+.evpx-decision {
+	padding-block: var(--evpx-space-24);
+}
+
+.evpx-decision__grid {
+	display: grid;
+	gap: var(--evpx-space-12);
+	align-items: start;
+}
+
+.evpx-decision__heading {
+	font-size: var(--evpx-size-heading);
+	margin-top: var(--evpx-space-3);
+}
+
+.evpx-decision__lede {
+	margin-top: var(--evpx-space-4);
+}
+
+.evpx-decision__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	counter-reset: evpx-factor;
+}
+
+.evpx-decision__item {
+	counter-increment: evpx-factor;
+	display: grid;
+	grid-template-columns: 3rem 1fr;
+	column-gap: var(--evpx-space-4);
+	padding-block: var(--evpx-space-6);
+	border-top: 1px solid var(--evpx-border);
+}
+
+.evpx-decision__item:last-child {
+	border-bottom: 1px solid var(--evpx-border);
+}
+
+.evpx-decision__item::before {
+	content: counter(evpx-factor, decimal-leading-zero);
+	grid-row: 1 / span 3;
+	font-family: var(--evpx-font-display);
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 1.2;
+	font-variant-numeric: tabular-nums;
+	color: var(--evpx-accent-text);
+}
+
+.evpx-decision__title {
+	grid-column: 2;
+	margin: 0;
+	font-family: var(--evpx-font-display);
+	font-size: 1.25rem;
+	font-weight: 600;
+	line-height: 1.25;
+	color: var(--evpx-ink);
+}
+
+.evpx-decision__description {
+	grid-column: 2;
+	margin-top: var(--evpx-space-2);
+	font-size: 0.9375rem;
+}
+
+.evpx-decision__question {
+	grid-column: 2;
+	margin: var(--evpx-space-3) 0 0;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	color: var(--evpx-ink);
+}
+
+.evpx-decision__ask {
+	margin-inline-end: var(--evpx-space-2);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--evpx-ink-faint);
+}
+
+@media (min-width: 1024px) {
+	.evpx-decision__grid {
+		grid-template-columns: 5fr 7fr;
+		gap: var(--evpx-space-16);
+	}
+
+	.evpx-decision__intro {
+		position: sticky;
+		top: var(--evpx-space-12);
+	}
+}
+
+/* ----------------------------------------------------------------------
+   14. Related Articles
+   -------------------------------------------------------------------- */
+
+.evpx-related {
+	padding-block: var(--evpx-space-24);
+}
+
+.evpx-related__intro {
+	max-width: 40rem;
+	margin-bottom: var(--evpx-space-12);
+}
+
+.evpx-related__heading {
+	font-size: var(--evpx-size-heading);
+	margin-top: var(--evpx-space-3);
+}
+
+.evpx-related__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: var(--evpx-space-12) var(--evpx-space-8);
+	grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+	.evpx-related__list--cols-2,
+	.evpx-related__list--cols-3 {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (min-width: 1024px) {
+	.evpx-related__list--cols-3 {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+.evpx-related__item {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--evpx-space-4);
+	padding-top: var(--evpx-space-4);
+	border-top: 1px solid var(--evpx-border);
+}
+
+.evpx-related__media {
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+	border-radius: var(--evpx-radius-md);
+}
+
+.evpx-related__image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform var(--evpx-dur-section) var(--evpx-ease-premium);
+}
+
+.evpx-related__item:hover .evpx-related__image {
+	transform: scale(1.04);
+}
+
+.evpx-related__category {
+	margin: 0;
+}
+
+.evpx-related__title {
+	margin: var(--evpx-space-2) 0 0;
+	font-family: var(--evpx-font-display);
+	font-size: 1.25rem;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.evpx-related__link {
+	color: var(--evpx-ink);
+	text-decoration: none;
+}
+
+/* Stretched link: the whole card is clickable while the link's accessible
+   name stays just the article title. */
+.evpx-related__link::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+}
+
+.evpx-related__excerpt {
+	margin: var(--evpx-space-3) 0 0;
+	font-size: 0.9375rem;
+	color: var(--evpx-ink-muted);
+}
+
+.evpx-related__date {
+	display: block;
+	margin-top: var(--evpx-space-3);
+	font-size: 0.8125rem;
+	color: var(--evpx-ink-faint);
+}
+
+.evpx-related__empty {
+	margin: 0;
+	padding: var(--evpx-space-6);
+	font-size: 0.875rem;
+	color: var(--evpx-ink-muted);
+	border: 1px dashed var(--evpx-border);
+	border-radius: var(--evpx-radius-md);
+}
+
+/* ----------------------------------------------------------------------
    15. Hero entrance — no flash of final state before the animation.
    The hero's content is held invisible only until evpx.js/motion.js mark it
    ready; the keyframe is a pure-CSS failsafe so nothing stays hidden if
