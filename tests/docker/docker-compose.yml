@@ -1,5 +1,3 @@
-version: '3.8'
-
 # Local QA environment only — not shipped in the plugin ZIP.
 # Usage: docker compose -f tests/docker/docker-compose.yml up -d
 

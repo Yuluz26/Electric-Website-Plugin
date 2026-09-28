@@ -18,6 +18,14 @@ and fetched over HTTP. A headless Chromium session (Playwright) then:
 - Inspected computed grid layout (`grid-template-columns`, each card's
   bounding box) to confirm the Scenario Cards grid actually lays out in
   clean, aligned rows.
+- Installed the packaged `dist/ev-charging-experience.zip` as a completely
+  separate plugin directory (simulating a real "upload the ZIP on another
+  site" install, no dev tooling) and confirmed it activates and renders
+  identically.
+
+This is now a repeatable script, not one-off manual testing:
+`tests/playwright/qa.mjs <url>` (see the file header for setup). It
+currently asserts 6 checks and takes 4-breakpoint screenshots.
 
 ## Results
 
@@ -70,6 +78,27 @@ and fetched over HTTP. A headless Chromium session (Playwright) then:
    content width. Fixed by adding WordPress's own standard `alignfull`
    class to every top-level widget wrapper — the theme's built-in escape
    hatch, not a custom override.
+5. **Reading progress bar was dead code.** `motion.js` had a
+   `readingProgress()` function looking for a `.evpx-article[data-evpx-progress]`
+   wrapper that no widget ever rendered — the feature the PRD calls "EV
+   Article Progress" simply didn't exist on the page. Added a
+   `progress_bar` toggle to the Hero widget (on by default) that renders a
+   fixed-position bar, and reworked the JS to track whole-document scroll
+   instead of depending on a wrapper element that didn't match this
+   plugin's independent-widgets architecture.
+6. **A CSS specificity red herring worth recording.** While re-verifying
+   fix #4, the Hero's own `.evpx-container` measured 736px instead of the
+   expected ~1200px — looked identical to the original bug. It wasn't:
+   `.evpx-hero__content` (the same element) has its own, more specific,
+   *intentional* `max-width: 46rem` for a readable text column against a
+   full-bleed image, and 46rem = 736px exactly. Confirmed via Chrome
+   DevTools Protocol's `CSS.getMatchedStylesForNode` rather than guessing
+   further. `.evpx-container` did get one genuine hardening fix out of
+   this (`width: 100%`, since a flex/grid parent would otherwise shrink it
+   to fit content instead of filling to `max-width` — harmless where that
+   wasn't happening, correct where it was), and the QA script's assertion
+   was corrected to check the `alignfull` wrapper directly instead of an
+   inner content column, so it can't be fooled by this again.
 
 ## What is explicitly NOT verified
 
@@ -89,6 +118,14 @@ testing and should be checked on a real Breakdance install:
   observed against Breakdance's actual canvas.
 - Interaction with a caching/minification plugin, or with Breakdance Zero
   theme specifically.
+
+Separately, this sandbox's own network policy blocks cdnjs.cloudflare.com,
+so GSAP never actually loads here — meaning every GSAP-driven animation
+(hero reveal, section reveals, comparison transition, FAQ panel motion,
+and the reading progress bar's fill) is verified only for *graceful
+absence* (no console errors, no visually broken state, correct static
+fallback), not for the animation itself actually playing correctly. That
+needs a five-minute look on a real site with normal internet access.
 
 None of these gaps are expected to be a problem given the integration
 approach (shortcode/block via documented WordPress APIs, no Breakdance

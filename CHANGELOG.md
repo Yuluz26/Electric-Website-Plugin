@@ -24,3 +24,8 @@
 - Full demo article (rephrased AC/DC charging content, not copied from any
   reference) assembled and QA'd end-to-end in a real WordPress + Docker
   environment; see `docs/QA-REPORT.md`.
+- Hero's `progress_bar` toggle now renders the reading-progress bar the
+  motion layer was already built to drive (previously dead code — nothing
+  rendered the element it looked for).
+- Reusable QA script (`tests/playwright/qa.mjs`) replacing one-off manual
+  Playwright checks — 6 automated assertions plus 4-breakpoint screenshots.

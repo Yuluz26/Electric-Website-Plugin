@@ -44,6 +44,7 @@ final class Hero extends Element {
 				),
 			),
 			array( 'key' => 'animate', 'label' => __( 'Enable entrance animation', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true ),
+			array( 'key' => 'progress_bar', 'label' => __( 'Show reading progress bar', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true ),
 		);
 	}
 
@@ -78,6 +79,7 @@ final class Hero extends Element {
 				'cta_url'      => $atts['cta_url'],
 				'visual_mode'  => $atts['visual_mode'],
 				'animate'      => $atts['animate'],
+				'progress_bar' => $atts['progress_bar'],
 			)
 		);
 	}

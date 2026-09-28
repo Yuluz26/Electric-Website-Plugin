@@ -22,6 +22,7 @@ Layout, Visual, Motion, Responsive, Advanced.
 | `cta_label` / `cta_url` | text / url | content | — |
 | `visual_mode` | select: dark/light/auto | visual | dark |
 | `animate` | toggle | motion | true |
+| `progress_bar` | toggle | motion | true — fixed top-of-viewport bar tracking scroll through the whole page |
 
 ## EV Section — `[evpx_section]` / `evpx/section`
 

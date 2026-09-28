@@ -11,6 +11,7 @@
  * @var string $cta_url
  * @var string $visual_mode
  * @var bool   $animate
+ * @var bool   $progress_bar
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,6 +20,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $has_meta = $author || $date || $reading_time;
 ?>
+<?php if ( $progress_bar ) : ?>
+	<div class="evpx-root evpx-progress" aria-hidden="true"><span class="evpx-progress__fill"></span></div>
+<?php endif; ?>
 <header
 	class="evpx-root alignfull evpx-hero"
 	data-evpx-hero-mode="<?php echo esc_attr( $visual_mode ); ?>"

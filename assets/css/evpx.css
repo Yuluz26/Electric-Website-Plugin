@@ -136,6 +136,8 @@
 }
 
 .evpx-container {
+	width: 100%; /* without this, a flex/grid parent (e.g. .evpx-hero) shrinks
+	                this to fit its content instead of filling to max-width */
 	max-width: var(--evpx-max-width);
 	margin-inline: auto;
 	padding-inline: var(--evpx-space-6);
@@ -996,4 +998,28 @@
 	.evpx-comparison--mobile-stacked .evpx-comparison__panel--hidden {
 		display: block;
 	}
+}
+
+/* ----------------------------------------------------------------------
+   12. Reading progress bar (Hero's `progress_bar` toggle)
+   -------------------------------------------------------------------- */
+
+.evpx-progress {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: transparent;
+	z-index: 9999;
+	pointer-events: none;
+}
+
+.evpx-progress__fill {
+	display: block;
+	height: 100%;
+	width: 100%;
+	background: var(--evpx-accent);
+	transform: scaleX(0);
+	transform-origin: left center;
 }

@@ -137,15 +137,14 @@
 			return;
 		}
 
-		EVPX.each( '.evpx-article[data-evpx-progress]', document, function ( article ) {
-			var bar = article.querySelector( '.evpx-progress__fill' );
-			if ( ! bar ) {
-				return;
-			}
-
+		// Tracks the whole page, not one widget's container — the Hero's
+		// progress_bar toggle renders a single fixed-position bar meant to
+		// reflect scroll through the entire article, however many EV
+		// widgets happen to make it up.
+		EVPX.each( '.evpx-progress__fill', document, function ( bar ) {
 			track(
 				ScrollTrigger.create( {
-					trigger: article,
+					trigger: document.documentElement,
 					start: 'top top',
 					end: 'bottom bottom',
 					onUpdate: function ( self ) {
