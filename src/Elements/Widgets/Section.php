@@ -1,0 +1,80 @@
+<?php
+
+namespace EVPX\Elements\Widgets;
+
+use EVPX\Elements\Element;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+final class Section extends Element {
+
+	public function slug(): string {
+		return 'section';
+	}
+
+	public function title(): string {
+		return __( 'EV Section', 'ev-charging-experience' );
+	}
+
+	public function controls(): array {
+		return array(
+			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
+			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
+			array( 'key' => 'body', 'label' => __( 'Body copy', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
+			array( 'key' => 'media', 'label' => __( 'Media', 'ev-charging-experience' ), 'type' => 'image', 'group' => 'media', 'default' => 0 ),
+			array( 'key' => 'media_alt', 'label' => __( 'Media alt text override', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'media', 'default' => '' ),
+			array(
+				'key'     => 'layout',
+				'label'   => __( 'Layout', 'ev-charging-experience' ),
+				'type'    => 'select',
+				'group'   => 'layout',
+				'default' => 'media-right',
+				'options' => array(
+					'media-right' => __( 'Text left, media right', 'ev-charging-experience' ),
+					'media-left'  => __( 'Media left, text right', 'ev-charging-experience' ),
+					'stacked'     => __( 'Media above text', 'ev-charging-experience' ),
+					'text-only'   => __( 'Text only', 'ev-charging-experience' ),
+				),
+			),
+			array(
+				'key'     => 'surface',
+				'label'   => __( 'Surface treatment', 'ev-charging-experience' ),
+				'type'    => 'select',
+				'group'   => 'visual',
+				'default' => 'flat',
+				'options' => array(
+					'flat'      => __( 'Flat (editorial)', 'ev-charging-experience' ),
+					'raised'    => __( 'Raised (neumorphic)', 'ev-charging-experience' ),
+					'recessed'  => __( 'Recessed (neumorphic)', 'ev-charging-experience' ),
+				),
+			),
+			array( 'key' => 'animate', 'label' => __( 'Enable scroll reveal', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true ),
+		);
+	}
+
+	public function render( array $atts, string $content = '' ): string {
+		$media_html = '';
+		if ( ! empty( $atts['media'] ) && 'text-only' !== $atts['layout'] ) {
+			$img_attr = array( 'class' => 'evpx-section__image' );
+			if ( '' !== $atts['media_alt'] ) {
+				$img_attr['alt'] = $atts['media_alt'];
+			}
+			$media_html = $this->image( (int) $atts['media'], 'large', $img_attr );
+		}
+
+		return $this->view(
+			'section',
+			array(
+				'eyebrow'    => $atts['eyebrow'],
+				'heading'    => $atts['heading'],
+				'body'       => $this->autop( $atts['body'] ),
+				'media_html' => $media_html,
+				'layout'     => $atts['layout'],
+				'surface'    => $atts['surface'],
+				'animate'    => $atts['animate'],
+			)
+		);
+	}
+}

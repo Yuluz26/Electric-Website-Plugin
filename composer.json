@@ -1,0 +1,20 @@
+{
+    "name": "evpx/ev-charging-experience",
+    "description": "Premium neumorphic EV charging article experience for WordPress + Breakdance.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "EVPX\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": false
+    }
+}

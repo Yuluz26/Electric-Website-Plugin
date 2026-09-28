@@ -1,0 +1,80 @@
+<?php
+
+namespace EVPX\Elements\Widgets;
+
+use EVPX\Elements\Element;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/** Grid -> Site -> Charger -> Vehicle -> Battery technical diagram. */
+final class TechnicalFlow extends Element {
+
+	public function slug(): string {
+		return 'flow';
+	}
+
+	public function title(): string {
+		return __( 'EV Technical Flow', 'ev-charging-experience' );
+	}
+
+	public function controls(): array {
+		$defaults = array(
+			__( 'Grid', 'ev-charging-experience' ),
+			__( 'Site Infrastructure', 'ev-charging-experience' ),
+			__( 'Charger', 'ev-charging-experience' ),
+			__( 'Vehicle', 'ev-charging-experience' ),
+			__( 'Battery', 'ev-charging-experience' ),
+		);
+
+		$controls = array(
+			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'How Charging Reaches the Vehicle', 'ev-charging-experience' ) ),
+		);
+
+		foreach ( $defaults as $index => $label ) {
+			$n          = $index + 1;
+			$controls[] = array(
+				'key'     => "step{$n}_label",
+				'label'   => sprintf( /* translators: %d: step number */ __( 'Step %d label', 'ev-charging-experience' ), $n ),
+				'type'    => 'text',
+				'group'   => 'content',
+				'default' => $label,
+			);
+		}
+
+		$controls[] = array(
+			'key'     => 'direction',
+			'label'   => __( 'Direction', 'ev-charging-experience' ),
+			'type'    => 'select',
+			'group'   => 'layout',
+			'default' => 'horizontal',
+			'options' => array(
+				'horizontal' => __( 'Horizontal', 'ev-charging-experience' ),
+				'vertical'   => __( 'Vertical', 'ev-charging-experience' ),
+			),
+		);
+		$controls[] = array( 'key' => 'compact', 'label' => __( 'Compact mode', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'layout', 'default' => false );
+		$controls[] = array( 'key' => 'animate', 'label' => __( 'Enable sequence animation', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true );
+
+		return $controls;
+	}
+
+	public function render( array $atts, string $content = '' ): string {
+		$steps = array();
+		for ( $n = 1; $n <= 5; $n++ ) {
+			$steps[] = $atts[ "step{$n}_label" ];
+		}
+
+		return $this->view(
+			'technical-flow',
+			array(
+				'heading'   => $atts['heading'],
+				'steps'     => $steps,
+				'direction' => $atts['direction'],
+				'compact'   => $atts['compact'],
+				'animate'   => $atts['animate'],
+			)
+		);
+	}
+}
