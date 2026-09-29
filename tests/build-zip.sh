@@ -30,6 +30,9 @@ rm -rf \
 	"${STAGE_DIR}/node_modules" \
 	"${STAGE_DIR}/vendor"
 
+# Screenshots and reports the browser suites write into the repository root (git-ignored, but `cp -r .` copies them).
+rm -rf "${STAGE_DIR}"/qa-output "${STAGE_DIR}"/qa-*-output
+
 find "$STAGE_DIR" -name '.DS_Store' -delete
 find "$STAGE_DIR" -name '*.log' -delete
 

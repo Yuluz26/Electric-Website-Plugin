@@ -151,8 +151,38 @@ if ( ! function_exists( 'evpx_test_native_nodes' ) ) {
 		return $groups;
 	}
 
-	/** A Breakdance tree: one Section per element, as a builder user would place them. */
-	function evpx_test_tree( array $nodes, bool $native ): array {
+	/** A Section that lets a widget run edge to edge and supply its own rhythm (docs/BREAKDANCE.md). */
+	function evpx_test_full_width_section(): array {
+		$zero = array(
+			'number' => 0,
+			'unit'   => 'px',
+			'style'  => '0px',
+		);
+
+		return array(
+			'design' => array(
+				'size'    => array( 'width' => 'full' ),
+				'spacing' => array(
+					'padding' => array(
+						'breakpoint_base' => array(
+							'top'    => $zero,
+							'right'  => $zero,
+							'bottom' => $zero,
+							'left'   => $zero,
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * A Breakdance tree: one Section per element, as a builder user would place them.
+	 *
+	 * @param array<string, mixed>|null $section_properties Settings for every Section; null keeps Breakdance's
+	 *                                                       defaults (a 1120px container with its own padding).
+	 */
+	function evpx_test_tree( array $nodes, bool $native, ?array $section_properties = null ): array {
 		$next     = 2;
 		$sections = array();
 
@@ -174,7 +204,7 @@ if ( ! function_exists( 'evpx_test_native_nodes' ) ) {
 				'id'       => $section_id,
 				'data'     => array(
 					'type'       => 'EssentialElements\\Section',
-					'properties' => null,
+					'properties' => $section_properties,
 				),
 				'children' => array(
 					array(

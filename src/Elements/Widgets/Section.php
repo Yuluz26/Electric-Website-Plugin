@@ -24,6 +24,8 @@ final class Section extends Element {
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'body', 'label' => __( 'Body copy', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
+			array( 'key' => 'figure', 'label' => __( 'Key figure (a number or range, optional)', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
+			array( 'key' => 'figure_label', 'label' => __( 'Key figure caption', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'media', 'label' => __( 'Media', 'ev-charging-experience' ), 'type' => 'image', 'group' => 'media', 'default' => 0 ),
 			array( 'key' => 'media_alt', 'label' => __( 'Media alt text override', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'media', 'default' => '' ),
 			array(
@@ -76,14 +78,16 @@ final class Section extends Element {
 		return $this->view(
 			'section',
 			array(
-				'spacing' => $atts['spacing'],
-				'eyebrow'    => $atts['eyebrow'],
-				'heading'    => $atts['heading'],
-				'body'       => $this->autop( $atts['body'] ),
-				'media_html' => $media_html,
-				'layout'     => $atts['layout'],
-				'surface'    => $atts['surface'],
-				'animate'    => $atts['animate'],
+				'spacing'      => $atts['spacing'],
+				'eyebrow'      => $atts['eyebrow'],
+				'heading'      => $atts['heading'],
+				'figure'       => $atts['figure'],
+				'figure_label' => $atts['figure_label'],
+				'body'         => $this->autop( $atts['body'] ),
+				'media_html'   => $media_html,
+				'layout'       => $atts['layout'],
+				'surface'      => $atts['surface'],
+				'animate'      => $atts['animate'],
 			)
 		);
 	}

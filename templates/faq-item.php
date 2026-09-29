@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $question_id = $id . '-q';
 $panel_id    = $id . '-a';
 ?>
-<div class="evpx-faq__item evpx-surface--raised-sm<?php echo $default_open ? ' evpx-faq__item--open' : ''; ?>"
+<div class="evpx-faq__item<?php echo $default_open ? ' evpx-faq__item--open' : ''; ?>"
 	data-evpx-question="<?php echo esc_attr( $question ); ?>"
 	data-evpx-answer="<?php echo esc_attr( $answer_plain ); ?>"
 >

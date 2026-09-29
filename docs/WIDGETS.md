@@ -39,12 +39,25 @@ own minimum height.
 | `title_tag` | select: h1/h2 | advanced | h1 — set h2 if your theme already prints the page title as h1 |
 | `progress_bar` | toggle | motion | true — fixed top-of-viewport bar tracking scroll through the whole page |
 
+The author, date and reading time are set as a small spec strip under the summary, each with a caption
+(Author, Published, Reading time) over its value. Without a picture the hero is a dark surface with a faint
+blueprint grid; with one, the picture sits under a scrim that keeps the type above 4.5:1 and drifts a little
+slower than the page as you scroll. Either way a copper line runs along the foot of the hero and, with
+motion, fills once as the page arrives. `visual_mode` `auto` follows the visitor's light or dark preference.
+
 ## EV Section — `[evpx_section]` / `evpx/section`
 
-General-purpose editorial block. `eyebrow`, `heading`, `body` (text),
-`media`/`media_alt` (media), `layout` select (media-right/media-left/
-stacked/text-only, layout), `surface` select (flat/raised/recessed,
-visual), `animate` toggle (motion).
+General-purpose editorial block. `eyebrow`, `heading`, `body` (text), `figure` and `figure_label`
+(text: an optional key figure set large, with a caption under it), `media`/`media_alt` (media), `layout` select
+(media-right/media-left/stacked/text-only, layout), `surface` select (flat/raised/recessed, visual),
+`animate` toggle (motion).
+
+Without a picture the section is a split: the heading and figure on one side, the copy on the other
+(`media-left` mirrors it, so consecutive sections can alternate). With a picture it is the usual
+two columns, and `stacked` puts the picture above the text. When the copy runs to more than one
+paragraph the first leads, set slightly larger. Use the key figure for one number that carries the section
+("7–22 kW", "under 30 min"); leave it empty for none. It is a figure, not a claim: the section's
+own copy has to support it.
 
 ## EV AC/DC Comparison — `[evpx_comparison]` / `evpx/comparison` (signature component)
 
@@ -54,20 +67,31 @@ visual), `animate` toggle (motion).
 visual). `animation_intensity` select (standard/subtle/off, motion).
 `mobile_mode` select (tabs/stacked, responsive).
 
+Each panel is its copy beside a raised plate that reads like a spec sheet: the power range set large, dwell
+time, best use. When both power ranges are kilowatt figures ("7–22 kW", "50–350+ kW", "22 kW"), the plate also
+draws the range on a bar scaled to the larger of the two, with the other panel's range outlined on the same scale,
+so the difference between AC and DC is shown to scale rather than only described. A range that isn't
+plainly kilowatts ("CCS2 50-350 kW", "up to 22 kW at 230 V") is not read: that panel pair simply has no
+bar, and the figure still stands on its own. In toggle mode a raised thumb slides between the tabs.
+
 ## EV Scenario Cards — `[evpx_scenarios]` / `evpx/scenarios` (container)
 
 `eyebrow`, `heading` (content), `columns` select (2/3, layout), `animate`
-toggle (motion). Holds one or more **EV Scenario Card** children.
+toggle (motion). Holds one or more **EV Scenario Card** children. On a wide box the second column steps
+down, so the grid reads as a rhythm and not a table.
 
 ### EV Scenario Card — `[evpx_scenario_card]` / `evpx/scenario-card` (child)
 
 Only meaningful nested inside Scenario Cards. `scenario` (small label),
 `title`, `description`, `icon` (image), `requirement`, `recommendation`,
-`cta_label`/`cta_url` — all content/media.
+`cta_label`/`cta_url` — all content/media. The requirement and recommendation sit in a recessed well
+at the foot of the card, so cards of different lengths line up on their answers.
 
 ## EV Technical Flow — `[evpx_flow]` / `evpx/flow`
 
-Grid → Site → Charger → Vehicle → Battery diagram. `heading` (content),
+Grid → Site → Charger → Vehicle → Battery, drawn as a timeline: a numbered node per step, a line between
+them, the label underneath (beside the node in `vertical`, which is also what a narrow box falls back to). With motion
+the steps arrive in turn while the line charges toward the next. `heading` (content),
 `step1_label` … `step5_label` (content, defaults pre-filled), `direction`
 select (horizontal/vertical, layout), `compact` toggle (layout), `animate`
 toggle (motion).
@@ -81,7 +105,8 @@ children.
 
 ### EV FAQ Item — `[evpx_faq_item]` / `evpx/faq-item` (child)
 
-`question` (text), `answer` (textarea), `default_open` (toggle).
+`question` (text), `answer` (textarea), `default_open` (toggle). Questions are rows on hairlines,
+not cards; the toggle is a small raised knob that is pressed in while its answer is open.
 
 ## EV Decision Factors — `[evpx_decision_factors]` / `evpx/decision-factors` (container)
 
@@ -107,7 +132,15 @@ tiles beside real photographs read as broken. Give every article a featured imag
 
 `eyebrow`, `title`, `body`, `button_label`/`button_url` (content), `media`
 (media, only used by the `media` variant), `variant` select
-(accent/dark/media, visual).
+(accent/dark/media, visual). A closing statement: the headline on the left, the supporting copy and the button on
+the right (stacked in a narrow box). The `dark` variant carries the same blueprint grid as an image-less hero.
+
+## How many eyebrows?
+
+Every widget that has an `eyebrow` renders it only when it is filled in. The small labelled rule above a
+heading is the easiest thing to overuse: on a page of a dozen sections, three or four are enough, and the
+demo article uses three (the hero's category, the decision framework and the FAQ). A heading that needs
+no label does not get one.
 
 ## Nesting in shortcode form
 

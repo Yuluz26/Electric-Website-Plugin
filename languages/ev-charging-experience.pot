@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: EV Charging Experience 0.4.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ev-charging-experience\n"
+"Project-Id-Version: EV Charging Experience 0.5.0\n"
+"Report-Msgid-Bugs-To: \n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-29T03:34:58+00:00\n"
+"POT-Creation-Date: 2026-09-29T11:54:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ev-charging-experience\n"
@@ -64,32 +64,39 @@ msgid "Items"
 msgstr ""
 
 #: src/Breakdance/Native/Controls.php:417
+#: assets/js/block-editor.js:37
 msgid "Content"
 msgstr ""
 
 #: src/Breakdance/Native/Controls.php:418
-#: src/Elements/Widgets/Section.php:27
+#: src/Elements/Widgets/Section.php:29
+#: assets/js/block-editor.js:38
 msgid "Media"
 msgstr ""
 
 #: src/Breakdance/Native/Controls.php:419
-#: src/Elements/Widgets/Section.php:31
+#: src/Elements/Widgets/Section.php:33
+#: assets/js/block-editor.js:39
 msgid "Layout"
 msgstr ""
 
 #: src/Breakdance/Native/Controls.php:420
+#: assets/js/block-editor.js:40
 msgid "Visual"
 msgstr ""
 
 #: src/Breakdance/Native/Controls.php:421
+#: assets/js/block-editor.js:41
 msgid "Motion"
 msgstr ""
 
 #: src/Breakdance/Native/Controls.php:422
+#: assets/js/block-editor.js:42
 msgid "Responsive"
 msgstr ""
 
 #: src/Breakdance/Native/Controls.php:423
+#: assets/js/block-editor.js:43
 msgid "Advanced"
 msgstr ""
 
@@ -241,6 +248,12 @@ msgstr ""
 msgid "The charger converts to DC itself and feeds the battery directly. Much faster, with heavier equipment and a bigger grid connection."
 msgstr ""
 
+#. translators: %s: the top of the power scale, a number of kilowatts.
+#: src/Elements/Widgets/Comparison.php:138
+#, php-format
+msgid "%s kW"
+msgstr ""
+
 #: src/Elements/Widgets/Cta.php:18
 msgid "EV CTA"
 msgstr ""
@@ -251,7 +264,7 @@ msgstr ""
 #: src/Elements/Widgets/RelatedArticles.php:28
 #: src/Elements/Widgets/ScenarioCards.php:25
 #: src/Elements/Widgets/Section.php:24
-#: src/Elements/Widgets/Section.php:60
+#: src/Elements/Widgets/Section.php:62
 msgid "Eyebrow"
 msgstr ""
 
@@ -319,7 +332,7 @@ msgid "Question to ask"
 msgstr ""
 
 #: src/Elements/Widgets/DecisionFactor.php:33
-#: templates/comparison.php:73
+#: templates/comparison.php:90
 msgid "Dwell time"
 msgstr ""
 
@@ -375,7 +388,7 @@ msgstr ""
 #: src/Elements/Widgets/DecisionFactors.php:28
 #: src/Elements/Widgets/RelatedArticles.php:55
 #: src/Elements/Widgets/ScenarioCards.php:31
-#: src/Elements/Widgets/Section.php:54
+#: src/Elements/Widgets/Section.php:56
 msgid "Enable scroll reveal"
 msgstr ""
 
@@ -480,7 +493,7 @@ msgid "Hero media"
 msgstr ""
 
 #: src/Elements/Widgets/Hero.php:31
-#: src/Elements/Widgets/Section.php:28
+#: src/Elements/Widgets/Section.php:30
 msgid "Media alt text override"
 msgstr ""
 
@@ -682,43 +695,51 @@ msgstr ""
 msgid "Body copy"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:36
-msgid "Text left, media right"
+#: src/Elements/Widgets/Section.php:27
+msgid "Key figure (a number or range, optional)"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:37
-msgid "Media left, text right"
+#: src/Elements/Widgets/Section.php:28
+msgid "Key figure caption"
 msgstr ""
 
 #: src/Elements/Widgets/Section.php:38
-msgid "Media above text"
+msgid "Text left, media right"
 msgstr ""
 
 #: src/Elements/Widgets/Section.php:39
+msgid "Media left, text right"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:40
+msgid "Media above text"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:41
 msgid "Text only"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:44
+#: src/Elements/Widgets/Section.php:46
 msgid "Surface treatment"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:49
+#: src/Elements/Widgets/Section.php:51
 msgid "Flat (editorial)"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:50
+#: src/Elements/Widgets/Section.php:52
 msgid "Raised (neumorphic)"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:51
+#: src/Elements/Widgets/Section.php:53
 msgid "Recessed (neumorphic)"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:61
+#: src/Elements/Widgets/Section.php:63
 msgid "A clear heading for this section"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:62
+#: src/Elements/Widgets/Section.php:64
 msgid "Say the point in a sentence or two. Replace this copy in the Content tab."
 msgstr ""
 
@@ -784,20 +805,35 @@ msgid_plural "%d min read"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/comparison.php:33
+#: templates/comparison.php:34
 msgid "Charging type"
 msgstr ""
 
-#: templates/comparison.php:69
+#: templates/comparison.php:72
 msgid "Power range"
 msgstr ""
 
-#: templates/comparison.php:77
+#: templates/comparison.php:94
 msgid "Best for"
 msgstr ""
 
 #: templates/decision-factor.php:20
 msgid "Ask"
+msgstr ""
+
+#: templates/hero.php:55
+msgctxt "article byline caption"
+msgid "Author"
+msgstr ""
+
+#: templates/hero.php:56
+msgctxt "article date caption"
+msgid "Published"
+msgstr ""
+
+#: templates/hero.php:57
+msgctxt "article length caption"
+msgid "Reading time"
 msgstr ""
 
 #: templates/related-empty.php:10
@@ -806,4 +842,16 @@ msgstr ""
 
 #: templates/scenario-card.php:38
 msgid "Recommended approach"
+msgstr ""
+
+#: assets/js/block-editor.js:133
+msgid "Replace image"
+msgstr ""
+
+#: assets/js/block-editor.js:134
+msgid "Select image"
+msgstr ""
+
+#: assets/js/block-editor.js:146
+msgid "Remove"
 msgstr ""

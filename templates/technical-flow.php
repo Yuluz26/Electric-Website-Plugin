@@ -24,9 +24,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</h2>
 		<?php endif; ?>
 
-		<ol class="evpx-flow__steps evpx-surface--recessed">
+		<ol class="evpx-flow__steps">
 			<?php foreach ( $steps as $index => $label ) : ?>
-				<li class="evpx-flow__step">
+				<li class="evpx-flow__step" style="--evpx-step:<?php echo (int) $index; ?>">
 					<span class="evpx-flow__node" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $index + 1 ) ); ?></span>
 					<span class="evpx-flow__label"><?php echo esc_html( $label ); ?></span>
 				</li>

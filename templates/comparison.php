@@ -3,6 +3,7 @@
  * @var string $spacing Vertical rhythm: default | compact | none.
  * @var array{title:string,description:string,power_range:string,dwell_label:string,best_for:string} $ac
  * @var array{title:string,description:string,power_range:string,dwell_label:string,best_for:string} $dc
+ * @var array<string, array<string, string>>|null $rulers Per panel (ac|dc): from, to, other_from, other_to, max. Null: no ruler.
  * @var string $mode
  * @var string $accent_treatment
  * @var string $animation_intensity
@@ -58,16 +59,32 @@ $panels = array(
 						aria-labelledby="<?php echo esc_attr( $id . '-tab-' . $key ); ?>"
 					<?php endif; ?>
 				>
-					<h3 class="evpx-heading evpx-comparison__title"><?php echo esc_html( $panel['title'] ); ?></h3>
+					<div class="evpx-comparison__copy">
+						<h3 class="evpx-heading evpx-comparison__title"><?php echo esc_html( $panel['title'] ); ?></h3>
 
-					<?php if ( $panel['description'] ) : ?>
-						<div class="evpx-body evpx-comparison__description"><?php echo $panel['description']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wpautop + wp_kses_post already applied */ ?></div>
-					<?php endif; ?>
+						<?php if ( $panel['description'] ) : ?>
+							<div class="evpx-body evpx-comparison__description"><?php echo $panel['description']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wpautop + wp_kses_post already applied */ ?></div>
+						<?php endif; ?>
+					</div>
 
-					<dl class="evpx-comparison__data evpx-surface--recessed">
+					<dl class="evpx-comparison__data evpx-surface--raised">
 						<div class="evpx-comparison__data-row evpx-comparison__data-row--power">
 							<dt><?php esc_html_e( 'Power range', 'ev-charging-experience' ); ?></dt>
-							<dd><?php echo esc_html( $panel['power_range'] ); ?></dd>
+							<dd>
+								<span class="evpx-comparison__figure"><?php echo esc_html( $panel['power_range'] ); ?></span>
+								<?php if ( $rulers ) : ?>
+									<?php // Decoration for what the figure already says; the same scale on both panels, so the gap is visible. ?>
+									<span
+										class="evpx-ruler"
+										aria-hidden="true"
+										data-max="<?php echo esc_attr( $rulers[ $key ]['max'] ); ?>"
+										style="<?php echo esc_attr( sprintf( '--evpx-from:%s;--evpx-to:%s;--evpx-other-from:%s;--evpx-other-to:%s', $rulers[ $key ]['from'], $rulers[ $key ]['to'], $rulers[ $key ]['other_from'], $rulers[ $key ]['other_to'] ) ); ?>"
+									>
+										<span class="evpx-ruler__other"></span>
+										<span class="evpx-ruler__span"></span>
+									</span>
+								<?php endif; ?>
+							</dd>
 						</div>
 						<div class="evpx-comparison__data-row">
 							<dt><?php esc_html_e( 'Dwell time', 'ev-charging-experience' ); ?></dt>

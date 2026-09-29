@@ -54,15 +54,18 @@ hand-rolled autoloader, so a plain ZIP upload always works. CSS and JS are hand-
 
 ```
 bash tests/docker/setup.sh                      # WordPress + MySQL in Docker, plugin active, demo imported
-node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"   # 21 browser checks: axe-core, a 10-width overflow sweep, motion, no-JS
+node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"   # browser checks: axe-core, a 10-width overflow sweep, motion, no-JS
+node tests/playwright/interaction-qa.mjs "$(cat tests/docker/.demo-url)"   # hover, focus, motion on/off, the comparison thumb and range bar
+bash tests/docker/widget-render-check.sh        # what the widgets print (the power scale, the key figure, captions, escaping)
 node tests/contrast-check.mjs                   # WCAG pairings, read from the real tokens
+node tests/css-check.mjs                        # undefined tokens, selector scope, !important, ungated animation
 composer install && composer lint               # WordPress coding standards (see phpcs.xml.dist)
 bash tests/build-zip.sh                         # dist/ev-charging-experience.zip
 
 # Against a real Breakdance (you supply the licensed ZIP; it is never committed):
 EVPX_BREAKDANCE_ZIP=/path/to/breakdance.zip bash tests/docker/setup.sh
 bash tests/docker/breakdance-real-check.sh      # integration: native elements, Element Studio, Dynamic Data, reading time
-bash tests/docker/breakdance-page.sh            # two pages designed in Breakdance from the demo article (Shortcode / native)
+bash tests/docker/breakdance-page.sh            # three pages designed in Breakdance from the demo article (Shortcode / native / native in full-width Sections)
 node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-native-url)"   # front end + the builder itself
 bash tests/docker/builder-save-check.sh         # the builder round-trip: dropdown, Add panel, Save, front end
 bash tests/docker/media-pages.sh                # generated pictures, then: node tests/playwright/media-qa.mjs …

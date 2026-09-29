@@ -6,6 +6,7 @@ node_modules/
 /tests/docker/.demo-url
 /tests/docker/.breakdance-url
 /tests/docker/.breakdance-native-url
+/tests/docker/.breakdance-full-url
 /tests/docker/.media-url
 /tests/docker/.media-native-url
 /tests/docker/.media-mixed-url

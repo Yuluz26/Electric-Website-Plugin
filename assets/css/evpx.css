@@ -4,10 +4,11 @@
  * Isolation contract (see docs/prompt-pack/03_SOP.md Phase 7), both ways:
  *
  * - Nothing here can leak onto an unrelated Breakdance page or theme element:
- *   no bare element selectors, everything is .evpx-*. One deliberate exception, at
- *   zero specificity: the box that directly holds a widget is asked to fill its container
- *   (`:where(:has(> .evpx-root))`, section 1), because a size container inside a shrink-wrapping
- *   box would collapse to nothing. It only ever matches an element that has a widget in it.
+ *   no bare element selectors, everything is .evpx-*. Two deliberate, zero-specificity-or-own-box
+ *   exceptions, both in section 2: the box that directly holds a widget is asked to fill its
+ *   container (`:where(:has(> .evpx-root))`), because a size container inside a shrink-wrapping box
+ *   would collapse to nothing; and a widget drops the vertical margin a theme's block gap would add
+ *   to it (its own box, and it brings its own section rhythm).
  * - Nothing on the host can leak in. Builders and themes style bare headings
  *   and links (Breakdance: `.breakdance h2 { color; font-family; font-size }`,
  *   specificity 0,1,1), which beats a lone class. So every rule is scoped under
@@ -18,35 +19,66 @@
  * Responsive contract: layout answers to the width of the box the widget sits
  * in (container queries on .evpx-root), not the viewport — a widget dropped in
  * a half-width Breakdance column must not get its desktop layout. Only
- * preferences (colour scheme, motion, scripting) stay as @media.
+ * preferences (colour scheme, motion, scripting, hover) stay as @media.
  *
  * Neumorphism contract: shadows are decorative surface depth only. Text
  * contrast and interactive affordances always come from real color/border,
  * never from shadow alone (see docs/ARCHITECTURE.md §5).
+ *
+ * Motion contract: nothing moves unless evpx.js has marked the widget
+ * `data-evpx-motion="on"` (a real front-end view, no reduced-motion preference, not the builder
+ * canvas). Every state a visitor can end up in without motion is the finished, static one.
  */
 
 /* ----------------------------------------------------------------------
    0. Fonts — self-hosted (SIL OFL, see assets/fonts/LICENSE-OFL.txt), so a
    page view makes no request to a third-party font host. Family names are
-   namespaced so they can never merge with a site's own Fraunces/Libre
-   Franklin @font-face rules.
+   namespaced so they can never merge with a site's own Spectral/Geist
+   @font-face rules.
    -------------------------------------------------------------------- */
 
 @font-face {
-	font-family: 'EVPX Fraunces';
+	font-family: 'EVPX Spectral';
 	font-style: normal;
-	font-weight: 100 900;
+	font-weight: 300;
 	font-display: swap;
-	src: url('../fonts/fraunces-latin-opsz-normal.woff2') format('woff2-variations');
+	src: url('../fonts/spectral-latin-300-normal.woff2') format('woff2');
 	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
-	font-family: 'EVPX Libre Franklin';
+	font-family: 'EVPX Spectral';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('../fonts/spectral-latin-400-normal.woff2') format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: 'EVPX Geist';
 	font-style: normal;
 	font-weight: 100 900;
 	font-display: swap;
-	src: url('../fonts/libre-franklin-latin-wght-normal.woff2') format('woff2-variations');
+	src: url('../fonts/geist-latin-wght-normal.woff2') format('woff2-variations');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: 'EVPX Geist';
+	font-style: italic;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url('../fonts/geist-latin-wght-italic.woff2') format('woff2-variations');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: 'EVPX Geist Mono';
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url('../fonts/geist-mono-latin-wght-normal.woff2') format('woff2-variations');
 	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -55,12 +87,14 @@
    -------------------------------------------------------------------- */
 
 .evpx-root {
-	/* Light-mode surfaces */
+	/* Light-mode surfaces. Sheen and shade are the lit and shaded faces of a raised surface. */
 	--evpx-surface-base: #eef0f3;
 	--evpx-surface-raised-hi: #ffffff;
 	--evpx-surface-raised-lo: #c7ced6;
 	--evpx-surface-recessed-hi: #d7dce2;
 	--evpx-surface-recessed-lo: #ffffff;
+	--evpx-surface-sheen: #f5f7f9;
+	--evpx-surface-shade: #e9ecf0;
 	--evpx-ink: #14171c;
 	--evpx-ink-muted: #4b535e;
 	--evpx-ink-faint: #626b76; /* verified by tests/contrast-check.mjs */
@@ -68,46 +102,72 @@
 
 	/* Fill for surfaces that carry --evpx-accent-ink text (buttons, flow nodes,
 	   the accent CTA). --evpx-accent-text is the same hue used *as* text, icon or
-	   focus ring on a surface — it lightens in dark mode so it stays legible. */
+	   focus ring on a surface — it lightens in dark mode so it stays legible.
+	   --evpx-accent-deep is what a button fills with on hover, still under white type. */
 	--evpx-accent: #a4531f;
 	--evpx-accent-text: #a4531f;
 	--evpx-accent-ink: #ffffff;
+	--evpx-accent-deep: #7b3a12;
 	--evpx-technical: #4e75a6;
 
 	--evpx-danger: #a3402f;
 	--evpx-success: #3f7a52;
 
-	/* Type */
-	--evpx-font-display: 'EVPX Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
-	--evpx-font-body: 'EVPX Libre Franklin', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	/* Type: a serif for the argument (Spectral), a grotesque for reading and controls (Geist), a mono
+	   for the labels that read like a spec sheet (Geist Mono). How the display face is set lives here, so
+	   changing it is a change to these tokens and one @font-face, not a hunt through the rules. */
+	--evpx-font-display: 'EVPX Spectral', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+	--evpx-display-weight: 300;
+	--evpx-display-tracking: -0.02em;
+	--evpx-title-weight: 400;
+	--evpx-title-tracking: -0.01em;
+	--evpx-font-body: 'EVPX Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+	--evpx-font-mono: 'EVPX Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
-	--evpx-size-eyebrow: 0.8125rem;
+	--evpx-size-eyebrow: 0.75rem;
 	--evpx-size-body: 1.0625rem;
-	--evpx-size-heading: clamp(1.75rem, 1.35rem + 2vw, 2.5rem);
-	--evpx-size-display: clamp(2.5rem, 1.6rem + 4.5vw, 5.5rem);
+	--evpx-size-lede: 1.25rem;
+	--evpx-size-title: 1.5rem;
+	--evpx-size-subheading: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
+	--evpx-size-heading: clamp(2rem, 1.25rem + 2.6vw, 3.25rem);
+	--evpx-size-headline: clamp(2.25rem, 1.2rem + 3vw, 3.75rem);
+	--evpx-size-display: clamp(2.75rem, 1.5rem + 5.2vw, 6rem);
+	--evpx-figure-max: 4.5rem;
 
 	/* Spacing (4px unit) */
 	--evpx-space-1: 0.25rem;
 	--evpx-space-2: 0.5rem;
 	--evpx-space-3: 0.75rem;
 	--evpx-space-4: 1rem;
+	--evpx-space-5: 1.25rem;
 	--evpx-space-6: 1.5rem;
 	--evpx-space-8: 2rem;
+	--evpx-space-10: 2.5rem;
 	--evpx-space-12: 3rem;
 	--evpx-space-16: 4rem;
 	--evpx-space-24: 6rem;
 	--evpx-space-32: 8rem;
 
-	/* Radii */
-	--evpx-radius-sm: 8px;
-	--evpx-radius-md: 16px;
-	--evpx-radius-lg: 24px;
+	/* Radii: one small scale, used the same everywhere. */
+	--evpx-radius-sm: 6px;
+	--evpx-radius-md: 12px;
+	--evpx-radius-lg: 18px;
 
-	/* Motion */
-	--evpx-ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
-	--evpx-dur-micro: 0.2s;
-	--evpx-dur-base: 0.6s;
-	--evpx-dur-section: 0.9s;
+	/* Neumorphic depth, built once from the surface colours so dark mode only swaps colours.
+	   elev = raised off the surface (a control, a card, the centrepiece); well = pressed into it. */
+	--evpx-elev-1: 3px 4px 9px -2px var(--evpx-surface-raised-lo), -3px -3px 8px var(--evpx-surface-raised-hi);
+	--evpx-elev-2: 6px 8px 18px -4px var(--evpx-surface-raised-lo), -6px -6px 14px var(--evpx-surface-raised-hi);
+	--evpx-elev-3: 12px 16px 30px -12px var(--evpx-surface-raised-lo), -8px -8px 20px -6px var(--evpx-surface-raised-hi);
+	--evpx-well-1: inset 2px 2px 5px var(--evpx-surface-recessed-hi), inset -2px -2px 5px var(--evpx-surface-recessed-lo);
+	--evpx-well-2: inset 4px 4px 9px var(--evpx-surface-recessed-hi), inset -4px -4px 9px var(--evpx-surface-recessed-lo);
+	--evpx-spot: rgba(255, 255, 255, 0.75);
+
+	/* Motion: fast and decisive on the way in, never ease-in. */
+	--evpx-ease-premium: cubic-bezier(0.23, 1, 0.32, 1);
+	--evpx-ease-inout: cubic-bezier(0.77, 0, 0.175, 1);
+	--evpx-dur-micro: 0.16s;
+	--evpx-dur-base: 0.32s;
+	--evpx-dur-section: 0.7s;
 	--evpx-dur-hero: 1.2s;
 
 	--evpx-max-width: 1200px;
@@ -119,7 +179,7 @@
 
 	/* Vertical rhythm of every full-width section widget. Inside a Breakdance
 	   Section, which brings its own padding, set this to 0 (or a smaller step). */
-	--evpx-section-y: var(--evpx-space-24);
+	--evpx-section-y: clamp(3.5rem, 2rem + 4vw, 6rem);
 
 	color-scheme: light;
 	background: var(--evpx-surface-base);
@@ -133,11 +193,14 @@
 	--evpx-surface-raised-lo: #05070a;
 	--evpx-surface-recessed-hi: #0a0d11;
 	--evpx-surface-recessed-lo: #22282f;
+	--evpx-surface-sheen: #1c2128;
+	--evpx-surface-shade: #101318;
 	--evpx-ink: #edeff2;
 	--evpx-ink-muted: #a7aeb6;
 	--evpx-ink-faint: #838b96; /* verified by tests/contrast-check.mjs */
 	--evpx-accent-text: #d98a5a;
 	--evpx-border: #262c34;
+	--evpx-spot: rgba(255, 255, 255, 0.07);
 
 	color-scheme: dark;
 }
@@ -162,11 +225,14 @@
 		--evpx-surface-raised-lo: #05070a;
 		--evpx-surface-recessed-hi: #0a0d11;
 		--evpx-surface-recessed-lo: #22282f;
+		--evpx-surface-sheen: #1c2128;
+		--evpx-surface-shade: #101318;
 		--evpx-ink: #edeff2;
 		--evpx-ink-muted: #a7aeb6;
 		--evpx-ink-faint: #838b96;
 		--evpx-accent-text: #d98a5a;
 		--evpx-border: #262c34;
+		--evpx-spot: rgba(255, 255, 255, 0.07);
 
 		color-scheme: dark;
 	}
@@ -183,6 +249,11 @@
 	line-height: 1.5;
 	text-align: start;
 	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+
+	/* A block theme puts a gap between blocks by giving each one a top margin; on a widget with its own
+	   section background that gap shows the page colour as a stripe between two sections. */
+	margin-block: 0;
 }
 
 /* Size the widget to the box it sits in. Inside @supports so a browser without
@@ -191,11 +262,23 @@
 @supports (container-type: inline-size) {
 	.evpx-root {
 		container-type: inline-size;
-		--evpx-size-heading: clamp(1.75rem, 1.35rem + 2cqi, 2.5rem);
-		--evpx-size-display: clamp(2.5rem, 1.6rem + 4.5cqi, 5.5rem);
+		--evpx-section-y: clamp(3.5rem, 2rem + 4cqi, 6rem);
+		--evpx-size-subheading: clamp(1.75rem, 1.2rem + 1.6cqi, 2.5rem);
+		--evpx-size-heading: clamp(2rem, 1.25rem + 2.6cqi, 3.25rem);
+		--evpx-size-headline: clamp(2.25rem, 1.2rem + 3cqi, 3.75rem);
+		--evpx-size-display: clamp(2.75rem, 1.5rem + 5.2cqi, 6rem);
 
 		/* If the parent is a flex column, fill it. */
 		align-self: stretch;
+	}
+
+	/* The spacing control has to win over the fluid rhythm just set on the same element. */
+	.evpx-root[data-evpx-spacing='compact'] {
+		--evpx-section-y: var(--evpx-space-12);
+	}
+
+	.evpx-root[data-evpx-spacing='none'] {
+		--evpx-section-y: 0;
 	}
 
 	/* A size container has no intrinsic width, so inside a box that shrink-wraps its children it
@@ -215,6 +298,11 @@
 .evpx-root *::before,
 .evpx-root *::after {
 	box-sizing: border-box;
+}
+
+.evpx-root ::selection {
+	background: var(--evpx-accent);
+	color: var(--evpx-accent-ink);
 }
 
 .evpx-root img,
@@ -242,33 +330,37 @@
 	}
 }
 
+/* A label that reads like a line on a spec sheet: mono, small, spaced, with a short rule before it. */
 .evpx-root .evpx-eyebrow {
-	font-family: var(--evpx-font-body);
-	font-size: var(--evpx-size-eyebrow);
-	font-weight: 600;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	color: var(--evpx-accent-text);
+	margin: 0;
 	display: inline-flex;
 	align-items: center;
-	gap: var(--evpx-space-2);
+	gap: var(--evpx-space-3);
+	font-family: var(--evpx-font-mono);
+	font-size: var(--evpx-size-eyebrow);
+	font-weight: 500;
+	line-height: 1.2;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--evpx-accent-text);
 }
 
 .evpx-root .evpx-eyebrow::before {
 	content: '';
-	width: 18px;
+	width: 1.75rem;
 	height: 1px;
 	background: currentColor;
-	display: inline-block;
+	transform-origin: left center;
 }
 
 .evpx-root .evpx-heading {
-	font-family: var(--evpx-font-display);
-	font-weight: 600;
-	line-height: 1.1;
-	letter-spacing: -0.01em;
-	color: var(--evpx-ink);
 	margin: 0;
+	font-family: var(--evpx-font-display);
+	font-weight: var(--evpx-display-weight);
+	line-height: 1.08;
+	letter-spacing: var(--evpx-display-tracking);
+	color: var(--evpx-ink);
+	text-wrap: balance;
 }
 
 .evpx-root .evpx-body {
@@ -276,6 +368,7 @@
 	line-height: 1.65;
 	color: var(--evpx-ink-muted);
 	max-width: var(--evpx-measure);
+	text-wrap: pretty;
 }
 
 .evpx-root .evpx-body p + p {
@@ -310,27 +403,21 @@
    -------------------------------------------------------------------- */
 
 .evpx-root .evpx-surface--raised {
-	background: var(--evpx-surface-base);
+	background: linear-gradient(145deg, var(--evpx-surface-sheen), var(--evpx-surface-shade));
 	border-radius: var(--evpx-radius-lg);
-	box-shadow:
-		8px 8px 16px var(--evpx-surface-raised-lo),
-		-8px -8px 16px var(--evpx-surface-raised-hi);
+	box-shadow: var(--evpx-elev-3);
 }
 
 .evpx-root .evpx-surface--raised-sm {
-	background: var(--evpx-surface-base);
+	background: linear-gradient(145deg, var(--evpx-surface-sheen), var(--evpx-surface-shade));
 	border-radius: var(--evpx-radius-md);
-	box-shadow:
-		4px 4px 10px var(--evpx-surface-raised-lo),
-		-4px -4px 10px var(--evpx-surface-raised-hi);
+	box-shadow: var(--evpx-elev-2);
 }
 
 .evpx-root .evpx-surface--recessed {
 	background: var(--evpx-surface-base);
 	border-radius: var(--evpx-radius-md);
-	box-shadow:
-		inset 5px 5px 10px var(--evpx-surface-recessed-hi),
-		inset -5px -5px 10px var(--evpx-surface-recessed-lo);
+	box-shadow: var(--evpx-well-2);
 }
 
 .evpx-root .evpx-surface--flat {
@@ -347,38 +434,66 @@
 }
 
 /* ----------------------------------------------------------------------
-   4. Shared controls (button, chip) — real contrast, never shadow-only
+   4. Shared controls (button, link arrow) — real contrast, never shadow-only.
+   Hover is one idea everywhere: the control charges. A fill sweeps in from the left
+   and the arrow travels; pressing seats it. Movement waits for a fine pointer.
    -------------------------------------------------------------------- */
 
 .evpx-root .evpx-button {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
 	display: inline-flex;
 	align-items: center;
-	gap: var(--evpx-space-2);
+	gap: var(--evpx-space-3);
 	font-family: var(--evpx-font-body);
 	font-size: 0.9375rem;
-	font-weight: 600;
-	padding: 0.85em 1.5em;
+	font-weight: 550;
+	line-height: 1.2;
+	letter-spacing: 0.005em;
+	padding: 0.95em 1.5em;
 	border-radius: var(--evpx-radius-sm);
 	border: 1px solid transparent;
 	cursor: pointer;
 	text-decoration: none;
-	transition: transform var(--evpx-dur-micro) var(--evpx-ease-premium), box-shadow var(--evpx-dur-micro) var(--evpx-ease-premium);
+	transition:
+		transform var(--evpx-dur-micro) var(--evpx-ease-premium),
+		color var(--evpx-dur-base) var(--evpx-ease-premium),
+		border-color var(--evpx-dur-base) var(--evpx-ease-premium);
+}
+
+/* The fill that sweeps in. It sits under the label (z-index -1 inside the button's own stacking context). */
+.evpx-root .evpx-button::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: var(--evpx-button-fill, var(--evpx-accent-deep));
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform 0.45s var(--evpx-ease-premium);
+}
+
+.evpx-root .evpx-button:hover::before,
+.evpx-root .evpx-button:focus-visible::before {
+	transform: scaleX(1);
+}
+
+.evpx-root .evpx-button:active {
+	transform: translateY(1px) scale(0.985);
 }
 
 .evpx-root .evpx-button--primary {
 	background: var(--evpx-accent);
 	color: var(--evpx-accent-ink);
+	--evpx-button-fill: var(--evpx-accent-deep);
 }
 
 .evpx-root .evpx-button--secondary {
 	background: transparent;
 	color: var(--evpx-ink);
-	border-color: var(--evpx-border);
-}
-
-.evpx-root .evpx-button:hover,
-.evpx-root .evpx-button:focus-visible {
-	transform: translateY(-2px);
+	border-color: var(--evpx-ink-faint);
+	--evpx-button-fill: var(--evpx-ink);
 }
 
 .evpx-root .evpx-button:focus-visible {
@@ -395,7 +510,7 @@
 }
 
 .evpx-root .evpx-button--secondary:hover {
-	color: var(--evpx-ink);
+	color: var(--evpx-surface-base);
 }
 
 .evpx-root .evpx-scenario-card__cta:hover {
@@ -422,12 +537,46 @@
 	color: inherit;
 }
 
+/* The arrow is drawn, not typed: a glyph would come from whichever fallback font the visitor has. */
 .evpx-root .evpx-button__arrow {
-	transition: transform var(--evpx-dur-micro) var(--evpx-ease-premium);
+	position: relative;
+	display: inline-block;
+	flex: none;
+	width: 1.125em;
+	height: 1em;
+	transition: transform var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
-.evpx-root .evpx-button:hover .evpx-button__arrow {
-	transform: translateX(3px);
+.evpx-root .evpx-button__arrow::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 50%;
+	height: 1.5px;
+	margin-top: -0.75px;
+	background: currentColor;
+	border-radius: 1px;
+}
+
+.evpx-root .evpx-button__arrow::after {
+	content: '';
+	position: absolute;
+	right: 0.1em;
+	top: 50%;
+	width: 0.5em;
+	height: 0.5em;
+	margin-top: -0.25em;
+	border-top: 1.5px solid currentColor;
+	border-right: 1.5px solid currentColor;
+	transform: rotate(45deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.evpx-root .evpx-button:hover .evpx-button__arrow,
+	.evpx-root .evpx-scenario-card__cta:hover .evpx-button__arrow {
+		transform: translateX(4px);
+	}
 }
 
 .evpx-root a:focus-visible,
@@ -437,28 +586,58 @@
 	outline-offset: 3px;
 }
 
+/* Themes outline every :focus (Twenty Twenty-Five does), which a mouse click triggers too. The ring is
+   for keyboards: :focus-visible, above, keeps it there. */
+.evpx-root a:focus:not(:focus-visible),
+.evpx-root button:focus:not(:focus-visible),
+.evpx-root [tabindex]:focus:not(:focus-visible) {
+	outline: none;
+}
+
 /* ----------------------------------------------------------------------
    5. Hero
    -------------------------------------------------------------------- */
 
 .evpx-root.evpx-hero {
+	--evpx-grid-line: rgba(255, 255, 255, 0.055);
+	--evpx-hairline: rgba(255, 255, 255, 0.16);
+
 	position: relative;
 	display: flex;
 	align-items: flex-end;
-	min-height: clamp(26rem, 62vw, 44rem);
+	min-height: clamp(32rem, 82vh, 50rem);
 	overflow: hidden;
 	background: var(--evpx-ink);
 	color: #fff;
 }
 
 .evpx-root.evpx-hero[data-evpx-hero-mode='light'] {
+	--evpx-grid-line: rgba(20, 23, 28, 0.07);
+	--evpx-hairline: rgba(20, 23, 28, 0.18);
+
 	background: var(--evpx-surface-base);
 	color: var(--evpx-ink);
+}
+
+/* "Follow system": dark is the base look, so a light system flips it. Same values as 'light' above. */
+@media (prefers-color-scheme: light) {
+	.evpx-root.evpx-hero[data-evpx-hero-mode='auto'] {
+		--evpx-grid-line: rgba(20, 23, 28, 0.07);
+		--evpx-hairline: rgba(20, 23, 28, 0.18);
+
+		background: var(--evpx-surface-base);
+		color: var(--evpx-ink);
+	}
 }
 
 .evpx-root .evpx-hero__media {
 	position: absolute;
 	inset: 0;
+}
+
+/* With motion on, the picture is taller than the hero so it can drift a little as you scroll. */
+.evpx-root[data-evpx-motion='on'] .evpx-hero__media {
+	inset: -6% 0;
 }
 
 .evpx-root .evpx-hero__image {
@@ -476,11 +655,29 @@
 	background: linear-gradient(180deg, rgba(10, 12, 15, var(--evpx-scrim)) 0%, rgba(10, 12, 15, 0.66) 50%, rgba(10, 12, 15, 0.9) 100%);
 }
 
-.evpx-root .evpx-hero__content {
+/* Without a picture: a blueprint grid that fades out toward the type, so it never sits behind a word. */
+.evpx-root .evpx-hero__grid {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background-image:
+		linear-gradient(to right, var(--evpx-grid-line) 1px, transparent 1px),
+		linear-gradient(to bottom, var(--evpx-grid-line) 1px, transparent 1px);
+	background-size: 4rem 4rem;
+	background-position: center top;
+	-webkit-mask-image: radial-gradient(110% 100% at 88% 0%, #000 0%, transparent 62%);
+	mask-image: radial-gradient(110% 100% at 88% 0%, #000 0%, transparent 62%);
+}
+
+.evpx-root .evpx-hero__inner {
 	position: relative;
 	z-index: 1;
-	padding-block: var(--evpx-space-16) var(--evpx-space-12);
-	max-width: 46rem;
+	padding-block: var(--evpx-space-24) var(--evpx-space-16);
+}
+
+/* Left-aligned on the same grid as every section below it. */
+.evpx-root .evpx-hero__content {
+	max-width: 62rem;
 }
 
 .evpx-root.evpx-hero .evpx-eyebrow {
@@ -491,59 +688,115 @@
 	color: var(--evpx-accent-text);
 }
 
+@media (prefers-color-scheme: light) {
+	.evpx-root.evpx-hero[data-evpx-hero-mode='auto'] .evpx-eyebrow {
+		color: var(--evpx-accent-text);
+	}
+}
+
 .evpx-root .evpx-hero__title {
 	font-size: var(--evpx-size-display);
-	margin-top: var(--evpx-space-4);
+	line-height: 1.02;
+	letter-spacing: -0.03em;
+	margin-top: var(--evpx-space-5);
 	color: inherit;
 }
 
 .evpx-root .evpx-hero__excerpt {
 	margin-top: var(--evpx-space-6);
-	font-size: 1.125rem;
+	font-size: var(--evpx-size-lede);
+	line-height: 1.5;
 	color: rgba(255, 255, 255, 0.82);
-	max-width: 38rem;
+	max-width: 36rem;
 }
 
 .evpx-root.evpx-hero[data-evpx-hero-mode='light'] .evpx-hero__excerpt {
 	color: var(--evpx-ink-muted);
 }
 
-/* Each item carries a hairline in the middle of the gap before it. When the line wraps, the
-   hairline that lands before the first item of a row falls outside the box and is clipped, so a
-   separator never dangles at the start or end of a line. */
-.evpx-root .evpx-hero__meta {
-	--evpx-meta-gap: var(--evpx-space-6);
+@media (prefers-color-scheme: light) {
+	.evpx-root.evpx-hero[data-evpx-hero-mode='auto'] .evpx-hero__excerpt {
+		color: var(--evpx-ink-muted);
+	}
+}
 
-	margin-top: var(--evpx-space-6);
+/* The byline as a small spec strip: a caption over each value, a hairline between. Each item carries
+   a hairline in the middle of the gap before it; when the strip wraps, the hairline that lands before
+   the first item of a row falls outside the box and is clipped, so a separator never dangles. */
+.evpx-root .evpx-hero__meta {
+	--evpx-meta-gap: var(--evpx-space-10);
+
+	margin-top: var(--evpx-space-8);
+	padding-top: var(--evpx-space-4);
 	display: flex;
 	flex-wrap: wrap;
 	column-gap: var(--evpx-meta-gap);
-	row-gap: var(--evpx-space-1);
+	row-gap: var(--evpx-space-4);
 	overflow-x: clip;
-	font-size: 0.875rem;
-	color: rgba(255, 255, 255, 0.7);
+	border-top: 1px solid var(--evpx-hairline);
+	font-size: 0.9375rem;
+	line-height: 1.3;
+	color: rgba(255, 255, 255, 0.86);
 }
 
 .evpx-root.evpx-hero[data-evpx-hero-mode='light'] .evpx-hero__meta {
-	color: var(--evpx-ink-faint);
+	color: var(--evpx-ink);
+}
+
+@media (prefers-color-scheme: light) {
+	.evpx-root.evpx-hero[data-evpx-hero-mode='auto'] .evpx-hero__meta {
+		color: var(--evpx-ink);
+	}
 }
 
 .evpx-root .evpx-hero__meta-item {
 	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--evpx-space-2);
 }
 
-.evpx-root .evpx-hero__meta-item + .evpx-hero__meta-item::before {
+.evpx-root .evpx-hero__meta-item::before {
+	content: attr(data-label);
+	font-family: var(--evpx-font-mono);
+	font-size: 0.6875rem;
+	font-weight: 500;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	opacity: 0.72;
+}
+
+.evpx-root .evpx-hero__meta-item + .evpx-hero__meta-item::after {
 	content: '';
 	position: absolute;
-	inset-block: 0.2em;
+	inset-block: 0;
 	inset-inline-start: calc(var(--evpx-meta-gap) / -2);
 	width: 1px;
-	background: currentColor;
-	opacity: 0.35;
+	background: var(--evpx-hairline);
 }
 
 .evpx-root .evpx-hero__cta {
 	margin-top: var(--evpx-space-8);
+}
+
+/* The line along the foot of the hero: a hairline, and on top of it the charge. Static, it is a finished
+   copper rule; with motion on it fills from the left once, as the page arrives. */
+.evpx-root .evpx-hero__line {
+	position: absolute;
+	inset-inline: 0;
+	bottom: 0;
+	height: 2px;
+	background: var(--evpx-hairline);
+	pointer-events: none;
+}
+
+.evpx-root .evpx-hero__line::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: var(--evpx-accent-text);
+	opacity: 0.85;
+	transform-origin: left center;
 }
 
 /* The widget's own box can't query itself, so its minimum height follows the
@@ -555,13 +808,19 @@
 }
 
 @container (max-width: 47.99rem) {
-	.evpx-root .evpx-hero__content {
-		padding-block: var(--evpx-space-8);
+	.evpx-root .evpx-hero__inner {
+		padding-block: var(--evpx-space-16) var(--evpx-space-8);
+	}
+
+	.evpx-root .evpx-hero__meta {
+		--evpx-meta-gap: var(--evpx-space-6);
 	}
 }
 
 /* ----------------------------------------------------------------------
-   6. Section
+   6. Section — an editorial text block. Without a picture it is a split:
+   the heading (and the key figure) on one side, the copy on the other, so the
+   page never has a text column beside an empty half. "Media left" mirrors it.
    -------------------------------------------------------------------- */
 
 .evpx-root.evpx-section {
@@ -576,18 +835,18 @@
 }
 
 @container (min-width: 64rem) {
-	.evpx-root.evpx-section--media-right .evpx-section__grid,
-	.evpx-root.evpx-section--media-left .evpx-section__grid {
+	.evpx-root.evpx-section--media-right:not(.evpx-section--no-media) .evpx-section__grid,
+	.evpx-root.evpx-section--media-left:not(.evpx-section--no-media) .evpx-section__grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
-	.evpx-root.evpx-section--media-left .evpx-section__text {
+	.evpx-root.evpx-section--media-left:not(.evpx-section--no-media) .evpx-section__text {
 		order: 2;
 	}
 }
 
 .evpx-root.evpx-section--stacked .evpx-section__media {
-	margin-bottom: var(--evpx-space-8);
+	order: -1;
 }
 
 .evpx-root .evpx-section__text {
@@ -601,86 +860,191 @@
 
 .evpx-root .evpx-section__heading {
 	font-size: var(--evpx-size-heading);
-	margin-top: var(--evpx-space-3);
+	margin-top: var(--evpx-space-4);
 }
 
 .evpx-root .evpx-section__body {
-	margin-top: var(--evpx-space-4);
+	margin-top: var(--evpx-space-6);
+}
+
+/* When the copy runs to more than one paragraph, the first one leads. */
+.evpx-root .evpx-section__body:has(> p:nth-child(2)) > p:first-child {
+	font-size: var(--evpx-size-lede);
+	line-height: 1.5;
+	color: var(--evpx-ink);
+}
+
+/* The key figure: one number set large, captioned, under a rule. */
+.evpx-root .evpx-section__figure {
+	container-type: inline-size; /* the figure below is sized to this box (cqi), whatever column it lands in */
+	margin: var(--evpx-space-8) 0 0;
+	padding-top: var(--evpx-space-4);
+	display: flex;
+	flex-direction: column;
+	gap: var(--evpx-space-3);
+	border-top: 1px solid var(--evpx-border);
+}
+
+.evpx-root .evpx-section__figure-value {
+	font-family: var(--evpx-font-display);
+	font-size: clamp(1.5rem, 1rem + 4vw, var(--evpx-figure-max));
+	font-size: clamp(1.25rem, 17cqi, var(--evpx-figure-max));
+	font-weight: var(--evpx-display-weight);
+	line-height: 1;
+	letter-spacing: var(--evpx-display-tracking);
+	font-variant-numeric: lining-nums tabular-nums;
+	text-wrap: balance;
+	color: var(--evpx-ink);
+}
+
+.evpx-root .evpx-section__figure-label {
+	font-family: var(--evpx-font-mono);
+	font-size: var(--evpx-size-eyebrow);
+	font-weight: 500;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--evpx-ink-faint);
 }
 
 .evpx-root .evpx-section__media img {
 	border-radius: var(--evpx-radius-lg);
 }
 
+@container (min-width: 64rem) {
+	.evpx-root.evpx-section--no-media .evpx-section__text {
+		display: grid;
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+		column-gap: var(--evpx-space-16);
+		align-items: start;
+	}
+
+	.evpx-root.evpx-section--no-media .evpx-section__body {
+		margin-top: 0;
+		padding-top: var(--evpx-space-2);
+	}
+
+	.evpx-root.evpx-section--no-media.evpx-section--media-left .evpx-section__body {
+		order: -1;
+	}
+
+	.evpx-root.evpx-section--no-media .evpx-section__text.evpx-surface--raised,
+	.evpx-root.evpx-section--no-media .evpx-section__text.evpx-surface--recessed {
+		padding: var(--evpx-space-12);
+	}
+}
+
 /* ----------------------------------------------------------------------
-   7. AC/DC Comparison — signature component
+   7. AC/DC Comparison — the centrepiece. Per panel: the copy, and a raised
+   plate that reads like a spec sheet: the power range set large, drawn on a
+   scale shared with the other panel, then dwell time and best use.
    -------------------------------------------------------------------- */
 
 .evpx-root.evpx-comparison {
 	padding-block: var(--evpx-section-y);
 }
 
+/* The switch: a recessed track with a raised thumb. evpx.js measures the active tab into
+   --evpx-thumb-* and marks the track data-evpx-thumb, so the thumb can slide between tabs. */
 .evpx-root .evpx-comparison__tabs {
+	position: relative;
 	display: inline-flex;
 	flex-wrap: wrap; /* in a very narrow column the tabs drop to a second row instead of overflowing */
 	max-width: 100%;
 	gap: var(--evpx-space-1);
 	padding: var(--evpx-space-1);
-	margin-bottom: var(--evpx-space-8);
-}
-
-.evpx-root .evpx-comparison__tabs {
+	margin-bottom: var(--evpx-space-10);
 	background: var(--evpx-surface-base);
 	border-radius: var(--evpx-radius-md);
-	box-shadow:
-		inset 4px 4px 8px var(--evpx-surface-recessed-hi),
-		inset -4px -4px 8px var(--evpx-surface-recessed-lo);
+	box-shadow: var(--evpx-well-1);
 }
 
 .evpx-root .evpx-comparison__tabs[hidden] {
 	display: none; /* author display:inline-flex would otherwise beat the UA [hidden] rule */
 }
 
+.evpx-root .evpx-comparison__tabs::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: var(--evpx-thumb-w, 0);
+	height: var(--evpx-thumb-h, 0);
+	transform: translate(var(--evpx-thumb-x, 0), var(--evpx-thumb-y, 0));
+	border-radius: var(--evpx-radius-sm);
+	background: var(--evpx-surface-base);
+	box-shadow: var(--evpx-elev-1);
+	opacity: 0;
+}
+
+.evpx-root .evpx-comparison__tabs[data-evpx-thumb]::before {
+	opacity: 1;
+	transition:
+		transform 0.4s var(--evpx-ease-inout),
+		width 0.4s var(--evpx-ease-inout),
+		height 0.4s var(--evpx-ease-inout);
+}
+
 .evpx-root .evpx-comparison__tab {
+	position: relative;
+	flex: 1 1 auto;
 	font-family: var(--evpx-font-body);
 	font-weight: 600;
 	font-size: 0.9375rem;
-	flex: 1 1 auto;
-	padding: 0.75em 1.5em;
+	padding: 0.8em 1.6em;
 	border: 0;
 	border-radius: var(--evpx-radius-sm);
 	background: transparent;
 	color: var(--evpx-ink-muted);
 	cursor: pointer;
-	transition: background var(--evpx-dur-micro) var(--evpx-ease-premium), color var(--evpx-dur-micro) var(--evpx-ease-premium), box-shadow var(--evpx-dur-micro) var(--evpx-ease-premium);
+	transition: color var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
+.evpx-root .evpx-comparison__tab:hover {
+	color: var(--evpx-ink);
+}
+
+/* Until the thumb exists (no JS, or before it is measured) the active tab raises itself. */
 .evpx-root .evpx-comparison__tab--active {
 	background: var(--evpx-surface-base);
 	color: var(--evpx-ink);
-	box-shadow:
-		3px 3px 6px var(--evpx-surface-raised-lo),
-		-3px -3px 6px var(--evpx-surface-raised-hi);
+	box-shadow: var(--evpx-elev-1);
+}
+
+.evpx-root .evpx-comparison__tabs[data-evpx-thumb] .evpx-comparison__tab--active {
+	background: transparent;
+	box-shadow: none;
 }
 
 .evpx-root .evpx-comparison__panels {
 	display: grid;
-	gap: var(--evpx-space-8);
-	grid-template-columns: minmax(0, 1fr);
-}
-
-.evpx-root.evpx-comparison[data-mode='side-by-side'] .evpx-comparison__panels {
+	gap: var(--evpx-space-12);
 	grid-template-columns: minmax(0, 1fr);
 }
 
 @container (min-width: 48rem) {
 	.evpx-root.evpx-comparison[data-mode='side-by-side'] .evpx-comparison__panels {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--evpx-space-10);
 	}
 }
 
 .evpx-root .evpx-comparison__panel {
-	max-width: 42rem;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--evpx-space-8);
+	align-content: start;
+}
+
+@container (min-width: 64rem) {
+	.evpx-root.evpx-comparison[data-mode='toggle'] .evpx-comparison__panel {
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+		gap: var(--evpx-space-16);
+		align-items: start;
+	}
+
+	.evpx-root.evpx-comparison[data-mode='toggle'] .evpx-comparison__copy {
+		padding-top: var(--evpx-space-8);
+	}
 }
 
 .evpx-root .evpx-comparison__panel--hidden {
@@ -688,58 +1052,182 @@
 }
 
 .evpx-root .evpx-comparison__title {
-	font-size: 1.375rem;
+	font-size: var(--evpx-size-subheading);
+	line-height: 1.1;
 }
 
 .evpx-root .evpx-comparison__description {
-	margin-top: var(--evpx-space-3);
+	margin-top: var(--evpx-space-4);
 }
 
 .evpx-root .evpx-comparison__data {
-	margin: var(--evpx-space-6) 0 0;
-	padding: var(--evpx-space-6);
+	--evpx-tone: var(--evpx-ink);
+
+	container-type: inline-size; /* the range figure is sized to the plate (cqi), full width or half */
+	margin: 0;
+	padding: var(--evpx-space-8);
 	display: grid;
-	gap: var(--evpx-space-4);
-	border-left: 3px solid var(--evpx-border);
+	grid-template-columns: minmax(0, 1fr);
 }
 
 .evpx-root.evpx-comparison--split .evpx-comparison__panel--ac .evpx-comparison__data {
-	border-left-color: var(--evpx-technical);
+	--evpx-tone: var(--evpx-technical);
 }
 
 .evpx-root.evpx-comparison--split .evpx-comparison__panel--dc .evpx-comparison__data {
-	border-left-color: var(--evpx-accent-text);
+	--evpx-tone: var(--evpx-accent-text);
 }
 
 .evpx-root .evpx-comparison__data-row {
 	display: flex;
 	align-items: baseline;
 	justify-content: space-between;
-	gap: var(--evpx-space-4);
+	gap: var(--evpx-space-6);
 	margin: 0;
+	padding-block: var(--evpx-space-4);
+	border-top: 1px solid var(--evpx-border);
 }
 
 .evpx-root .evpx-comparison__data-row dt {
-	font-size: 0.8125rem;
-	color: var(--evpx-ink-faint);
+	flex: none;
+	white-space: nowrap;
+	font-family: var(--evpx-font-mono);
+	font-size: var(--evpx-size-eyebrow);
 	font-weight: 500;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--evpx-ink-faint);
 }
 
 .evpx-root .evpx-comparison__data-row dd {
+	min-width: 0;
 	margin: 0;
-	font-weight: 600;
+	font-weight: 500;
 	text-align: right;
-	font-variant-numeric: tabular-nums;
+	overflow-wrap: anywhere; /* a value with a long word shrinks and breaks instead of pushing past the plate */
+	color: var(--evpx-ink);
+}
+
+.evpx-root .evpx-comparison__data-row--power {
+	display: block;
+	padding-top: 0;
+	border-top: 0;
+}
+
+.evpx-root .evpx-comparison__data-row--power dt {
+	margin-bottom: var(--evpx-space-3);
 }
 
 .evpx-root .evpx-comparison__data-row--power dd {
+	text-align: start;
+}
+
+.evpx-root .evpx-comparison__figure {
+	display: block;
 	font-family: var(--evpx-font-display);
-	font-size: 1.5rem;
-	font-weight: 600;
+	font-size: clamp(1.5rem, 1rem + 4vw, var(--evpx-figure-max));
+	font-size: clamp(1.25rem, 17cqi, var(--evpx-figure-max));
+	font-weight: var(--evpx-display-weight);
+	line-height: 1;
+	letter-spacing: var(--evpx-display-tracking);
+	font-variant-numeric: lining-nums tabular-nums;
+	text-wrap: balance;
+}
+
+/* The ruler: this panel's power range as a bar on a 0-to-max scale, the other panel's range as an outline
+   on the same scale. Ticks every quarter, the two ends labelled. Decorative: the figure says the same. */
+.evpx-root .evpx-ruler {
+	position: relative;
+	display: block;
+	height: 2.5rem;
+	margin-top: var(--evpx-space-6);
+}
+
+.evpx-root .evpx-ruler::before,
+.evpx-root .evpx-ruler::after {
+	position: absolute;
+	top: 14px;
+	height: 24px;
+	display: flex;
+	align-items: flex-end;
+	font-family: var(--evpx-font-mono);
+	font-size: 0.6875rem;
+	line-height: 1;
+	letter-spacing: 0.04em;
+	color: var(--evpx-ink-faint);
+}
+
+.evpx-root .evpx-ruler::before {
+	content: '0';
+	left: 0;
+	right: 50%;
+	background:
+		linear-gradient(var(--evpx-border), var(--evpx-border)) left top / 200% 1px no-repeat,
+		repeating-linear-gradient(90deg, var(--evpx-ink-faint) 0 1px, transparent 1px 50%) left top / 200% 6px no-repeat;
+}
+
+.evpx-root .evpx-ruler::after {
+	content: attr(data-max);
+	left: 50%;
+	right: 0;
+	justify-content: flex-end;
+	background: linear-gradient(var(--evpx-ink-faint), var(--evpx-ink-faint)) right top / 1px 6px no-repeat;
+}
+
+.evpx-root .evpx-ruler__span,
+.evpx-root .evpx-ruler__other {
+	position: absolute;
+	top: 0;
+	height: 6px;
+	border-radius: 3px;
+}
+
+.evpx-root .evpx-ruler__span {
+	left: var(--evpx-from);
+	width: max(calc(var(--evpx-to) - var(--evpx-from)), 6px);
+	background: var(--evpx-tone);
+	transform-origin: left center;
+}
+
+.evpx-root .evpx-ruler__other {
+	left: var(--evpx-other-from);
+	width: max(calc(var(--evpx-other-to) - var(--evpx-other-from)), 6px);
+	box-shadow: inset 0 0 0 1px var(--evpx-ink-faint);
+	opacity: 0.55;
+}
+
+/* A plate too narrow for a caption and its value side by side (a phone in a Section with padding, a small
+   column): the value goes under its caption. Asked of the plate, which is a size container of its own. */
+@container (max-width: 15rem) {
+	.evpx-root .evpx-comparison__data-row {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--evpx-space-2);
+	}
+
+	.evpx-root .evpx-comparison__data-row dd {
+		text-align: start;
+	}
+}
+
+@container (max-width: 47.99rem) {
+	.evpx-root.evpx-comparison--mobile-stacked .evpx-comparison__tabs {
+		display: none;
+	}
+
+	/* "Stacked" mobile mode shows both panels regardless of which tab JS
+	   currently considers active. Two classes here outrank the base
+	   single-class .evpx-comparison__panel--hidden rule on specificity
+	   alone, so this wins without needing !important. */
+	.evpx-root.evpx-comparison--mobile-stacked .evpx-comparison__panel--hidden {
+		display: grid;
+	}
 }
 
 /* ----------------------------------------------------------------------
-   8. Scenario Cards
+   8. Scenario Cards — a raised card with a recessed well for the answer.
+   The well eases toward flat when the card is hovered: the recommendation
+   comes up to meet you. A soft highlight follows a fine pointer across the card.
    -------------------------------------------------------------------- */
 
 .evpx-root.evpx-scenarios {
@@ -753,13 +1241,14 @@
 
 .evpx-root .evpx-scenarios__heading {
 	font-size: var(--evpx-size-heading);
-	margin-top: var(--evpx-space-3);
+	margin-top: var(--evpx-space-4);
 }
 
 .evpx-root .evpx-scenarios__grid {
 	display: grid;
 	gap: var(--evpx-space-6);
 	grid-template-columns: minmax(0, 1fr);
+	align-items: start;
 }
 
 @container (min-width: 40rem) {
@@ -770,24 +1259,80 @@
 	.evpx-root .evpx-scenarios__grid--cols-3 {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
+
+	/* The second column steps down, so the grid reads as a rhythm and not a table. */
+	.evpx-root .evpx-scenarios__grid--cols-2 > :nth-child(2n),
+	.evpx-root .evpx-scenarios__grid--cols-3 > :nth-child(2n) {
+		margin-top: var(--evpx-space-10);
+	}
 }
 
 @container (min-width: 64rem) {
 	.evpx-root .evpx-scenarios__grid--cols-3 {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
+
+	.evpx-root .evpx-scenarios__grid--cols-3 > :nth-child(2n) {
+		margin-top: 0;
+	}
+
+	.evpx-root .evpx-scenarios__grid--cols-3 > :nth-child(3n + 2) {
+		margin-top: var(--evpx-space-10);
+	}
 }
 
 .evpx-root .evpx-scenario-card {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
 	padding: var(--evpx-space-8);
 	display: flex;
 	flex-direction: column;
 	gap: var(--evpx-space-3);
-	transition: transform var(--evpx-dur-base) var(--evpx-ease-premium);
+	transition:
+		transform var(--evpx-dur-base) var(--evpx-ease-premium),
+		box-shadow var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
-.evpx-root .evpx-scenario-card:hover {
-	transform: translateY(-4px);
+/* The highlight: behind the type (z-index -1), following --evpx-mx/--evpx-my when evpx.js sets them. */
+.evpx-root .evpx-scenario-card::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: radial-gradient(20rem circle at var(--evpx-mx, 50%) var(--evpx-my, 0%), var(--evpx-spot), transparent 65%);
+	opacity: 0;
+	transition: opacity var(--evpx-dur-base) var(--evpx-ease-premium);
+	pointer-events: none;
+}
+
+/* The rim: a one-pixel ring of copper, lit only near the pointer. */
+.evpx-root .evpx-scenario-card::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	padding: 1px;
+	background: radial-gradient(14rem circle at var(--evpx-mx, 50%) var(--evpx-my, 0%), var(--evpx-accent-text), transparent 65%);
+	-webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+	-webkit-mask-composite: xor;
+	mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+	mask-composite: exclude;
+	opacity: 0;
+	transition: opacity var(--evpx-dur-base) var(--evpx-ease-premium);
+	pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.evpx-root .evpx-scenario-card:hover {
+		transform: translateY(-4px);
+		box-shadow: var(--evpx-elev-3);
+	}
+
+	.evpx-root .evpx-scenario-card:hover::before,
+	.evpx-root .evpx-scenario-card:hover::after {
+		opacity: 1;
+	}
 }
 
 .evpx-root .evpx-scenario-card__icon-image {
@@ -801,43 +1346,60 @@
 	margin: 0;
 }
 
+/* In a card the label is a caption; the rule before it belongs to section labels. */
+.evpx-root .evpx-scenario-card__label::before {
+	display: none;
+}
+
 .evpx-root .evpx-scenario-card__title {
 	font-family: var(--evpx-font-display);
-	font-size: 1.375rem;
-	font-weight: 600;
+	font-size: var(--evpx-size-title);
+	font-weight: var(--evpx-title-weight);
+	line-height: 1.15;
+	letter-spacing: var(--evpx-title-tracking);
 	margin: 0;
 	color: var(--evpx-ink);
 }
 
 .evpx-root .evpx-scenario-card__description {
 	font-size: 0.9375rem;
+	margin-bottom: var(--evpx-space-4);
 }
 
 .evpx-root .evpx-scenario-card__facts {
-	margin: var(--evpx-space-2) 0 0;
+	margin: auto 0 0;
+	padding: var(--evpx-space-4) var(--evpx-space-5);
 	display: grid;
-	gap: var(--evpx-space-2);
-	border-top: 1px solid var(--evpx-border);
-	padding-top: var(--evpx-space-4);
+	gap: var(--evpx-space-3);
+	transition: box-shadow var(--evpx-dur-section) var(--evpx-ease-premium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.evpx-root .evpx-scenario-card:hover .evpx-scenario-card__facts {
+		box-shadow: var(--evpx-well-1);
+	}
 }
 
 .evpx-root .evpx-scenario-card__facts dt {
-	font-size: 0.75rem;
+	font-family: var(--evpx-font-mono);
+	font-size: 0.6875rem;
+	font-weight: 500;
 	color: var(--evpx-ink-faint);
 	text-transform: uppercase;
-	letter-spacing: 0.04em;
+	letter-spacing: 0.08em;
 }
 
 .evpx-root .evpx-scenario-card__facts dd {
-	margin: 0.2em 0 0;
+	margin: 0.3em 0 0;
 	font-size: 0.9375rem;
-	font-weight: 500;
+	font-weight: 550;
+	line-height: 1.35;
 	color: var(--evpx-ink);
 }
 
 .evpx-root .evpx-scenario-card__cta {
-	margin-top: auto;
-	padding-top: var(--evpx-space-3);
+	margin-top: var(--evpx-space-2);
+	padding-top: var(--evpx-space-2);
 	display: inline-flex;
 	align-items: center;
 	gap: var(--evpx-space-2);
@@ -847,12 +1409,10 @@
 	text-decoration: none;
 }
 
-.evpx-root .evpx-scenario-card__cta:hover .evpx-button__arrow {
-	transform: translateX(3px);
-}
-
 /* ----------------------------------------------------------------------
-   9. Technical Flow
+   9. Technical Flow — a timeline drawn on the page: a numbered node per step,
+   a line between them, the label underneath. With motion the line charges from
+   the first step to the last as it scrolls into view.
    -------------------------------------------------------------------- */
 
 .evpx-root.evpx-flow {
@@ -862,136 +1422,181 @@
 .evpx-root .evpx-flow__heading {
 	font-size: var(--evpx-size-heading);
 	max-width: 34rem;
-	margin-bottom: var(--evpx-space-10);
+	margin-bottom: var(--evpx-space-12);
 }
 
 .evpx-root .evpx-flow__steps {
+	--evpx-node: 2.75rem;
+
 	list-style: none;
 	margin: 0;
-	padding: var(--evpx-space-10) var(--evpx-space-6);
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--evpx-space-4);
-}
-
-.evpx-root.evpx-flow--vertical .evpx-flow__steps {
-	flex-direction: column;
-	align-items: flex-start;
+	padding: 0;
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: minmax(0, 1fr);
 }
 
 .evpx-root.evpx-flow--compact .evpx-flow__steps {
-	padding: var(--evpx-space-6) var(--evpx-space-4);
+	--evpx-node: 2rem;
 }
 
 .evpx-root .evpx-flow__step {
-	display: flex;
-	align-items: center;
-	gap: var(--evpx-space-3);
 	position: relative;
-	flex: 1 1 auto;
+	display: grid;
+	justify-items: start;
+	align-content: start;
+	row-gap: var(--evpx-space-4);
+	padding-right: var(--evpx-space-4);
+}
+
+/* The line to the next step: a hairline, and on it the copper charge. */
+.evpx-root .evpx-flow__step:not(:last-child)::before,
+.evpx-root .evpx-flow__step:not(:last-child)::after {
+	content: '';
+	position: absolute;
+	top: calc(var(--evpx-node) / 2);
+	left: calc(var(--evpx-node) + var(--evpx-space-3));
+	right: var(--evpx-space-3);
+	height: 1px;
+	background: var(--evpx-border);
 }
 
 .evpx-root .evpx-flow__step:not(:last-child)::after {
-	content: '';
-	flex: 1 1 2rem;
-	height: 1px;
-	background: var(--evpx-border);
-	margin-inline: var(--evpx-space-2);
-}
-
-.evpx-root.evpx-flow--vertical .evpx-flow__step:not(:last-child)::after {
-	position: absolute;
-	left: 19px;
-	top: 44px;
-	bottom: -20px;
-	width: 1px;
-	height: auto;
-	flex: none;
-	margin: 0;
+	background: var(--evpx-accent-text);
+	transform-origin: left center;
 }
 
 .evpx-root .evpx-flow__node {
 	flex: none;
-	width: 40px;
-	height: 40px;
+	width: var(--evpx-node);
+	height: var(--evpx-node);
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	border-radius: 50%;
 	background: var(--evpx-accent);
 	color: var(--evpx-accent-ink);
-	font-family: var(--evpx-font-body);
-	font-weight: 700;
+	font-family: var(--evpx-font-mono);
+	font-weight: 500;
 	font-size: 0.8125rem;
+	letter-spacing: 0.02em;
 	font-variant-numeric: tabular-nums;
+	box-shadow: 0 10px 18px -10px rgba(123, 58, 18, 0.7);
+	transition: transform var(--evpx-dur-base) var(--evpx-ease-premium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.evpx-root .evpx-flow__step:hover .evpx-flow__node {
+		transform: scale(1.08);
+	}
 }
 
 .evpx-root .evpx-flow__label {
-	font-size: 0.9375rem;
-	font-weight: 500;
+	font-size: 1rem;
+	font-weight: 550;
+	line-height: 1.3;
 	color: var(--evpx-ink);
-	white-space: nowrap;
 }
 
-.evpx-root.evpx-flow--compact .evpx-flow__node {
-	width: 32px;
-	height: 32px;
-	font-size: 0.75rem;
+/* A vertical run: nodes down the left, the label beside each, the line running down between them
+   (and charging downward, not sideways). */
+.evpx-root.evpx-flow--vertical .evpx-flow__steps {
+	grid-auto-flow: row;
+	row-gap: var(--evpx-space-8);
+}
+
+.evpx-root.evpx-flow--vertical .evpx-flow__step {
+	--evpx-charge-from: scaleY(0);
+
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: center;
+	column-gap: var(--evpx-space-4);
+	padding-right: 0;
+}
+
+.evpx-root.evpx-flow--vertical .evpx-flow__step:not(:last-child)::after {
+	transform-origin: top center;
+}
+
+.evpx-root.evpx-flow--vertical .evpx-flow__step:not(:last-child)::before,
+.evpx-root.evpx-flow--vertical .evpx-flow__step:not(:last-child)::after {
+	top: calc(var(--evpx-node) + var(--evpx-space-2));
+	bottom: calc(var(--evpx-space-8) * -1 + var(--evpx-space-2));
+	left: calc(var(--evpx-node) / 2);
+	right: auto;
+	width: 1px;
+	height: auto;
 }
 
 @container (max-width: 47.99rem) {
 	.evpx-root.evpx-flow--horizontal .evpx-flow__steps {
-		flex-direction: column;
-		align-items: flex-start;
+		grid-auto-flow: row;
+		row-gap: var(--evpx-space-8);
+	}
+
+	.evpx-root.evpx-flow--horizontal .evpx-flow__step {
+		--evpx-charge-from: scaleY(0);
+
+		grid-template-columns: auto minmax(0, 1fr);
+		align-items: center;
+		column-gap: var(--evpx-space-4);
+		padding-right: 0;
 	}
 
 	.evpx-root.evpx-flow--horizontal .evpx-flow__step:not(:last-child)::after {
-		position: absolute;
-		left: 19px;
-		top: 44px;
-		bottom: -20px;
-		width: 1px;
-		height: auto;
-		flex: none;
-		margin: 0;
+		transform-origin: top center;
 	}
 
-	.evpx-root .evpx-flow__label {
-		white-space: normal;
+	.evpx-root.evpx-flow--horizontal .evpx-flow__step:not(:last-child)::before,
+	.evpx-root.evpx-flow--horizontal .evpx-flow__step:not(:last-child)::after {
+		top: calc(var(--evpx-node) + var(--evpx-space-2));
+		bottom: calc(var(--evpx-space-8) * -1 + var(--evpx-space-2));
+		left: calc(var(--evpx-node) / 2);
+		right: auto;
+		width: 1px;
+		height: auto;
 	}
 }
 
 /* ----------------------------------------------------------------------
-   10. FAQ
+   10. FAQ — rows on hairlines, not a stack of cards. The toggle is a small
+   raised knob that is pressed in while its answer is open.
    -------------------------------------------------------------------- */
 
 .evpx-root.evpx-faq {
 	padding-block: var(--evpx-section-y);
 }
 
-.evpx-root .evpx-faq__container {
-	max-width: 46rem;
-}
-
-.evpx-root .evpx-faq__intro {
-	margin-bottom: var(--evpx-space-8);
+.evpx-root .evpx-faq__grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--evpx-space-10);
 }
 
 .evpx-root .evpx-faq__heading-main {
 	font-size: var(--evpx-size-heading);
-	margin-top: var(--evpx-space-3);
+	margin-top: var(--evpx-space-4);
 }
 
-.evpx-root .evpx-faq__list {
-	display: grid;
-	gap: var(--evpx-space-3);
+@container (min-width: 64rem) {
+	.evpx-root .evpx-faq__grid {
+		grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+		gap: var(--evpx-space-16);
+		align-items: start;
+	}
+
+	.evpx-root .evpx-faq__intro {
+		position: sticky;
+		top: var(--evpx-space-12);
+	}
 }
 
 .evpx-root .evpx-faq__item {
-	padding: 0;
-	overflow: hidden;
+	border-top: 1px solid var(--evpx-border);
+}
+
+.evpx-root .evpx-faq__item:last-child {
+	border-bottom: 1px solid var(--evpx-border);
 }
 
 /* Semantic wrapper around the question button: it carries no look of its own. */
@@ -1006,42 +1611,72 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--evpx-space-4);
-	padding: var(--evpx-space-5) var(--evpx-space-6);
+	gap: var(--evpx-space-6);
+	padding: var(--evpx-space-6) 0;
 	background: transparent;
 	border: 0;
 	cursor: pointer;
-	font-family: var(--evpx-font-body);
-	font-size: 1rem;
-	font-weight: 600;
+	font-family: var(--evpx-font-display);
+	font-size: 1.3125rem;
+	font-weight: var(--evpx-title-weight);
+	line-height: 1.25;
+	letter-spacing: var(--evpx-title-tracking);
 	color: var(--evpx-ink);
-	text-align: left;
+	text-align: start;
+	transition: color var(--evpx-dur-base) var(--evpx-ease-premium);
+}
+
+.evpx-root .evpx-faq__question:hover {
+	color: var(--evpx-accent-text);
 }
 
 .evpx-root .evpx-faq__icon {
 	flex: none;
-	width: 20px;
-	height: 20px;
 	position: relative;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 50%;
+	background: var(--evpx-surface-base);
+	box-shadow: var(--evpx-elev-1);
+	transition:
+		box-shadow var(--evpx-dur-base) var(--evpx-ease-premium),
+		transform var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
 .evpx-root .evpx-faq__icon::before,
 .evpx-root .evpx-faq__icon::after {
 	content: '';
 	position: absolute;
+	top: 50%;
+	left: 50%;
 	background: var(--evpx-accent-text);
 	border-radius: 1px;
-	transition: transform var(--evpx-dur-micro) var(--evpx-ease-premium);
+	transition:
+		transform var(--evpx-dur-base) var(--evpx-ease-premium),
+		opacity var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
 .evpx-root .evpx-faq__icon::before {
-	inset: 9px 0;
+	width: 14px;
 	height: 2px;
+	margin: -1px 0 0 -7px;
 }
 
 .evpx-root .evpx-faq__icon::after {
-	inset: 0 9px;
 	width: 2px;
+	height: 14px;
+	margin: -7px 0 0 -1px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.evpx-root .evpx-faq__question:hover .evpx-faq__icon {
+		box-shadow: var(--evpx-elev-2);
+	}
+}
+
+/* Open: the knob is pressed into the surface and the bar that made it a plus turns away. */
+.evpx-root .evpx-faq__item--open .evpx-faq__icon {
+	box-shadow: var(--evpx-well-1);
 }
 
 .evpx-root .evpx-faq__item--open .evpx-faq__icon::after {
@@ -1050,19 +1685,19 @@
 }
 
 .evpx-root .evpx-faq__answer {
-	padding: 0 var(--evpx-space-6) var(--evpx-space-5);
+	padding: 0 var(--evpx-space-16) var(--evpx-space-6) 0;
 	overflow: hidden;
-	max-width: none;
+	max-width: 44rem;
 }
 
 /* ----------------------------------------------------------------------
-   11. CTA
+   11. CTA — a closing statement: the line on the left, what to do about it
+   on the right.
    -------------------------------------------------------------------- */
 
 .evpx-root.evpx-cta {
 	position: relative;
-	padding-block: var(--evpx-section-y);
-	text-align: center;
+	padding-block: calc(var(--evpx-section-y) * 1.15);
 	overflow: hidden;
 }
 
@@ -1081,6 +1716,20 @@
 	min-height: 26rem;
 	display: flex;
 	align-items: center;
+}
+
+/* The same blueprint grid as an image-less hero, so the two ends of the article match. */
+.evpx-root.evpx-cta--dark::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background-image:
+		linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+		linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+	background-size: 4rem 4rem;
+	-webkit-mask-image: radial-gradient(110% 100% at 12% 100%, #000 0%, transparent 62%);
+	mask-image: radial-gradient(110% 100% at 12% 100%, #000 0%, transparent 62%);
 }
 
 .evpx-root .evpx-cta__media {
@@ -1103,11 +1752,10 @@
 .evpx-root .evpx-cta__content {
 	position: relative;
 	z-index: 1;
-	max-width: 38rem;
-	margin-inline: auto;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--evpx-space-6);
+	justify-items: start;
 }
 
 .evpx-root.evpx-cta .evpx-eyebrow {
@@ -1122,39 +1770,72 @@
 
 .evpx-root .evpx-cta__title {
 	color: inherit;
-	font-size: var(--evpx-size-heading);
-	margin-top: var(--evpx-space-3);
+	font-size: var(--evpx-size-headline);
+	line-height: 1.05;
+	letter-spacing: -0.028em;
 }
 
 .evpx-root .evpx-cta__body {
 	color: inherit;
 	opacity: 0.88;
-	margin-top: var(--evpx-space-4);
-	max-width: 34rem;
-}
-
-.evpx-root .evpx-cta__button {
-	margin-top: var(--evpx-space-8);
+	max-width: 30rem;
 }
 
 .evpx-root.evpx-cta--accent .evpx-button--secondary,
 .evpx-root.evpx-cta--dark .evpx-button--secondary,
 .evpx-root.evpx-cta--media .evpx-button--secondary {
 	color: inherit;
-	border-color: rgba(255, 255, 255, 0.4);
+	border-color: rgba(255, 255, 255, 0.5);
+	--evpx-button-fill: #fff;
 }
 
-@container (max-width: 47.99rem) {
-	.evpx-root.evpx-comparison--mobile-stacked .evpx-comparison__tabs {
-		display: none;
+.evpx-root.evpx-cta--accent .evpx-button--secondary:hover,
+.evpx-root.evpx-cta--dark .evpx-button--secondary:hover,
+.evpx-root.evpx-cta--media .evpx-button--secondary:hover {
+	color: var(--evpx-ink);
+}
+
+.evpx-root.evpx-cta--dark .evpx-button--primary,
+.evpx-root.evpx-cta--media .evpx-button--primary {
+	--evpx-button-fill: var(--evpx-accent-deep);
+}
+
+@container (min-width: 64rem) {
+	.evpx-root .evpx-cta__content {
+		grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+		grid-template-areas:
+			'eyebrow eyebrow'
+			'title .'
+			'title body'
+			'title button';
+		grid-template-rows: auto 1fr auto auto;
+		column-gap: var(--evpx-space-16);
+		row-gap: 0;
+		align-items: end;
 	}
 
-	/* "Stacked" mobile mode shows both panels regardless of which tab JS
-	   currently considers active. Two classes here outrank the base
-	   single-class .evpx-comparison__panel--hidden rule on specificity
-	   alone, so this wins without needing !important. */
-	.evpx-root.evpx-comparison--mobile-stacked .evpx-comparison__panel--hidden {
-		display: block;
+	.evpx-root .evpx-cta__content > .evpx-eyebrow {
+		margin-bottom: var(--evpx-space-6);
+	}
+
+	.evpx-root .evpx-cta__content > .evpx-cta__body {
+		margin-bottom: var(--evpx-space-6);
+	}
+
+	.evpx-root .evpx-cta__content > .evpx-eyebrow {
+		grid-area: eyebrow;
+	}
+
+	.evpx-root .evpx-cta__content > .evpx-cta__title {
+		grid-area: title;
+	}
+
+	.evpx-root .evpx-cta__content > .evpx-cta__body {
+		grid-area: body;
+	}
+
+	.evpx-root .evpx-cta__content > .evpx-cta__button {
+		grid-area: button;
 	}
 }
 
@@ -1167,6 +1848,8 @@
 	top: 0;
 	left: 0;
 	right: 0;
+	width: 100%;
+	max-width: none; /* a constrained block theme caps its content children at the reading column */
 	height: 3px;
 	background: transparent;
 	z-index: 9999;
@@ -1183,7 +1866,7 @@
 }
 
 /* ----------------------------------------------------------------------
-   13. Decision Factors — numbered editorial list, deliberately flat: after
+   13. Decision Factors — a numbered editorial list, deliberately flat: after
    the neumorphic comparison and scenario cards this section is where the
    page should read quietly and be easy to scan.
    -------------------------------------------------------------------- */
@@ -1201,7 +1884,7 @@
 
 .evpx-root .evpx-decision__heading {
 	font-size: var(--evpx-size-heading);
-	margin-top: var(--evpx-space-3);
+	margin-top: var(--evpx-space-4);
 }
 
 .evpx-root .evpx-decision__lede {
@@ -1218,7 +1901,7 @@
 .evpx-root .evpx-decision__item {
 	counter-increment: evpx-factor;
 	display: grid;
-	grid-template-columns: 3rem minmax(0, 1fr);
+	grid-template-columns: 3.5rem minmax(0, 1fr);
 	column-gap: var(--evpx-space-4);
 	padding-block: var(--evpx-space-6);
 	border-top: 1px solid var(--evpx-border);
@@ -1231,21 +1914,24 @@
 .evpx-root .evpx-decision__item::before {
 	content: counter(evpx-factor, decimal-leading-zero);
 	grid-row: 1 / span 3;
-	font-family: var(--evpx-font-display);
-	font-size: 1.5rem;
-	font-weight: 600;
-	line-height: 1.2;
+	font-family: var(--evpx-font-mono);
+	font-size: 0.9375rem;
+	font-weight: 500;
+	line-height: 1.9;
+	letter-spacing: 0.04em;
 	font-variant-numeric: tabular-nums;
 	color: var(--evpx-accent-text);
+	transition: transform var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
 .evpx-root .evpx-decision__title {
 	grid-column: 2;
 	margin: 0;
 	font-family: var(--evpx-font-display);
-	font-size: 1.25rem;
-	font-weight: 600;
-	line-height: 1.25;
+	font-size: 1.625rem;
+	font-weight: var(--evpx-title-weight);
+	line-height: 1.2;
+	letter-spacing: var(--evpx-title-tracking);
 	color: var(--evpx-ink);
 }
 
@@ -1265,11 +1951,25 @@
 
 .evpx-root .evpx-decision__ask {
 	margin-inline-end: var(--evpx-space-2);
-	font-size: 0.75rem;
-	font-weight: 700;
-	letter-spacing: 0.06em;
+	font-family: var(--evpx-font-mono);
+	font-size: 0.6875rem;
+	font-weight: 500;
+	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	color: var(--evpx-ink-faint);
+	transition: color var(--evpx-dur-base) var(--evpx-ease-premium);
+}
+
+/* Reading down the list, the row under the pointer steps forward: its number moves in and the label
+   that says what to ask picks up the accent. */
+@media (hover: hover) and (pointer: fine) {
+	.evpx-root .evpx-decision__item:hover::before {
+		transform: translateX(6px);
+	}
+
+	.evpx-root .evpx-decision__item:hover .evpx-decision__ask {
+		color: var(--evpx-accent-text);
+	}
 }
 
 @container (min-width: 64rem) {
@@ -1299,7 +1999,7 @@
 
 .evpx-root .evpx-related__heading {
 	font-size: var(--evpx-size-heading);
-	margin-top: var(--evpx-space-3);
+	margin-top: var(--evpx-space-4);
 }
 
 .evpx-root .evpx-related__list {
@@ -1328,13 +2028,12 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	gap: var(--evpx-space-4);
-	padding-top: var(--evpx-space-4);
-	border-top: 1px solid var(--evpx-border);
+	gap: var(--evpx-space-5);
 }
 
 .evpx-root .evpx-related__media {
-	aspect-ratio: 4 / 3;
+	position: relative;
+	aspect-ratio: 3 / 2;
 	overflow: hidden;
 	border-radius: var(--evpx-radius-md);
 }
@@ -1346,8 +2045,40 @@
 	transition: transform var(--evpx-dur-section) var(--evpx-ease-premium);
 }
 
-.evpx-root .evpx-related__item:hover .evpx-related__image {
-	transform: scale(1.04);
+/* A raised knob with an arrow, in the corner of the picture. It only shows for a fine pointer. */
+.evpx-root .evpx-related__go {
+	position: absolute;
+	right: var(--evpx-space-4);
+	bottom: var(--evpx-space-4);
+	width: 2.75rem;
+	height: 2.75rem;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background: var(--evpx-surface-base);
+	color: var(--evpx-ink);
+	box-shadow: 0 8px 20px -6px rgba(10, 12, 15, 0.5);
+	opacity: 0;
+	transform: translate(-6px, 6px) scale(0.9);
+	transition:
+		opacity var(--evpx-dur-base) var(--evpx-ease-premium),
+		transform var(--evpx-dur-base) var(--evpx-ease-premium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.evpx-root .evpx-related__go {
+		display: inline-flex;
+	}
+
+	.evpx-root .evpx-related__item:hover .evpx-related__image {
+		transform: scale(1.04);
+	}
+
+	.evpx-root .evpx-related__item:hover .evpx-related__go {
+		opacity: 1;
+		transform: none;
+	}
 }
 
 .evpx-root .evpx-related__category {
@@ -1355,17 +2086,29 @@
 }
 
 .evpx-root .evpx-related__title {
-	margin: var(--evpx-space-2) 0 0;
+	margin: var(--evpx-space-3) 0 0;
 	font-family: var(--evpx-font-display);
-	font-size: 1.25rem;
-	font-weight: 600;
-	line-height: 1.25;
+	font-size: 1.5rem;
+	font-weight: var(--evpx-title-weight);
+	line-height: 1.2;
+	letter-spacing: var(--evpx-title-tracking);
 	color: var(--evpx-ink);
 }
 
+/* The title underlines itself on hover, line by line, so a two-line title is underlined on both. */
 .evpx-root .evpx-related__link {
 	color: var(--evpx-ink);
 	text-decoration: none;
+	background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+	padding-bottom: 0.1em;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+	transition: background-size 0.5s var(--evpx-ease-premium);
+}
+
+.evpx-root .evpx-related__item:hover .evpx-related__link,
+.evpx-root .evpx-related__link:focus-visible {
+	background-size: 100% 1px;
 }
 
 /* Stretched link: the whole card is clickable while the link's accessible
@@ -1384,8 +2127,10 @@
 
 .evpx-root .evpx-related__date {
 	display: block;
-	margin-top: var(--evpx-space-3);
-	font-size: 0.8125rem;
+	margin-top: var(--evpx-space-4);
+	font-family: var(--evpx-font-mono);
+	font-size: 0.75rem;
+	letter-spacing: 0.04em;
 	color: var(--evpx-ink-faint);
 }
 
@@ -1410,7 +2155,7 @@
 	}
 
 	.evpx-root .evpx-comparison__data {
-		padding: var(--evpx-space-4);
+		padding: var(--evpx-space-5);
 	}
 
 	.evpx-root .evpx-section__text.evpx-surface--raised,
@@ -1418,15 +2163,104 @@
 	.evpx-root .evpx-scenario-card {
 		padding: var(--evpx-space-6);
 	}
+
+	.evpx-root .evpx-faq__answer {
+		padding-right: 0;
+	}
+
+	.evpx-root .evpx-faq__question {
+		font-size: 1.1875rem;
+	}
 }
 
 /* ----------------------------------------------------------------------
-   16. Hero entrance — no flash of final state before the animation.
+   16. Motion. Everything here waits for evpx.js to mark the widget
+   data-evpx-motion="on"; a widget that isn't marked (reduced motion, the builder canvas, no
+   script) keeps the finished, static state it already has above.
+
+   .evpx-in-view is set once by evpx.js when the widget or block first reaches the viewport.
+   -------------------------------------------------------------------- */
+
+@keyframes evpx-charge {
+	from {
+		transform: var(--evpx-charge-from, scaleX(0));
+	}
+
+	to {
+		transform: none;
+	}
+}
+
+@keyframes evpx-rise {
+	from {
+		clip-path: inset(0 0 100% 0);
+		transform: translateY(0.35em);
+	}
+
+	to {
+		clip-path: inset(0 0 -0.2em 0);
+		transform: none;
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	/* The hero's line fills once, left to right, a beat after the type. */
+	.evpx-root[data-evpx-motion='on'] .evpx-hero__line::after {
+		animation: evpx-charge 1.8s var(--evpx-ease-inout) 0.7s both;
+	}
+
+	/* Section labels draw their rule as the block arrives. */
+	.evpx-root[data-evpx-motion='on'] [data-evpx-reveal]:not(.evpx-in-view) .evpx-eyebrow::before {
+		transform: scaleX(0);
+	}
+
+	.evpx-root[data-evpx-motion='on'] [data-evpx-reveal] .evpx-eyebrow::before {
+		transition: transform 0.9s var(--evpx-ease-premium) 0.15s;
+	}
+
+	/* The comparison: the range bar grows to its length and the figure rises out of its line each time a
+	   panel is shown, once the comparison is on screen. */
+	.evpx-root[data-evpx-motion='on'].evpx-comparison:not(.evpx-in-view) .evpx-ruler__span {
+		transform: scaleX(0);
+	}
+
+	.evpx-root[data-evpx-motion='on'].evpx-comparison.evpx-in-view .evpx-comparison__panel:not(.evpx-comparison__panel--hidden) .evpx-ruler__span {
+		animation: evpx-charge 0.9s var(--evpx-ease-premium) 0.25s both;
+	}
+
+	.evpx-root[data-evpx-motion='on'].evpx-comparison.evpx-in-view .evpx-comparison__panel:not(.evpx-comparison__panel--hidden) .evpx-comparison__figure {
+		animation: evpx-rise 0.8s var(--evpx-ease-premium) both;
+	}
+
+	/* The flow: the steps arrive one after another and each connector charges toward the next as it does,
+	   all from one trigger (.evpx-in-view), so the line and the steps can never fall out of step. */
+	.evpx-root[data-evpx-motion='on'].evpx-flow:not(.evpx-in-view) .evpx-flow__step > * {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+
+	.evpx-root[data-evpx-motion='on'].evpx-flow .evpx-flow__step > * {
+		transition:
+			opacity 0.6s var(--evpx-ease-premium),
+			transform 0.6s var(--evpx-ease-premium);
+		transition-delay: calc(var(--evpx-step, 0) * 0.4s);
+	}
+
+	.evpx-root[data-evpx-motion='on'].evpx-flow:not(.evpx-in-view) .evpx-flow__step::after {
+		transform: var(--evpx-charge-from, scaleX(0));
+	}
+
+	.evpx-root[data-evpx-motion='on'].evpx-flow.evpx-in-view .evpx-flow__step:not(:last-child)::after {
+		animation: evpx-charge 0.6s var(--evpx-ease-premium) both;
+		animation-delay: calc(0.25s + var(--evpx-step, 0) * 0.4s);
+	}
+}
+
+/* Hero entrance — no flash of final state before the animation.
    The hero's content is held invisible only until evpx.js/motion.js mark it
    ready; the keyframe is a pure-CSS failsafe so nothing stays hidden if
    neither script ever runs (JS disabled, both files blocked). Reduced-motion
-   users never get the hold-back at all.
-   -------------------------------------------------------------------- */
+   users never get the hold-back at all. */
 
 @media (prefers-reduced-motion: no-preference) {
 	.evpx-root.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__media,
@@ -1462,7 +2296,7 @@
 		cursor: default;
 	}
 
-	/* Same selectors as the hold-back in section 15 (equal specificity, later
+	/* Same selectors as the hold-back in section 16 (equal specificity, later
 	   in the file) so this actually wins. */
 	.evpx-root.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__media,
 	.evpx-root.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__content > * {

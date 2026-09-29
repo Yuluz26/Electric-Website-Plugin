@@ -50,6 +50,17 @@ const pairs = (t, mode) => [
 	[`${mode}: button text (accent-ink on accent fill)`, t['--evpx-accent-ink'], t['--evpx-accent'], 4.5],
 	[`${mode}: accent icon/focus ring (non-text)`, t['--evpx-accent-text'] || t['--evpx-accent'], t['--evpx-surface-base'], 3],
 	[`${mode}: technical accent border (non-text)`, t['--evpx-technical'], t['--evpx-surface-base'], 3],
+
+	// The lit and shaded faces of a raised surface (cards, the comparison plate) carry text too.
+	[`${mode}: body text on the raised sheen`, t['--evpx-ink-muted'], t['--evpx-surface-sheen'], 4.5],
+	[`${mode}: body text on the raised shade`, t['--evpx-ink-muted'], t['--evpx-surface-shade'], 4.5],
+	[`${mode}: small labels on the raised shade`, t['--evpx-ink-faint'], t['--evpx-surface-shade'], 4.5],
+	[`${mode}: headings on the raised shade`, t['--evpx-ink'], t['--evpx-surface-shade'], 4.5],
+	[`${mode}: accent text on the raised shade`, t['--evpx-accent-text'] || t['--evpx-accent'], t['--evpx-surface-shade'], 4.5],
+	[`${mode}: the range bar tone on the raised shade (non-text)`, t['--evpx-technical'], t['--evpx-surface-shade'], 3],
+
+	// A button that has charged: white type on the deeper fill it sweeps to.
+	[`${mode}: button text on the hover fill (accent-ink on accent-deep)`, t['--evpx-accent-ink'], t['--evpx-accent-deep'], 4.5],
 ];
 
 let failures = 0;

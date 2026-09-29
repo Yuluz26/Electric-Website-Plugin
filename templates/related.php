@@ -27,9 +27,12 @@ $show_images = ! in_array( '', array_column( $items, 'image_html' ), true );
 
 		<ul class="evpx-related__list evpx-related__list--cols-<?php echo esc_attr( $count ); ?>" role="list">
 			<?php foreach ( $items as $item ) : ?>
-				<li class="evpx-related__item">
+				<li class="evpx-related__item" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
 					<?php if ( $show_images ) : ?>
-						<div class="evpx-related__media"><?php echo $item['image_html']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_the_post_thumbnail() output */ ?></div>
+						<div class="evpx-related__media">
+							<?php echo $item['image_html']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_the_post_thumbnail() output */ ?>
+							<span class="evpx-related__go" aria-hidden="true"><span class="evpx-button__arrow"></span></span>
+						</div>
 					<?php endif; ?>
 
 					<div class="evpx-related__body">

@@ -54,26 +54,65 @@
 	var EASE = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 	/* ------------------------------------------------------------------
-	   Hero reveal — strongest motion moment.
+	   Hero reveal — strongest motion moment. The picture settles, the
+	   title rises out of a mask, the rest follows in sequence. The line at
+	   the foot of the hero charges in CSS (see "Motion" in evpx.css).
 	   ------------------------------------------------------------------ */
 	function heroReveal() {
 		EVPX.each( '.evpx-hero[data-evpx-animate="1"]', document, function ( hero ) {
 			var media = hero.querySelector( '.evpx-hero__media' );
-			var items = hero.querySelectorAll( '.evpx-hero__content > *' );
+			var image = hero.querySelector( '.evpx-hero__image' );
+			var title = hero.querySelector( '.evpx-hero__title' );
+			var rest = hero.querySelectorAll( '.evpx-hero__content > *:not(.evpx-hero__title)' );
+
+			// GSAP can arrive after the CSS failsafe has already shown the hero (a slow CDN). Hiding it to play
+			// the entrance then would blank what the visitor is already reading, so let it be.
+			if ( title && ! hero.hasAttribute( 'data-evpx-ready' ) && window.getComputedStyle( title ).opacity === '1' ) {
+				hero.setAttribute( 'data-evpx-ready', '1' );
+				return;
+			}
+
+			// The CSS hold-back lets go the moment this function ends, so what it was holding back is hidden here,
+			// now, rather than when the timeline first ticks: a tween that starts later in a timeline is not
+			// guaranteed to apply its from-state at once, and the gap would show as a one-frame flash.
+			gsap.set( [ media, title ].concat( Array.prototype.slice.call( rest ) ).filter( Boolean ), { autoAlpha: 0 } );
 
 			var tl = gsap.timeline( { defaults: { ease: EASE } } );
 
 			if ( media ) {
-				tl.fromTo( media, { autoAlpha: 0, scale: 1.04 }, { autoAlpha: 1, scale: 1, duration: 1.2, clearProps: 'transform' }, 0 );
+				tl.fromTo( media, { autoAlpha: 0 }, { autoAlpha: 1, duration: 1, clearProps: 'opacity,visibility' }, 0 );
 			}
-			if ( items.length ) {
+			if ( image ) {
+				tl.fromTo( image, { scale: 1.08 }, { scale: 1, duration: 2.2, clearProps: 'transform' }, 0 );
+			}
+			if ( title ) {
+				// The mask reaches below the baseline so descenders aren't cut while it opens.
 				tl.fromTo(
-					items,
-					{ autoAlpha: 0, y: 20 },
+					title,
+					{ autoAlpha: 0, y: 40, clipPath: 'inset(0 0 100% 0)' },
+					{ autoAlpha: 1, y: 0, clipPath: 'inset(0 0 -14% 0)', duration: 1.1, clearProps: 'transform,clipPath' },
+					0.15
+				);
+			}
+			if ( rest.length ) {
+				tl.fromTo(
+					rest,
+					{ autoAlpha: 0, y: 18 },
 					// clearProps: GSAP's leftover inline transform would otherwise
 					// beat the CSS :hover transform on the CTA button.
 					{ autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.1, clearProps: 'transform' },
-					0.2
+					0.4
+				);
+			}
+
+			// A picture drifts slower than the page as the hero leaves (the CSS gives it the room to).
+			if ( media && hasScrollTrigger ) {
+				track(
+					gsap.to( media, {
+						yPercent: 5,
+						ease: 'none',
+						scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true },
+					} ).scrollTrigger
 				);
 			}
 
@@ -84,7 +123,8 @@
 	}
 
 	/* ------------------------------------------------------------------
-	   Generic scroll reveal for section-level content.
+	   Generic scroll reveal for section-level content. Blocks that arrive
+	   together (a row of cards) come in one after another, not as a slab.
 	   ------------------------------------------------------------------ */
 	function sectionReveals() {
 		if ( ! hasScrollTrigger ) {
@@ -92,62 +132,39 @@
 		}
 
 		var fold = window.innerHeight * 0.85;
+		var held = [];
 
 		EVPX.each( '[data-evpx-reveal]', document, function ( el ) {
 			// Already on screen at load: hiding it just to fade it back in
 			// reads as a flicker, so leave it be. Only content that starts
 			// below the fold is held back and revealed on approach.
-			if ( el.getBoundingClientRect().top < fold ) {
-				return;
+			if ( el.getBoundingClientRect().top >= fold ) {
+				held.push( el );
 			}
-
-			track(
-				gsap.fromTo(
-					el,
-					{ autoAlpha: 0, y: 28 },
-					{
-						autoAlpha: 1,
-						y: 0,
-						duration: 0.9,
-						ease: EASE,
-						clearProps: 'transform', // keep CSS :hover transforms working
-						scrollTrigger: {
-							trigger: el,
-							start: 'top 85%',
-							once: true,
-						},
-					}
-				).scrollTrigger
-			);
 		} );
-	}
 
-	/* ------------------------------------------------------------------
-	   Technical flow — sequence steps in on scroll.
-	   ------------------------------------------------------------------ */
-	function flowSequence() {
-		if ( ! hasScrollTrigger ) {
+		if ( ! held.length ) {
 			return;
 		}
 
-		EVPX.each( '.evpx-flow[data-evpx-animate="1"]', document, function ( flow ) {
-			var steps = flow.querySelectorAll( '.evpx-flow__step' );
-			if ( ! steps.length ) {
-				return;
-			}
+		gsap.set( held, { autoAlpha: 0, y: 28 } );
 
-			track(
-				gsap
-					.timeline( {
-						scrollTrigger: { trigger: flow, start: 'top 75%', once: true },
-					} )
-					.fromTo(
-						steps,
-						{ autoAlpha: 0, y: 16 },
-						{ autoAlpha: 1, y: 0, duration: 0.5, ease: EASE, stagger: 0.12, clearProps: 'transform' }
-					).scrollTrigger
-			);
-		} );
+		ScrollTrigger.batch( held, {
+			start: 'top 85%',
+			once: true,
+			batchMax: 6,
+			onEnter: function ( batch ) {
+				gsap.to( batch, {
+					autoAlpha: 1,
+					y: 0,
+					duration: 0.9,
+					ease: EASE,
+					stagger: 0.09,
+					overwrite: true,
+					clearProps: 'transform', // keep CSS :hover transforms working
+				} );
+			},
+		} ).forEach( track );
 	}
 
 	/* ------------------------------------------------------------------
@@ -182,26 +199,35 @@
 	EVPX.motion = EVPX.motion || {};
 
 	EVPX.motion.animateFaqPanel = function ( panel, open ) {
+		// The answer's bottom padding travels with its height, or the row would jump by that much when it starts.
+		var padding = window.getComputedStyle( panel ).paddingBottom;
+
+		gsap.killTweensOf( panel );
+
 		if ( open ) {
 			panel.hidden = false;
 			gsap.fromTo(
 				panel,
-				{ height: 0, autoAlpha: 0 },
+				{ height: 0, paddingBottom: 0, autoAlpha: 0 },
 				{
 					height: 'auto',
+					paddingBottom: padding,
 					autoAlpha: 1,
 					duration: 0.4,
 					ease: EASE,
+					clearProps: 'height,paddingBottom',
 				}
 			);
 		} else {
 			gsap.to( panel, {
 				height: 0,
+				paddingBottom: 0,
 				autoAlpha: 0,
 				duration: 0.3,
 				ease: EASE,
 				onComplete: function () {
 					panel.hidden = true;
+					gsap.set( panel, { clearProps: 'height,paddingBottom,opacity,visibility' } );
 				},
 			} );
 		}
@@ -221,7 +247,6 @@
 	function boot() {
 		heroReveal();
 		sectionReveals();
-		flowSequence();
 		readingProgress();
 	}
 

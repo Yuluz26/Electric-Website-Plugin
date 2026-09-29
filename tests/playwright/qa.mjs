@@ -91,12 +91,17 @@ const hasGsap = await page.evaluate(() => typeof window.gsap !== 'undefined' && 
 
 check('no unprocessed [evpx_*] shortcode text left on page', !(await page.evaluate(() => /\[evpx_[a-z_]+/.test(document.body.innerText))));
 
+// document.fonts.check() is true for a family nobody declared, so ask the faces themselves: each of the
+// three families the page uses (serif headings, sans body, mono labels) must have a face that has loaded.
+const fontFaces = await page.evaluate(async () => {
+	await document.fonts.ready;
+	return [...document.fonts].map((f) => ({ family: f.family.replace(/["']/g, ''), status: f.status }));
+});
+const loadedFamily = (family) => fontFaces.some((f) => f.family === family && f.status === 'loaded');
 check(
-	'self-hosted fonts actually load',
-	await page.evaluate(async () => {
-		await document.fonts.ready;
-		return document.fonts.check('600 32px "EVPX Fraunces"') && document.fonts.check('400 16px "EVPX Libre Franklin"');
-	})
+	'self-hosted fonts actually load (Spectral, Geist, Geist Mono)',
+	loadedFamily('EVPX Spectral') && loadedFamily('EVPX Geist') && loadedFamily('EVPX Geist Mono'),
+	JSON.stringify(fontFaces)
 );
 
 const headings = await page.$$eval('h1, .evpx-root h2, .evpx-root h3, .evpx-root h4', (els) =>
@@ -144,11 +149,20 @@ if (await page.$('.evpx-comparison__tab--ac')) {
 	check('comparison tabs: Home/Arrow keys move selection and focus, aria-controls links panel', homeOk && rightOk && linked);
 }
 
-const cardTops = await page.$$eval('.evpx-scenarios__grid > *', (els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
-if (cardTops.length >= 3) check('scenario cards align into clean grid rows', new Set(cardTops.slice(0, 3)).size === 1);
+// Three columns, the middle one stepped down by one spacing step (2.5rem) on purpose: the outer two cards of a
+// row share a top edge, and nothing overlaps.
+const cards = await page.$$eval('.evpx-scenarios__grid > *', (els) => els.map((el) => { const r = el.getBoundingClientRect(); return { top: Math.round(r.top), left: Math.round(r.left), right: Math.round(r.right) }; }));
+if (cards.length >= 6) {
+	const step = cards[1].top - cards[0].top;
+	check(
+		'scenario cards form clean columns: the outer two of a row share a top edge, the middle one steps down',
+		cards[0].top === cards[2].top && cards[3].top === cards[5].top && Math.abs(step - 40) <= 1 && cards[0].right <= cards[1].left && cards[1].right <= cards[2].left,
+		JSON.stringify(cards.map((c) => c.top))
+	);
+}
 
-// Check the alignfull WRAPPER, not an inner .evpx-container: Hero narrows its
-// own text column on purpose (max-width: 46rem).
+// Check the alignfull WRAPPER, not an inner .evpx-container: the Hero's own content is a narrower column
+// inside it.
 const wrapperWidth = await page.$eval('.evpx-hero.alignfull', (el) => el.getBoundingClientRect().width).catch(() => 0);
 // Inside a Breakdance Section the Section decides the width (1120px by default), not the theme.
 const inBreakdanceSection = await page.$eval('.evpx-hero.alignfull', (el) => !!el.closest('.bde-section')).catch(() => false);
@@ -166,6 +180,13 @@ if (!hasGsap) {
 		await page.waitForTimeout(600);
 		const scale = await bar.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
 		check('progress bar tracks scroll', scale > 0.95, `scaleX=${scale}`);
+		// A constrained block theme caps and centres every child of the post content, a fixed bar included:
+		// on Twenty Twenty-Five the track was 645px wide, starting 398px in.
+		const track = await page.$eval('.evpx-progress', (el) => {
+			const r = el.getBoundingClientRect();
+			return { x: Math.round(r.x), width: Math.round(r.width), viewport: innerWidth };
+		});
+		check('progress bar spans the window, not the theme’s content column', track.x === 0 && track.width === track.viewport, JSON.stringify(track));
 	}
 
 	await page.evaluate(() => window.scrollTo(0, 0));
@@ -239,28 +260,35 @@ await page.close();
 }
 
 // -------------------------------------------- hero never flashes on slow GSAP
+// Two slow loads: GSAP arriving before the CSS failsafe reveals the hero (1.6s), where the entrance plays as
+// usual, and after it (2.8s), where the hero is already showing and must be left alone, not hidden and replayed.
 if (hasGsap) {
-	const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-	await p.route(/gsap\.min\.js|ScrollTrigger\.min\.js/, async (r) => {
-		await new Promise((x) => setTimeout(x, 1200));
-		r.continue();
-	});
-	await p.addInitScript(() => {
-		window.__opacity = [];
-		const tick = () => {
-			const el = document.querySelector('.evpx-hero__title');
-			if (el) window.__opacity.push(+getComputedStyle(el).opacity);
-			if (performance.now() < 5000) requestAnimationFrame(tick);
-		};
-		requestAnimationFrame(tick);
-	});
-	await p.goto(url, { waitUntil: 'networkidle' });
-	await p.waitForTimeout(3500);
-	const samples = await p.evaluate(() => window.__opacity);
-	let flashed = false;
-	for (let i = 1; i < samples.length; i++) if (samples[i - 1] > 0.9 && samples[i] < 0.1) flashed = true;
-	check('hero entrance never flashes visible → hidden → visible on a slow GSAP load', !flashed && samples.at(-1) === 1, `${samples.length} samples`);
-	await p.close();
+	for (const [delay, what] of [
+		[1200, 'a slow GSAP load'],
+		[2800, 'a GSAP load slower than the CSS failsafe'],
+	]) {
+		const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+		await p.route(/gsap\.min\.js|ScrollTrigger\.min\.js/, async (r) => {
+			await new Promise((x) => setTimeout(x, delay));
+			r.continue();
+		});
+		await p.addInitScript(() => {
+			window.__opacity = [];
+			const tick = () => {
+				const el = document.querySelector('.evpx-hero__title');
+				if (el) window.__opacity.push(+getComputedStyle(el).opacity);
+				if (performance.now() < 7000) requestAnimationFrame(tick);
+			};
+			requestAnimationFrame(tick);
+		});
+		await p.goto(url, { waitUntil: 'networkidle' });
+		await p.waitForTimeout(delay + 3500);
+		const samples = await p.evaluate(() => window.__opacity);
+		let flashed = false;
+		for (let i = 1; i < samples.length; i++) if (samples[i - 1] > 0.9 && samples[i] < 0.1) flashed = true;
+		check(`hero entrance never flashes visible → hidden → visible on ${what}`, !flashed && samples.at(-1) === 1, `${samples.length} samples`);
+		await p.close();
+	}
 }
 
 // --------------------------------------------------------------------- axe

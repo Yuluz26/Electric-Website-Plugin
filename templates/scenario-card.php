@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<article class="evpx-scenario-card evpx-surface--raised-sm" data-evpx-reveal>
+<article class="evpx-scenario-card evpx-surface--raised-sm" data-evpx-reveal data-evpx-spot>
 	<?php if ( $icon_html ) : ?>
 		<div class="evpx-scenario-card__icon"><?php echo $icon_html; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() output */ ?></div>
 	<?php endif; ?>
@@ -30,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php endif; ?>
 
 	<?php if ( $requirement || $recommendation ) : ?>
-		<dl class="evpx-scenario-card__facts">
+		<dl class="evpx-scenario-card__facts evpx-surface--recessed">
 			<?php if ( $requirement ) : ?>
 				<div><dt><?php esc_html_e( 'Key requirement', 'ev-charging-experience' ); ?></dt><dd><?php echo esc_html( $requirement ); ?></dd></div>
 			<?php endif; ?>
@@ -43,7 +43,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php if ( $cta_label && $cta_url ) : ?>
 		<a class="evpx-scenario-card__cta" href="<?php echo esc_url( $cta_url ); ?>">
 			<?php echo esc_html( $cta_label ); ?>
-			<span class="evpx-button__arrow" aria-hidden="true">&rarr;</span>
+			<span class="evpx-button__arrow" aria-hidden="true"></span>
 		</a>
 	<?php endif; ?>
 </article>

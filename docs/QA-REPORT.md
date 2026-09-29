@@ -1,4 +1,4 @@
-# QA report — v0.4.0
+# QA report — v0.5.0
 
 Everything below was run, not reasoned about. Every command is in the repo, so it can be
 re-run: see "Reproducing" at the end.
@@ -6,12 +6,21 @@ re-run: see "Reproducing" at the end.
 ## Readiness
 
 **Release candidate — not yet "production ready".** 0.3.0 was the first release run against a real,
-licensed **Breakdance 2.8.3**. 0.4.0 adds the nine widgets as native Breakdance elements and drives them in
-the builder itself: Add panel, selecting, editing, toggles, and choosing a picture in the media library. It
-also ran the plugin under Breakdance's own Zero theme, in Breakdance templates, and with pictures — which
-found ten more bugs no earlier run could show (24–33 below), all fixed and now guarded by tests. What still
-stands between this and a production label needs things this environment doesn't have: real photography,
-browsers other than Chromium, and a site running your caching stack. Details under "Not verified".
+licensed **Breakdance 2.8.3**; 0.4.0 added the nine widgets as native Breakdance elements and drove them in the
+builder. 0.5.0 is a design release: the type, the depth, the hero, the comparison, the hover states and the
+motion were redone, and the whole matrix was run again against the result: WordPress on Twenty Twenty-Five, and
+Breakdance 2.8.3 under its own Zero theme with the widgets in a default Section and in the full-width Section
+`docs/BREAKDANCE.md` recommends. Redesigning found eleven more bugs in the plugin's own work (34–44 below), all
+fixed and guarded by tests; three of them (a hero that flashed for one frame, a comparison that overflowed at
+320 px, and a reading-progress bar that was a 645 px column instead of a bar across the window) were caught by
+checks or captures made for other reasons.
+
+Two limits worth reading before you rely on the design verdict. The reference site the brief compares against
+could not be opened from this environment (its host is blocked), so "better than the reference" is a judgement
+made from the running pages, not a measured comparison. And the design was judged from screenshots and measured
+behaviour in Chromium at 1440, 1366, 768, 390 and 320 px, not on a phone in a hand. What still stands between
+this and a production label needs things this environment doesn't have: real photography, browsers other than
+Chromium, and a site running your caching stack. Details under "Not verified".
 
 ## What was tested
 
@@ -20,33 +29,38 @@ browsers other than Chromium, and a site running your caching stack. Details und
 | PHP syntax | `php -l` on PHP 8.4 (plugin header promises 7.4+) | clean |
 | WordPress coding standards | `phpcs` — WordPress-Core + WordPress-Extra + PHPCompatibilityWP (7.4+), security/escaping/i18n/prefix sniffs on | 0 errors, 0 warnings, with the formatting exclusions listed and justified in `phpcs.xml.dist` |
 | JS syntax | `node --check` | clean |
-| Colour contrast | `tests/contrast-check.mjs` reads the real tokens out of `evpx.css` and asserts 16 pairings, light and dark | all pass |
+| Stylesheet, statically | `tests/css-check.mjs`, no browser: every `--evpx-*` token that is read is defined; every selector is scoped under `.evpx-root`; no `!important` outside the reduced-motion rule; every animation is gated on the motion marker | 5/5 |
+| Colour contrast | `tests/contrast-check.mjs` reads the real tokens out of `evpx.css` and asserts 15 pairings, light and dark (30 checks), including the lit and shaded faces of a raised surface and white type on the button's hover fill | all pass |
+| What the widgets print | `tests/docker/widget-render-check.sh`, inside WordPress, no browser: the comparison's power scale (ranges, points, thousands separators, decimals, and six inputs that must *not* draw a ruler), the section's key figure, the hero's captions and blueprint grid, that typed-in text is escaped | 24/24 |
 | Activation / deactivation | WP-CLI, `WP_DEBUG` + `WP_DEBUG_LOG` + `WP_DEBUG_DISPLAY` | clean; the only `debug.log` entries across activation, rendering of every widget and every suite below are core's own wordpress.org update check failing on the sandbox network |
 | **Real Breakdance 2.8.3 — integration** | `tests/docker/breakdance-real-check.sh`: 24 assertions against the running plugin (save locations reach Breakdance; Dynamic Data field; reading time; the nine native elements are declared, concrete, in their own category, with control paths that match their controls, repeaters, dynamic-data paths, the spacing attribute, toggle semantics, and the **same markup as the shortcode** for all twelve widgets of the demo article) plus a behavioural probe: an element file saved in the plugin's Element Studio folder — declaring a class with a native element's name — must be loaded by a *fresh* PHP process | 25/25 |
-| **Real Breakdance — front end and builder** | `tests/playwright/breakdance-qa.mjs`: a page designed in Breakdance from the demo article, once with Shortcode elements and once with native elements; front end (assets, typography, hover colours, reading time, interactions, motion, overflow at six widths, axe) and the builder itself: server-side renders, canvas, and, for native elements, the Add panel, selecting each element, editing a control (one render), a toggle (saved as `false`), and choosing a picture in the media library | 16/16 on the Shortcode page · 24/24 on the native page · 24/24 on the native page with pictures |
+| **Real Breakdance — front end and builder** | `tests/playwright/breakdance-qa.mjs`: a page designed in Breakdance from the demo article, once with Shortcode elements and once with native elements; front end (assets, typography, hover colours, reading time, interactions, motion, overflow at six widths, axe) and the builder itself: server-side renders, canvas, and, for native elements, the Add panel, selecting each element, editing a control (one render), a toggle (saved as `false`), and choosing a picture in the media library | 16/16 on the Shortcode page · 24/24 on the native page · 24/24 on the native page in full-width Sections without padding · 24/24 on the native page with pictures |
 | **Builder round-trip** | `tests/docker/builder-save-check.sh`, on scratch pages it deletes: a dropdown lists the widget's options and re-renders the canvas; Save answers 200; the front end and a reopened builder show the edit; an element added from the Add panel to an empty page renders with its starting copy, brings its stylesheet into the canvas with it, and saves | 6/6 |
 | **Pictures** | `tests/docker/media-pages.sh` generates six test images (GD gradients with a frame at the edges, one of them a near-white sky), imports them, and builds a shortcode post, a native page and a mixed Related row; `tests/playwright/media-qa.mjs` at 1440 and 390 px | 49/49 |
 | **Templates and themes** | `tests/docker/template-check.sh`: a Breakdance footer (native CTA, and a Shortcode element) and a Single Post template, each checked with pages that have their own shortcode or native widgets, under **Twenty Twenty-Five, Breakdance's own Zero theme and a bare classic theme** | 180/180 |
 | **Unrelated pages** | `tests/docker/isolation-check.sh`: three pages with no EV element (Sample Page, a post, a Breakdance page), screenshotted with the plugin active and inactive, under two themes | 12/12 |
-| Browser suite, any WordPress page | `tests/playwright/qa.mjs`, 21 checks, Chromium, WordPress on the Twenty Twenty-Five block theme, with Breakdance also active (also run with Breakdance deactivated, on plain WordPress, and under the Zero theme; the one width assertion that presumes a block theme is skipped inside a Breakdance Section) | 21/21 |
-| Breakdance contract stub | `tests/docker/breakdance-stub.php` + `breakdance-contract-check.php` — kept for CI without a licence; the real check above is authoritative | 11/11 |
-| The shipped artifact | the built ZIP installed as a separate plugin directory and the suites run against *that* | all pass, same counts as the working tree: integration 25/25, browser suite 21/21, Shortcode page 16/16, native page 24/24, pictures 49/49, unrelated pages 12/12, templates 180/180 |
+| Browser suite, any WordPress page | `tests/playwright/qa.mjs`, 23 checks, Chromium, WordPress on the Twenty Twenty-Five block theme, with Breakdance also active (also run with Breakdance deactivated, on plain WordPress, and under the Zero theme; the one width assertion that presumes a block theme is skipped inside a Breakdance Section) | 23/23 |
+| Interaction, motion and hover states | `tests/playwright/interaction-qa.mjs`, Chromium: the finished state and the motion that leads to it (the hero's charge line, the flow's connectors, the comparison's range bars), the comparison thumb measured onto the active tab and moved by a click, the button's fill and arrow, the scenario card's rim and highlight following a fine pointer, the decision list's numerals, the FAQ's open state and that a row opens from its own height, the related arrow, keyboard focus rings, no seams between widgets, one shared left edge, "Follow system" following both colour schemes; then the same page for a reduced-motion visitor and for a touch device with no hover | 33/33 |
+| Breakdance contract stub | `tests/docker/breakdance-stub.php` + `breakdance-contract-check.php` — kept for CI without a licence; the real check above is authoritative | 11/11 in 0.4.0; not re-run for 0.5.0, which changes nothing under `src/Breakdance` (the real-Breakdance checks above cover the same ground) |
+| The shipped artifact | the built ZIP installed as a separate plugin directory and the suites run against *that* | all pass, same counts as the working tree: integration 25/25, browser suite 23/23, Shortcode page 16/16, native page 24/24, pictures 49/49, unrelated pages 12/12, templates 180/180 |
 | Motion | real GSAP **3.12.5** (the version the plugin loads by default), served locally because this sandbox blocks cdnjs | verified below |
 
-### The 21 checks in `qa.mjs`
+### The 23 checks in `qa.mjs`
 
 No uncaught exceptions · no third-party font requests · **no horizontal overflow at 320, 375, 390,
-430, 768, 1024, 1280, 1366, 1440 and 1920 px** · no leftover `[evpx_*]` text · bundled fonts
-actually load · decision factors and related articles render · FAQ accordion toggles · AC/DC tabs
+430, 768, 1024, 1280, 1366, 1440 and 1920 px** · no leftover `[evpx_*]` text · the bundled fonts
+(Spectral, Geist, Geist Mono) actually load · heading hierarchy (≤ 1 `h1`, no skipped levels
+inside widgets) · decision factors and related articles render · FAQ accordion toggles · AC/DC tabs
 switch · tabs keyboard pattern (Home / Arrow keys, `aria-controls` ↔ `aria-labelledby`) · scenario
-cards align in grid rows · sections aren't squeezed by the theme's content width · reading-progress
-bar tracks scroll · every scroll reveal settles fully visible · card `:hover` lift survives its
-reveal · `prefers-reduced-motion` (nothing hidden, zero scroll triggers) · JavaScript disabled (FAQ
+cards form clean columns, the middle one stepping down (this replaced "cards align in grid rows" when the
+stagger became deliberate) · sections aren't squeezed by the theme's content width · reading-progress
+bar tracks scroll · the progress bar spans the window, not the theme's content column · every scroll
+reveal settles fully visible · card `:hover` lift survives its reveal · `prefers-reduced-motion` (nothing hidden, zero scroll triggers) · JavaScript disabled (FAQ
 answers and both AC/DC panels readable, no dead tabs, hero visible) · builder-canvas simulation
-(page inside an iframe: motion off, content visible, zero scroll triggers) · hero never flashes
-visible → hidden → visible on a slow GSAP load · heading hierarchy (≤ 1 `h1`, no skipped levels
-inside widgets) · `axe-core` WCAG 2.0/2.1/2.2 A + AA + best-practice over every widget at 1280 px
-and 390 px: **zero violations**.
+(page inside an iframe: motion off, content visible, zero scroll triggers) · the hero never flashes
+visible → hidden → visible on a slow GSAP load, tested twice: a load slower than the entrance (1.2 s) and a
+load slower than the stylesheet's own failsafe that reveals the hero (2.8 s) · `axe-core` WCAG 2.0/2.1/2.2 A + AA
++ best-practice over every widget at 1280 px and 390 px: **zero violations**.
 
 ### The checks in `breakdance-qa.mjs`
 
@@ -102,10 +116,14 @@ collapse to zero width under the Zero theme.
 
 ### Weight
 
-Front-end critical path (stylesheet + `evpx.js` + `motion.js`): about **13 KB gzipped** (CSS 8.5, `evpx.js`
-2.7, `motion.js` 2.3). Bundled fonts: 96 KB (woff2 is already compressed) with `font-display: swap`. GSAP +
-ScrollTrigger come from the CDN and only on pages with an EV element. No render-blocking third-party request
-is made by the plugin itself. (Lighthouse / field performance were not measured.)
+Front-end critical path (stylesheet + `evpx.js` + `motion.js`): about **21 KB gzipped** (CSS 14.6, `evpx.js` 4.0,
+`motion.js` 3.1), up from 13 KB in 0.4.0: the redesign is more CSS (depth, the comparison plate and ruler, the
+timeline) and a little more script (the thumb, the in-view marker, the pointer highlight). Bundled fonts: 128 KB in
+five files, up from 96 KB (Spectral 22 KB in each of two weights; Geist 29 KB and its italic 31 KB; Geist Mono
+23 KB; woff2 is already compressed) with `font-display: swap`. A browser fetches only the faces a page uses, so a
+page without italic body copy never loads the Geist italic. GSAP + ScrollTrigger come from the CDN and only on pages
+with an EV element. No render-blocking third-party request is made by the plugin itself. (Lighthouse / field
+performance were not measured.)
 
 ## Bugs found and fixed
 
@@ -256,8 +274,75 @@ Breakdance element is a plain PHP class, and the plugin now ships them. `QA-REPO
 had said "custom widgets appear in Breakdance" met by the Shortcode element alone; the docs now say what
 each route is.
 
+**Pass 6 — a design pass (0.5.0)**
+
+Found by auditing the running pages, then by drawing the new design and measuring it. Each is guarded by a test that
+was run against the broken state and seen to fail. 34–41 were in 0.4.0 as released; 42–44 were introduced by the
+redesign itself and caught before it shipped.
+
+34. **Two tokens were read and never defined.** FAQ questions had no vertical padding and the Flow heading touched
+    its steps, because the stylesheet used `var(--evpx-space-5)` and `var(--evpx-space-10)`. An undefined custom
+    property makes the declaration invalid at computed-value time and the property silently falls back, so no
+    browser complains. `tests/css-check.mjs` now fails on any token that is read and not defined; against 0.4.0's
+    stylesheet it fails with exactly those two.
+35. **A stripe of page colour showed between two widgets** in a block theme: the theme's block gap puts a margin
+    on every child of a post's content, and a widget is one. A widget now brings its own rhythm and takes none.
+36. **The Hero and the FAQ sat off the grid.** Both were centred, narrow columns with left-aligned text, so their
+    text began well to the right of every section under them. They now share one container; the interaction suite
+    measures that the hero, the first section and the FAQ intro start on the same left edge.
+37. **A mouse click drew the host theme's `:focus` outline** (Twenty Twenty-Five's black box around an accordion
+    header or a tab after it was clicked). Cleared for pointer focus; a keyboard still gets the copper ring, and both
+    are checked.
+38. **The comparison's captions could wrap** ("Best for" over two lines) when the value beside it was long: the
+    caption was allowed to shrink. It keeps its width now and the value wraps instead.
+39. **The Hero's "Follow system" never followed the system.** The page-wide theme switch had a
+    `prefers-color-scheme` rule; the Hero's own mode (split out in bug 2) did not, so "auto" was always dark.
+    Checked with the browser's colour scheme set to each.
+40. **"Media above text" put the media below the text.** The template prints the text first and the stacked layout
+    had no order. The check measures the media's bottom edge against the text's top.
+41. **The reading-progress bar was a 645 px column, not a bar across the window** (since 0.2.0, on any constrained
+    block theme). The bar is `position: fixed` with `left: 0; right: 0`, but a constrained-layout theme caps and centres
+    every child of the post content, so on Twenty Twenty-Five it sat 398 px in and 645 px wide. Nothing had measured
+    its box, only that its fill grew. Found by accident, as a copper line running through a heading in a tall-element
+    screenshot, where a fixed element is painted mid-page. `width: 100%; max-width: none` fixes it without `!important`
+    (auto margins split no free space), and `qa.mjs` now asserts the track is as wide as the window.
+42. **The new comparison plate overflowed a 320 px page.** The value column could not shrink below its longest word
+    ("Highway corridors, fleet depots, retail"), so it pushed the plate past its box. It was the existing overflow
+    sweep on the Breakdance page that showed it, not a check written for it; a value now wraps, and a row stacks its
+    caption above its value in a narrow plate.
+43. **The hero could flash for one frame, and a late GSAP replayed its entrance.** The new entrance is a timeline,
+    and in GSAP a tween positioned later in a timeline does not apply its starting state at once, so on the frame
+    where the hold-back was released the hero could paint, vanish and come back. Separately, if GSAP arrived after the
+    stylesheet's own failsafe (1.6 s) had already revealed the hero, the entrance played again over a hero that was
+    already there. The starting state is now set explicitly and the late case is guarded. Found by recording frames;
+    `qa.mjs` now loads GSAP late twice, at 1.2 s and at 2.8 s, and the check fails without the fix.
+44. **A FAQ row jumped when it opened and again when it closed.** The panel animated its height but not the padding
+    under the answer, so the row gained that padding (24 px) in the frame the click landed and lost it in the frame the
+    panel was hidden. The padding now travels with the height, and toggling again cancels a running animation instead of
+    stacking a second one. `interaction-qa.mjs` reads the row's height synchronously after the click; with the padding
+    left out it reads 113 px against 89 px.
+
+A design-choice correction rather than a bug: the first draft of 0.5.0 used Newsreader for the headings, and the
+project's own design notes list it as a face models reach for by default. The choice was re-run over twelve candidates
+in the real widgets and moved to Spectral (rationale in `docs/ARCHITECTURE.md`, section 5.3). The font check in
+`qa.mjs` now asks for Spectral.
+
+Test-side, in the same pass: "scenario cards align in grid rows" contradicted the cards' deliberate stagger, so it
+became "the outer two share a top edge and the middle steps down". A first full run of the matrix was polluted by
+other work sharing the machine (the timing-sensitive checks in `qa.mjs` and `interaction-qa.mjs` fail when the CPU is
+contended); it was thrown away and the matrix re-run on an idle machine. Run those two on an idle machine.
+
 ## Not verified
 
+- **The reference the design was meant to beat.** The site the brief points at could not be opened from this
+  environment (its host is blocked), so it was never seen. "More beautiful than the reference" is a judgement about
+  the running pages against the brief's own terms (effects, hover states, type), not a side-by-side. Send
+  screenshots of it, or allow the host, and the comparison can be made properly.
+- **A real phone, and touch.** Mobile is emulated viewports; the touch checks run Chromium with touch and no hover
+  media, which proves the decoration and hover states are withheld, not how a thumb feels on the page.
+- **Right-to-left.** The comparison scale and the flow timeline are positioned with physical left and right.
+- **The fonts on a slow connection.** They are self-hosted with `font-display: swap`; the swap itself, and how
+  visible it is on a throttled network, was not measured.
 - **Element Studio's GUI.** It was not operated. The plugin registers real save locations and Breakdance loads
   elements saved there (probe above), but creating or editing an element in the Element Studio interface itself
   has not been exercised.
@@ -284,9 +369,15 @@ each route is.
 ## Reproducing
 
 ```
+# Static, no WordPress needed
+node tests/css-check.mjs
+node tests/contrast-check.mjs
+
 # Any WordPress page
 bash tests/docker/setup.sh                     # or: EVPX_GSAP_DIR=… bash tests/docker/setup.sh
+bash tests/docker/widget-render-check.sh
 node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"
+node tests/playwright/interaction-qa.mjs "$(cat tests/docker/.demo-url)"          # run qa and this one on an idle machine
 
 # A real Breakdance (you supply the licensed ZIP; it is never committed)
 EVPX_BREAKDANCE_ZIP=/path/to/breakdance-2.8.3.zip EVPX_GSAP_DIR=… bash tests/docker/setup.sh
@@ -294,6 +385,7 @@ bash tests/docker/breakdance-real-check.sh
 bash tests/docker/breakdance-page.sh
 node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-url)"          # Shortcode elements
 node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-native-url)"   # native elements, builder included
+node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-full-url)"     # full-width Sections, no padding
 bash tests/docker/builder-save-check.sh                                                # dropdown, Add panel, Save, reopen
 bash tests/docker/media-pages.sh
 node tests/playwright/media-qa.mjs "$(cat tests/docker/.media-url)" "$(cat tests/docker/.media-native-url)" \
@@ -301,7 +393,6 @@ node tests/playwright/media-qa.mjs "$(cat tests/docker/.media-url)" "$(cat tests
 bash tests/docker/template-check.sh                                                    # three themes
 bash tests/docker/isolation-check.sh                                                   # two themes
 
-node tests/contrast-check.mjs
 composer install && composer lint
 bash tests/build-zip.sh
 ```

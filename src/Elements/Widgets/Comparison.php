@@ -101,6 +101,7 @@ final class Comparison extends Element {
 					'dwell_label' => $atts['dc_dwell_label'],
 					'best_for'    => $atts['dc_best_for'],
 				),
+				'rulers'              => $this->rulers( $atts['ac_power_range'], $atts['dc_power_range'] ),
 				'mode'                => $atts['mode'],
 				'accent_treatment'    => $atts['accent_treatment'],
 				'animation_intensity' => $atts['animation_intensity'],
@@ -108,5 +109,75 @@ final class Comparison extends Element {
 				'id'                  => $this->uniqueId( 'evpx-cmp' ),
 			)
 		);
+	}
+
+	/**
+	 * One shared power scale for both panels, read from the two "power range" texts, so the gap between
+	 * AC and DC is drawn to scale rather than described. Each panel gets its own range, plus the other
+	 * panel's range as a ghost. Null when either text isn't a kW figure the scale can be drawn from
+	 * ("7–22 kW", "22 kW", "350+ kW"): the panels then simply have no ruler.
+	 *
+	 * @return array<string, array<string, string>>|null Keyed ac|dc: from, to, other_from, other_to (percent) and max (label).
+	 */
+	private function rulers( string $ac, string $dc ): ?array {
+		$ac_range = self::kilowatts( $ac );
+		$dc_range = self::kilowatts( $dc );
+
+		if ( null === $ac_range || null === $dc_range ) {
+			return null;
+		}
+
+		$peak  = max( $ac_range[1], $dc_range[1] );
+		$step  = pow( 10, floor( log10( $peak ) ) ); // 350 reads against 100s, 22 against 10s.
+		$max   = ceil( $peak / $step * 2 ) / 2 * $step; // Round up to the nearest half step: 350 stays 350, 22 becomes 25.
+		$pct   = static function ( float $kw ) use ( $max ): string {
+			return number_format( min( 100, $kw / $max * 100 ), 2, '.', '' ) . '%';
+		};
+		$label = sprintf(
+			/* translators: %s: the top of the power scale, a number of kilowatts. */
+			__( '%s kW', 'ev-charging-experience' ),
+			number_format_i18n( $max )
+		);
+
+		return array(
+			'ac' => array(
+				'from'       => $pct( $ac_range[0] ),
+				'to'         => $pct( $ac_range[1] ),
+				'other_from' => $pct( $dc_range[0] ),
+				'other_to'   => $pct( $dc_range[1] ),
+				'max'        => $label,
+			),
+			'dc' => array(
+				'from'       => $pct( $dc_range[0] ),
+				'to'         => $pct( $dc_range[1] ),
+				'other_from' => $pct( $ac_range[0] ),
+				'other_to'   => $pct( $ac_range[1] ),
+				'max'        => $label,
+			),
+		);
+	}
+
+	/**
+	 * The kilowatts a power-range text stands for: [from, to]. One figure is a point on the scale, not a
+	 * range from zero. More than two numbers ("CCS2 50-350 kW", "230 V, 7-22 kW") is ambiguous, so it
+	 * is not read at all rather than read wrongly.
+	 *
+	 * @return array{0: float, 1: float}|null
+	 */
+	private static function kilowatts( string $text ): ?array {
+		if ( ! preg_match( '/\bkw\b/i', $text ) ) {
+			return null;
+		}
+
+		$text = (string) preg_replace( '/(?<=\d),(?=\d{3}\b)/', '', $text ); // 1,000 kW.
+
+		if ( ! preg_match_all( '/\d+(?:\.\d+)?/', $text, $found ) || count( $found[0] ) > 2 ) {
+			return null;
+		}
+
+		$from = (float) $found[0][0];
+		$to   = (float) ( $found[0][1] ?? $found[0][0] );
+
+		return ( $to >= $from && $to > 0 ) ? array( $from, $to ) : null;
 	}
 }

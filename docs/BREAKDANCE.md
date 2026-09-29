@@ -78,8 +78,16 @@ classic theme (`tests/docker/template-check.sh`). What differs:
   Breakdance footer) loads each script once everywhere. On a plain classic theme it carries the stylesheet
   twice (about 8 KB gzipped); the rules are identical, so nothing changes visually.
 - Widgets sit in whatever box the host gives them and adapt to it. Inside a Breakdance Section they are as
-  wide as the Section's container, not the full window; set the Section's container to full width for a
-  full-bleed hero.
+  wide as the Section's container, not the full window.
+
+**Recommended setup: full-width Sections with no padding.** The widgets are designed as full-bleed bands, each
+with its own vertical rhythm and its own grid (a 1200px container inside the band). Put each one in a Breakdance
+Section whose **Width** is *Full* and whose **Padding** is 0, and the article reads as one piece: the hero and CTA
+run edge to edge, the sections sit on one grid, and nothing adds space the widget already brings. In Breakdance's
+default Section (a 1120px container with about 100px of vertical padding) each widget becomes a boxed panel floating on the page
+colour, with a wide gap between panels; that works, and it is what the `.breakdance-native-url` fixture page shows,
+but it is not the intended look. `tests/docker/breakdance-page.sh` builds both, so you can compare them
+(`.breakdance-full-url` is the recommended one).
 
 ## Element Studio
 

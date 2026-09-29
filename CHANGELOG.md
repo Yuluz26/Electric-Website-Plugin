@@ -1,5 +1,77 @@
 # Changelog
 
+## 0.5.0
+
+A design release. Yul's brief was that the article should look better than the reference it was benchmarked
+against, in its effects, its hover states and its type. The pass started with an audit of the running pages,
+which found eight defects in 0.4.0 as released; drawing the new design introduced three more, caught before
+release. All eleven are fixed and guarded (`docs/QA-REPORT.md`, bugs 34-44).
+
+**Changed - the look**
+- **Type.** Spectral (headings, the large numerals), Geist (reading, controls) and Geist Mono (the labels that read
+  like a spec sheet) replace Fraunces and Libre Franklin. Chosen by rendering the real widgets in twelve
+  candidates side by side, after a first pick (Newsreader) turned out to be a face the project's own design notes
+  list as an over-used default. Self-hosted woff2 under the SIL OFL, 127 KB in all against 0.4.0's 96 KB but 88 KB
+  lighter than the first pick; Geist italic included so emphasis in body copy is never a faux slant. Numerals that
+  are compared are lining and tabular. How the display face is set is four tokens (`--evpx-display-weight` and
+  `-tracking`, `--evpx-title-weight` and `-tracking`), so changing it is one `@font-face` and those values.
+- **Neumorphism, layered.** One depth vocabulary (`--evpx-elev-1..3`, `--evpx-well-1..2`) built from the surface
+  colours, a lit and a shaded face on raised surfaces, and surfaces that hold each other: a raised card with a
+  recessed well, a raised plate, a recessed track with a raised thumb. Radii tightened to 6/12/18px.
+- **Hero.** Left-aligned on the same grid as every section (it was a centred block with left-aligned text),
+  a display title set on two lines, a captioned spec strip for author, date and reading time, a blueprint grid
+  when there is no picture, and a copper line along its foot that charges once as the page arrives.
+- **Section.** Without a picture it is an editorial split (heading and key figure beside the copy, `media-left`
+  mirrors it) instead of a text column beside an empty half. New optional **Key figure** and caption. The first
+  paragraph of multi-paragraph copy leads. "Media above text" now actually puts the media above.
+- **Comparison, the centrepiece.** A raised plate per panel with the power range set large and, when both ranges
+  are kilowatt figures, drawn on a shared scale so the AC/DC gap is shown, not described. A raised thumb slides
+  between the tabs.
+- **Scenario cards** step down in the second column, hold their answer in a recessed well, and (with a fine pointer)
+  get a highlight and a one-pixel copper rim that follow the pointer. **Flow** is a timeline that charges.
+  **FAQ** is rows on hairlines with a knob that presses in. **CTA** is the headline beside what to do about it.
+  **Related** shows a raised arrow knob and underlines the title line by line.
+- **Hover is one idea, "the control charges"**: a button fills from the left and its (now drawn, not typed) arrow
+  travels; pressing seats it. All movement waits for a fine pointer; a phone gets none of the decoration.
+- Vertical rhythm follows the widget's width (`clamp(3.5rem, 2rem + 4cqi, 6rem)`), so a phone is no longer given
+  desktop gaps.
+
+**Fixed**
+- FAQ questions had no vertical padding and the Flow heading touched its steps: the stylesheet read
+  `--evpx-space-5` and `--evpx-space-10`, which were never defined. Defined, and `tests/css-check.mjs` now fails on
+  any token that is read but not defined (it fails on 0.4.0's stylesheet, with exactly those two).
+- A stripe of page colour showed between two widgets in a block theme, where the theme's block gap added a
+  margin to each. A widget brings its own rhythm and no longer takes the theme's.
+- The Hero and the FAQ were centred narrow columns with left-aligned text, off the grid of everything below them.
+- A mouse click on a widget control drew the host theme's `:focus` outline (Twenty Twenty-Five's black box);
+  a keyboard still gets the copper ring.
+- A comparison's captions ("Best for") wrapped onto two lines beside a long value.
+- The reading-progress bar was a 645px column in the middle of a block theme's window, not a bar across the top of
+  it: the theme caps and centres every child of the post content, a fixed one included.
+- The Hero's "Follow system" mode never followed the system; it was always dark.
+- "Media above text" put the media below the text.
+- The new comparison plate overflowed a 320px screen (its value column could not shrink); found by the existing
+  overflow sweep before release.
+- The hero could flash for one frame while GSAP loaded slowly, and a GSAP that arrived after the stylesheet's own
+  failsafe replayed the entrance over a hero already on screen.
+- A FAQ answer snapped at the end of opening and closing because its padding was not animated with its height.
+- The translation template was missing the block editor's three strings ("Select image", "Replace image", "Remove");
+  it is regenerated with the script strings included.
+
+**Added - tests**
+- `tests/css-check.mjs`: undefined tokens, every selector scoped under `.evpx-root`, no stray `!important`,
+  every animation gated on the motion marker.
+- `tests/playwright/interaction-qa.mjs`: motion when allowed, the finished state for a reduced-motion visitor and on
+  touch, the comparison thumb and range bar, and the hover, press, focus and open states. Each check was watched
+  failing against a deliberately broken build.
+- `contrast-check.mjs` covers the raised faces and the button's hover fill.
+- A third Breakdance fixture page with full-width, zero-padding Sections (the setup `docs/BREAKDANCE.md`
+  recommends), which is also how the design is best seen.
+
+**Copy**
+- The demo article no longer uses em dashes, repeats "actually" in three headings or labels every section with an
+  eyebrow (three remain, of twelve widgets).
+
 ## 0.4.0
 
 The nine widgets are now native Breakdance elements. Running them against a real Breakdance with its own
