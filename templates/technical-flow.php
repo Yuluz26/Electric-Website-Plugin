@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var string $spacing Vertical rhythm: default | compact | none.
  * @var string   $heading
  * @var string[] $steps
  * @var string   $direction
@@ -14,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <section
 	class="evpx-root alignfull evpx-flow evpx-flow--<?php echo esc_attr( $direction ); ?><?php echo $compact ? ' evpx-flow--compact' : ''; ?>"
 	data-evpx-animate="<?php echo $animate ? '1' : '0'; ?>"
+	data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>"
 >
 	<div class="evpx-container">
 		<?php if ( $heading ) : ?>

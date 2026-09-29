@@ -19,6 +19,7 @@ cp -r . "$STAGE_DIR"
 rm -rf \
 	"${STAGE_DIR}/.git" \
 	"${STAGE_DIR}/.github" \
+	"${STAGE_DIR}/.gitignore" \
 	"${STAGE_DIR}/.claude" \
 	"${STAGE_DIR}/.agents" \
 	"${STAGE_DIR}/skills-lock.json" \

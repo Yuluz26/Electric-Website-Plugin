@@ -4,7 +4,10 @@
  * Isolation contract (see docs/prompt-pack/03_SOP.md Phase 7), both ways:
  *
  * - Nothing here can leak onto an unrelated Breakdance page or theme element:
- *   no bare element selectors, everything is .evpx-*.
+ *   no bare element selectors, everything is .evpx-*. One deliberate exception, at
+ *   zero specificity: the box that directly holds a widget is asked to fill its container
+ *   (`:where(:has(> .evpx-root))`, section 1), because a size container inside a shrink-wrapping
+ *   box would collapse to nothing. It only ever matches an element that has a widget in it.
  * - Nothing on the host can leak in. Builders and themes style bare headings
  *   and links (Breakdance: `.breakdance h2 { color; font-family; font-size }`,
  *   specificity 0,1,1), which beats a lone class. So every rule is scoped under
@@ -110,6 +113,10 @@
 	--evpx-max-width: 1200px;
 	--evpx-measure: 65ch;
 
+	/* How much a picture is darkened behind white type (hero, CTA). 0.6 keeps 4.5:1 over the brightest
+	   photograph the widgets are asked to carry; tests/playwright/media-qa.mjs measures it. */
+	--evpx-scrim: 0.6;
+
 	/* Vertical rhythm of every full-width section widget. Inside a Breakdance
 	   Section, which brings its own padding, set this to 0 (or a smaller step). */
 	--evpx-section-y: var(--evpx-space-24);
@@ -133,6 +140,16 @@
 	--evpx-border: #262c34;
 
 	color-scheme: dark;
+}
+
+/* The widget-level "Vertical spacing" control: a smaller rhythm, or none where the container
+   (a Breakdance Section) already has padding. */
+.evpx-root[data-evpx-spacing='compact'] {
+	--evpx-section-y: var(--evpx-space-12);
+}
+
+.evpx-root[data-evpx-spacing='none'] {
+	--evpx-section-y: 0;
 }
 
 /* 'auto' needs the identical dark token set, but only when the system is
@@ -176,6 +193,21 @@
 		container-type: inline-size;
 		--evpx-size-heading: clamp(1.75rem, 1.35rem + 2cqi, 2.5rem);
 		--evpx-size-display: clamp(2.5rem, 1.6rem + 4.5cqi, 5.5rem);
+
+		/* If the parent is a flex column, fill it. */
+		align-self: stretch;
+	}
+
+	/* A size container has no intrinsic width, so inside a box that shrink-wraps its children it
+	   collapses to nothing and takes the widget with it. Breakdance does exactly that: a Section is a
+	   flex column with align-items: flex-start, and its Rich Text element (which is what shows a
+	   post's content) is a flex item that is only as wide as its content. The box that holds the
+	   widget is asked to fill its own container instead. `:where()` keeps this at zero specificity,
+	   so any rule of the host's wins. Chrome, Safari and Firefox each spell "fill" differently. */
+	:where(:has(> .evpx-root)) {
+		width: -webkit-fill-available;
+		width: -moz-available;
+		width: stretch;
 	}
 }
 
@@ -439,7 +471,9 @@
 .evpx-root .evpx-hero__scrim {
 	position: absolute;
 	inset: 0;
-	background: linear-gradient(180deg, rgba(10, 12, 15, 0) 0%, rgba(10, 12, 15, 0.55) 62%, rgba(10, 12, 15, 0.86) 100%);
+	/* Never lighter than --evpx-scrim: the type sits mid-hero, not only at the bottom, and white on a
+	   bright picture must stay readable wherever a line lands. */
+	background: linear-gradient(180deg, rgba(10, 12, 15, var(--evpx-scrim)) 0%, rgba(10, 12, 15, 0.66) 50%, rgba(10, 12, 15, 0.9) 100%);
 }
 
 .evpx-root .evpx-hero__content {
@@ -450,13 +484,11 @@
 }
 
 .evpx-root.evpx-hero .evpx-eyebrow {
-	color: #fff;
-	opacity: 0.85;
+	color: #fff; /* not dimmed: a 13px label on a bright picture needs every bit of contrast it has */
 }
 
 .evpx-root.evpx-hero[data-evpx-hero-mode='light'] .evpx-eyebrow {
 	color: var(--evpx-accent-text);
-	opacity: 1;
 }
 
 .evpx-root .evpx-hero__title {
@@ -476,11 +508,18 @@
 	color: var(--evpx-ink-muted);
 }
 
+/* Each item carries a hairline in the middle of the gap before it. When the line wraps, the
+   hairline that lands before the first item of a row falls outside the box and is clipped, so a
+   separator never dangles at the start or end of a line. */
 .evpx-root .evpx-hero__meta {
+	--evpx-meta-gap: var(--evpx-space-6);
+
 	margin-top: var(--evpx-space-6);
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--evpx-space-3);
+	column-gap: var(--evpx-meta-gap);
+	row-gap: var(--evpx-space-1);
+	overflow-x: clip;
 	font-size: 0.875rem;
 	color: rgba(255, 255, 255, 0.7);
 }
@@ -489,10 +528,18 @@
 	color: var(--evpx-ink-faint);
 }
 
-.evpx-root .evpx-hero__meta-item:not(:last-child)::after {
-	content: '\2022';
-	margin-inline-start: var(--evpx-space-3);
-	opacity: 0.6;
+.evpx-root .evpx-hero__meta-item {
+	position: relative;
+}
+
+.evpx-root .evpx-hero__meta-item + .evpx-hero__meta-item::before {
+	content: '';
+	position: absolute;
+	inset-block: 0.2em;
+	inset-inline-start: calc(var(--evpx-meta-gap) / -2);
+	width: 1px;
+	background: currentColor;
+	opacity: 0.35;
 }
 
 .evpx-root .evpx-hero__cta {
@@ -1050,7 +1097,7 @@
 .evpx-root .evpx-cta__scrim {
 	position: absolute;
 	inset: 0;
-	background: rgba(10, 12, 15, 0.55);
+	background: rgba(10, 12, 15, var(--evpx-scrim));
 }
 
 .evpx-root .evpx-cta__content {
@@ -1064,8 +1111,7 @@
 }
 
 .evpx-root.evpx-cta .evpx-eyebrow {
-	color: inherit;
-	opacity: 0.85;
+	color: inherit; /* not dimmed: a 13px label on copper or over a picture keeps every bit of contrast */
 }
 
 .evpx-root.evpx-cta--accent .evpx-eyebrow,

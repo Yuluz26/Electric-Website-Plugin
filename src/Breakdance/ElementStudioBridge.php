@@ -11,14 +11,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Breakdance's own official boilerplate (soflyy/breakdance-custom-elements):
  * https://github.com/soflyy/breakdance-custom-elements/blob/master/plugin.php
  *
- * This does not create elements by itself — Element Studio is a licensed,
- * in-builder visual tool with no documented file format to hand-author.
- * What this DOES do is make "EV Charging Elements" available as a save
- * target the moment Element Studio is opened on a real Breakdance site, so
- * building a native element from `docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md`
- * takes minutes, not a rebuild.
+ * This does not create elements by itself. The plugin's own native elements
+ * (src/Breakdance/Native) don't come from Element Studio; what this does is make
+ * "EV Charging Elements" available as a save target the moment Element Studio is
+ * opened on a real Breakdance site, for elements a site owner builds on top of
+ * the plugin's design (see `docs/BREAKDANCE.md`).
  */
 final class ElementStudioBridge {
+
+	/**
+	 * The PHP namespace Element Studio gives elements saved here: it writes `namespace <this>;` and
+	 * a class named after the element. Not `EVPX`: that namespace holds the plugin's own native
+	 * elements (EVPX\Hero, EVPX\Faq…), so an element someone called "Hero" in Element Studio would
+	 * declare the same class twice and take the site down.
+	 */
+	public const STUDIO_NAMESPACE = 'EVPXStudio';
 
 	public function register(): void {
 		add_action( 'breakdance_loaded', array( $this, 'registerSaveLocations' ), 9 );
@@ -34,7 +41,7 @@ final class ElementStudioBridge {
 
 		\Breakdance\ElementStudio\registerSaveLocation(
 			$base . '/element-studio/elements',
-			'EVPX',
+			self::STUDIO_NAMESPACE,
 			'element',
 			'EV Charging Elements',
 			false
@@ -42,7 +49,7 @@ final class ElementStudioBridge {
 
 		\Breakdance\ElementStudio\registerSaveLocation(
 			$base . '/element-studio/presets',
-			'EVPX',
+			self::STUDIO_NAMESPACE,
 			'preset',
 			'EV Charging Presets',
 			false

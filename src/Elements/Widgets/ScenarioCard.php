@@ -32,6 +32,32 @@ final class ScenarioCard extends Element {
 		);
 	}
 
+	public function sampleRows(): array {
+		return array(
+			array(
+				'scenario'       => __( 'Workplace', 'ev-charging-experience' ),
+				'title'          => __( 'Employees, all day', 'ev-charging-experience' ),
+				'description'    => __( 'Cars sit for 6–9 hours, so AC charging fills most batteries at a fraction of the cost of DC.', 'ev-charging-experience' ),
+				'requirement'    => __( 'Enough AC ports for shift overlap', 'ev-charging-experience' ),
+				'recommendation' => __( 'AC across the lot', 'ev-charging-experience' ),
+			),
+			array(
+				'scenario'       => __( 'Retail', 'ev-charging-experience' ),
+				'title'          => __( 'Shoppers, under an hour', 'ev-charging-experience' ),
+				'description'    => __( 'Short, unpredictable dwell time: AC cannot add meaningful range in the time available.', 'ev-charging-experience' ),
+				'requirement'    => __( 'Fast, unattended charging', 'ev-charging-experience' ),
+				'recommendation' => __( 'DC fast charging', 'ev-charging-experience' ),
+			),
+			array(
+				'scenario'       => __( 'Highway corridor', 'ev-charging-experience' ),
+				'title'          => __( 'Trip charging', 'ev-charging-experience' ),
+				'description'    => __( 'Drivers are travelling, not staying. Speed is the whole value of the stop.', 'ev-charging-experience' ),
+				'requirement'    => __( 'High uptime, high power', 'ev-charging-experience' ),
+				'recommendation' => __( 'DC fast charging', 'ev-charging-experience' ),
+			),
+		);
+	}
+
 	public function render( array $atts, string $content = '' ): string {
 		return $this->view(
 			'scenario-card',

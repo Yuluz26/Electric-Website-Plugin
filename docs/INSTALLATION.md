@@ -5,8 +5,8 @@
 - WordPress 6.0+
 - PHP 7.4+ (developed and QA'd against 8.2/8.4)
 - Breakdance is **optional** — every widget works as a plain WordPress
-  shortcode/block with no page builder at all. Breakdance unlocks the
-  Element Studio bridge (see `docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md`).
+  shortcode/block with no page builder at all. With Breakdance active, the nine widgets also appear
+  in its Add panel as native elements (see `docs/BREAKDANCE.md`). Tested with Breakdance 2.8.3.
 
 ## Install
 
@@ -35,28 +35,34 @@ panels) and a live preview.
 
 ## Using it with Breakdance
 
-Drag a **Shortcode** element into the canvas, paste e.g. `[evpx_comparison
-ac_power_range="7–22 kW" ...]`, done. This path has been run against a real Breakdance 2.8.3 on
-the front end and inside the builder (canvas, server-side renders, console) — see
-`docs/QA-REPORT.md` for what that covered and what it didn't.
+Activate the plugin next to Breakdance, open a page in the builder, click **Add** and search "EV": the nine
+elements are in the **EV Charging** category. Drop one into a Section and edit it in the panel: text, pictures,
+layout, visual variants, motion, and an **Items** repeater for the FAQ, the scenario cards and the decision
+factors. Text fields take Breakdance's dynamic-data button, including the plugin's own **EV Reading Time**.
+`docs/BREAKDANCE.md` covers all of it, and the other two routes (Breakdance's own Shortcode element with
+`[evpx_comparison …]`, and Element Studio).
+
+This has been run against a real Breakdance 2.8.3 on the front end and inside the builder (Add panel,
+selecting and editing, pictures from the media library, canvas, server-side renders, console) and under
+Breakdance's Zero theme, a block theme and a classic theme — `docs/QA-REPORT.md` says what that covered and
+what it didn't.
 
 Tips for a Breakdance Section that holds a widget:
 
 - **Spacing.** Every section widget brings its own vertical rhythm (`padding-block`), on top of the
-  Section's padding. Set the Section's vertical padding to 0, or set the widget's rhythm to match:
-  in the Shortcode element's *Advanced → Custom CSS*, or your stylesheet,
-  `.evpx-root { --evpx-section-y: 0; }` (default `6rem`).
+  Section's padding. Set the element's **Spacing** control to *none*, or set the Section's vertical padding to
+  0. For a widget added as a shortcode, `.evpx-root { --evpx-section-y: 0; }` in the Shortcode element's
+  *Advanced → Custom CSS* or your stylesheet does the same (default `6rem`).
 - **Width.** Widgets fill the box they're in and adapt to it: a widget in a half-width column
-  switches to its narrow layout on its own. There's nothing to configure.
-- **Styles in `<head>`.** The stylesheet is detected from the page's element tree and printed in
-  `<head>`. If the shortcode lives in a Breakdance *header, footer or template* (where detection
-  can't see it), the page can paint unstyled for a moment; force `<head>` loading with
+  switches to its narrow layout on its own. Inside a Section they are as wide as the Section's container;
+  set the container to full width for a full-bleed hero.
+- **Styles in `<head>`.** Native elements bring their stylesheet through Breakdance, in `<head>`, once per
+  page. For shortcodes, the stylesheet is detected from the page's content or element tree; under a block
+  theme or Breakdance's own templates a widget in a header or footer is found too. Only on a plain classic
+  theme can a shortcode in a footer paint unstyled for a moment; force `<head>` loading with
   `add_filter( 'evpx_load_assets', '__return_true' );` or a condition of your own.
 - **Builder.** Renders for the builder are static on purpose (no entrance animation, no scroll
   triggers, no progress bar); the front end animates as configured.
-
-For fully native, visually-controlled elements inside Element Studio, see
-`docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md`.
 
 ## Compatibility notes
 

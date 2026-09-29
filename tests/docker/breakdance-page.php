@@ -1,10 +1,12 @@
 <?php
 /**
- * Creates a page designed in Breakdance from docs/demo-article.txt: one Breakdance
- * Section per top-level EV shortcode, each holding Breakdance's own Shortcode
- * element — the way a site builder would place these widgets. Prints the page id.
+ * Creates a page designed in Breakdance from docs/demo-article.txt: one Breakdance Section per
+ * top-level EV widget, each holding either Breakdance's Shortcode element (mode "shortcode") or the
+ * plugin's own native element (mode "native") — the way a site builder would place them. Mode "empty"
+ * makes a page with one empty Section, for adding an element from the builder's Add panel. Prints the
+ * page id.
  *
- *   wp eval-file tests/docker/breakdance-page.php /tmp/demo-article.txt
+ *   wp eval-file tests/docker/breakdance-page.php /tmp/demo-article.txt shortcode|native|empty
  *
  * Needs the real Breakdance plugin (see tests/docker/setup.sh, EVPX_BREAKDANCE_ZIP).
  */
@@ -14,59 +16,35 @@ if ( ! function_exists( '\Breakdance\Data\set_meta' ) ) {
 	exit( 1 );
 }
 
-$file    = $args[0] ?? '/tmp/demo-article.txt';
-$article = (string) file_get_contents( $file );
+require '/tmp/native-helpers.php';
 
-// Top-level shortcodes only: get_shortcode_regex() matches an enclosing tag with its
-// children as one unit, so nested items stay inside their container.
-$tags = array();
-foreach ( ( new EVPX\Elements\Registry() )->all() as $element ) {
-	$tags[] = $element->shortcodeTag();
-}
-preg_match_all( '/' . get_shortcode_regex( $tags ) . '/s', $article, $matches, PREG_SET_ORDER );
+$article = (string) file_get_contents( $args[0] ?? '/tmp/demo-article.txt' );
+$mode    = $args[1] ?? 'shortcode';
+$native  = 'native' === $mode;
 
-$next_id  = 2;
-$sections = array();
-foreach ( $matches as $match ) {
-	$section_id = $next_id++;
-	$element_id = $next_id++;
-	$sections[] = array(
-		'id'       => $section_id,
+if ( 'empty' === $mode ) {
+	$tree                       = evpx_test_tree( array(), true );
+	$tree['root']['children'][] = array(
+		'id'       => 2,
 		'data'     => array(
 			'type'       => 'EssentialElements\\Section',
 			'properties' => null,
 		),
-		'children' => array(
-			array(
-				'id'       => $element_id,
-				'data'     => array(
-					'type'       => 'EssentialElements\\Shortcode',
-					'properties' => array( 'content' => array( 'shortcode' => array( 'full_shortcode' => $match[0] ) ) ),
-				),
-				'children' => array(),
-			),
-		),
+		'children' => array(),
 	);
+	$tree['_nextNodeId']        = 3;
+} else {
+	$tree = evpx_test_tree( evpx_test_native_nodes( $article ), $native );
 }
 
-// The builder validates what it opens: an "exported" tree carries _nextNodeId and status
-// beside the root, and nodes without settings have null (not empty-array) properties.
-$tree = array(
-	'root'        => array(
-		'id'       => 1,
-		'data'     => array(
-			'type'       => 'root',
-			'properties' => null,
-		),
-		'children' => $sections,
-	),
-	'_nextNodeId' => $next_id,
-	'status'      => 'exported',
+$titles = array(
+	'native' => 'Choosing AC or DC Charging (native Breakdance elements)',
+	'empty'  => 'An empty Breakdance page (add an element from the panel)',
 );
 
 $post_id = wp_insert_post(
 	array(
-		'post_title'   => 'Choosing AC or DC Charging (built in Breakdance)',
+		'post_title'   => $titles[ $mode ] ?? 'Choosing AC or DC Charging (built in Breakdance)',
 		'post_status'  => 'publish',
 		'post_type'    => 'page',
 		'post_content' => '',

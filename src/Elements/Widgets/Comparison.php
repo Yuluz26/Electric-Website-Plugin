@@ -21,6 +21,7 @@ final class Comparison extends Element {
 
 	public function controls(): array {
 		return array(
+			self::spacingControl(),
 			array( 'key' => 'ac_title', 'label' => __( 'AC title', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'AC Charging', 'ev-charging-experience' ) ),
 			array( 'key' => 'ac_description', 'label' => __( 'AC description', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'ac_power_range', 'label' => __( 'AC power range', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '7–22 kW' ),
@@ -67,10 +68,25 @@ final class Comparison extends Element {
 		);
 	}
 
+	public function sampleAtts(): array {
+		return array(
+			'ac_description' => __( 'Grid power passes to the vehicle, whose onboard charger converts it to DC. Slower, simpler and cheaper to install.', 'ev-charging-experience' ),
+			'dc_description' => __( 'The charger converts to DC itself and feeds the battery directly. Much faster, with heavier equipment and a bigger grid connection.', 'ev-charging-experience' ),
+		);
+	}
+
+	protected function builderPreview( array $atts ): array {
+		// One tab at a time would hide the panel whose text is being edited.
+		$atts['mode'] = 'side-by-side';
+
+		return $atts;
+	}
+
 	public function render( array $atts, string $content = '' ): string {
 		return $this->view(
 			'comparison',
 			array(
+				'spacing' => $atts['spacing'],
 				'ac' => array(
 					'title'       => $atts['ac_title'],
 					'description' => $this->autop( $atts['ac_description'] ),

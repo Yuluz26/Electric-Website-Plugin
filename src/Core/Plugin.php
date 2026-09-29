@@ -6,6 +6,7 @@ use EVPX\Admin\Notices;
 use EVPX\Breakdance\Compatibility;
 use EVPX\Breakdance\DynamicData;
 use EVPX\Breakdance\ElementStudioBridge;
+use EVPX\Breakdance\Native\NativeElements;
 use EVPX\Assets\Loader;
 use EVPX\Elements\Registry;
 
@@ -46,6 +47,7 @@ final class Plugin {
 
 		( new Compatibility() )->register();
 		( new ElementStudioBridge() )->register();
+		( new NativeElements() )->register();
 		( new DynamicData() )->register();
 		( new Loader() )->register();
 		( new Registry() )->register();

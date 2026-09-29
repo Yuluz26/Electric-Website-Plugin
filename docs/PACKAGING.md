@@ -22,7 +22,7 @@ ev-charging-experience/
 └── CHANGELOG.md
 ```
 
-Explicitly excluded: `.git`, `phpcs.xml.dist`, `tests/` (Docker QA harness — dev-only),
+Explicitly excluded: `.git`, `.gitignore`, `phpcs.xml.dist`, `tests/` (Docker QA harness — dev-only),
 `.claude/`, `.agents/`, `skills-lock.json` (this repository's Claude Code
 tooling, unrelated to the WordPress plugin), and any OS/editor cruft
 (`.DS_Store`, `*.log`). There is no `node_modules` or `vendor/` to exclude

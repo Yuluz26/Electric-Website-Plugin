@@ -21,6 +21,7 @@ final class ScenarioCards extends Element {
 
 	public function controls(): array {
 		return array(
+			self::spacingControl(),
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'columns', 'label' => __( 'Columns (desktop)', 'ev-charging-experience' ), 'type' => 'select', 'group' => 'layout', 'default' => '3', 'options' => array(
@@ -35,10 +36,18 @@ final class ScenarioCards extends Element {
 		return array( 'evpx/scenario-card' );
 	}
 
+	public function sampleAtts(): array {
+		return array(
+			'eyebrow' => __( 'In practice', 'ev-charging-experience' ),
+			'heading' => __( 'How this plays out by site type', 'ev-charging-experience' ),
+		);
+	}
+
 	public function render( array $atts, string $content = '' ): string {
 		return $this->view(
 			'scenario-cards',
 			array(
+				'spacing' => $atts['spacing'],
 				'eyebrow' => $atts['eyebrow'],
 				'heading' => $atts['heading'],
 				'columns' => $atts['columns'],

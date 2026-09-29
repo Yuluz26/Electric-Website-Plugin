@@ -150,7 +150,10 @@ if (cardTops.length >= 3) check('scenario cards align into clean grid rows', new
 // Check the alignfull WRAPPER, not an inner .evpx-container: Hero narrows its
 // own text column on purpose (max-width: 46rem).
 const wrapperWidth = await page.$eval('.evpx-hero.alignfull', (el) => el.getBoundingClientRect().width).catch(() => 0);
-check('top-level section is not squeezed by a theme content-width wrapper', wrapperWidth >= 1280 - 20);
+// Inside a Breakdance Section the Section decides the width (1120px by default), not the theme.
+const inBreakdanceSection = await page.$eval('.evpx-hero.alignfull', (el) => !!el.closest('.bde-section')).catch(() => false);
+if (inBreakdanceSection) skip('top-level section is not squeezed by a theme content-width wrapper', 'the widgets sit in a Breakdance Section, which sets the width itself');
+else check('top-level section is not squeezed by a theme content-width wrapper', wrapperWidth >= 1280 - 20);
 
 // ------------------------------------------------------------------- motion
 if (!hasGsap) {

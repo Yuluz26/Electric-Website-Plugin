@@ -35,7 +35,7 @@ final class Notices {
 			wp_kses(
 				sprintf(
 					/* translators: %s: plugin name */
-					__( '<strong>%s</strong> is active and its shortcodes/blocks work on any WordPress site. Breakdance was not detected — install it to also unlock the Element Studio bridge (see the plugin\'s docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md).', 'ev-charging-experience' ),
+					__( '<strong>%s</strong> is active and its shortcodes/blocks work on any WordPress site. Breakdance was not detected — install it to also get the EV elements in its Add panel (see the plugin\'s docs/BREAKDANCE.md).', 'ev-charging-experience' ),
 					esc_html__( 'EV Charging Experience', 'ev-charging-experience' )
 				),
 				array( 'strong' => array() )

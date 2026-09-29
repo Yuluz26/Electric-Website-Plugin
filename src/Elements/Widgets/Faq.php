@@ -21,6 +21,7 @@ final class Faq extends Element {
 
 	public function controls(): array {
 		return array(
+			self::spacingControl(),
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'FAQ', 'ev-charging-experience' ) ),
 			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'Common Questions', 'ev-charging-experience' ) ),
 			array( 'key' => 'schema_output', 'label' => __( 'Output FAQPage schema (disable if an SEO plugin already handles FAQ schema)', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'advanced', 'default' => true ),
@@ -42,6 +43,7 @@ final class Faq extends Element {
 		return $this->view(
 			'faq',
 			array(
+				'spacing' => $atts['spacing'],
 				'eyebrow' => $atts['eyebrow'],
 				'heading' => $atts['heading'],
 				'content' => $content,

@@ -20,6 +20,7 @@ final class Section extends Element {
 
 	public function controls(): array {
 		return array(
+			self::spacingControl(),
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'body', 'label' => __( 'Body copy', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
@@ -54,6 +55,14 @@ final class Section extends Element {
 		);
 	}
 
+	public function sampleAtts(): array {
+		return array(
+			'eyebrow' => __( 'Eyebrow', 'ev-charging-experience' ),
+			'heading' => __( 'A clear heading for this section', 'ev-charging-experience' ),
+			'body'    => __( 'Say the point in a sentence or two. Replace this copy in the Content tab.', 'ev-charging-experience' ),
+		);
+	}
+
 	public function render( array $atts, string $content = '' ): string {
 		$media_html = '';
 		if ( ! empty( $atts['media'] ) && 'text-only' !== $atts['layout'] ) {
@@ -67,6 +76,7 @@ final class Section extends Element {
 		return $this->view(
 			'section',
 			array(
+				'spacing' => $atts['spacing'],
 				'eyebrow'    => $atts['eyebrow'],
 				'heading'    => $atts['heading'],
 				'body'       => $this->autop( $atts['body'] ),

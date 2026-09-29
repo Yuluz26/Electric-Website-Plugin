@@ -21,7 +21,7 @@ export function reporter() {
 		},
 		skip: (label, why) => console.log(`SKIP — ${label} (${why})`),
 		finish(outDir) {
-			console.log(`\n${failures === 0 ? 'All checks passed.' : failures + ' check(s) failed.'} Artifacts in ${outDir}/`);
+			console.log(`\n${failures === 0 ? 'All checks passed.' : failures + ' check(s) failed.'}${outDir ? ` Artifacts in ${outDir}/` : ''}`);
 			process.exit(failures === 0 ? 0 : 1);
 		},
 	};

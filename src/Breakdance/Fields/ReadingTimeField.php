@@ -27,6 +27,14 @@ final class ReadingTimeField extends \Breakdance\DynamicData\StringField {
 		return 'evpx_reading_time';
 	}
 
+	/**
+	 * Breakdance's default is "Pro only": the field shows a Pro badge and can't be chosen on a site
+	 * without a Pro licence. This plugin's field is open to everyone.
+	 */
+	public function proOnly(): bool {
+		return false;
+	}
+
 	public function handler( $attributes ): \Breakdance\DynamicData\StringData {
 		$post = get_post();
 

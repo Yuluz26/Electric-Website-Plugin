@@ -57,6 +57,8 @@ final class TechnicalFlow extends Element {
 		$controls[] = array( 'key' => 'compact', 'label' => __( 'Compact mode', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'layout', 'default' => false );
 		$controls[] = array( 'key' => 'animate', 'label' => __( 'Enable sequence animation', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true );
 
+		$controls[] = self::spacingControl();
+
 		return $controls;
 	}
 
@@ -69,6 +71,7 @@ final class TechnicalFlow extends Element {
 		return $this->view(
 			'technical-flow',
 			array(
+				'spacing' => $atts['spacing'],
 				'heading'   => $atts['heading'],
 				'steps'     => $steps,
 				'direction' => $atts['direction'],

@@ -27,6 +27,26 @@ final class FaqItem extends Element {
 		);
 	}
 
+	public function sampleRows(): array {
+		return array(
+			array(
+				'question' => __( 'Can I install both AC and DC charging on the same site?', 'ev-charging-experience' ),
+				'answer'   => __( 'Yes, and for many mixed-use sites it is the right answer. AC covers long-dwell, everyday charging at a low cost, while a few DC ports serve anyone who needs a fast top-up.', 'ev-charging-experience' ),
+			),
+			array(
+				'question' => __( 'Where do I edit these questions?', 'ev-charging-experience' ),
+				'answer'   => __( 'In the Content tab, under the items list: add, reorder or delete rows. Replace this copy with your own.', 'ev-charging-experience' ),
+			),
+		);
+	}
+
+	protected function builderPreview( array $atts ): array {
+		// A folded answer can't be read or edited in a canvas that has no script to unfold it.
+		$atts['default_open'] = true;
+
+		return $atts;
+	}
+
 	public function render( array $atts, string $content = '' ): string {
 		return $this->view(
 			'faq-item',

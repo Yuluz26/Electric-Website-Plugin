@@ -1,22 +1,26 @@
 #!/usr/bin/env node
 /**
- * Browser QA against a REAL Breakdance install: a page designed in Breakdance
- * whose Shortcode elements hold the EV widgets, on the front end and inside the
- * builder itself.
+ * Browser QA against a REAL Breakdance install: a page designed in Breakdance whose Sections hold
+ * the EV widgets, on the front end and inside the builder itself. Runs against either page that
+ * tests/docker/breakdance-page.sh creates, and adapts:
  *
  *   EVPX_BREAKDANCE_ZIP=/path/to/breakdance.zip bash tests/docker/setup.sh
  *   bash tests/docker/breakdance-page.sh
- *   node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-url)" [outDir]
+ *   node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-url)"          # Shortcode elements
+ *   node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-native-url)"   # native EV elements
  *
- * The builder needs a login: admin / admin by default (what setup.sh creates),
- * override with EVPX_WP_USER / EVPX_WP_PASS. Same Playwright / axe-core / Chromium
- * requirements as qa.mjs.
+ * On a native page it also chooses a picture in the builder's media library — that check needs the
+ * fixture images from `bash tests/docker/media-pages.sh` (skipped without them), and the page that
+ * script builds (`tests/docker/.media-native-url`) is a good one to run this against as well.
  *
- * Every check here was written after the bug it guards was seen on a real
- * Breakdance 2.8.3 page: the hero title rendered dark-on-dark (Breakdance's
- * `.breakdance h2 { color }`), headings fell back to a system sans, primary
- * buttons turned blue, desktop layouts appeared inside a narrow section, the
- * stylesheet arrived after the content, and builder renders were animated.
+ * The builder needs a login: admin / admin by default (what setup.sh creates), override with
+ * EVPX_WP_USER / EVPX_WP_PASS. Same Playwright / axe-core / Chromium requirements as qa.mjs. The builder
+ * selectors were written against Breakdance 2.8.3.
+ *
+ * Every check here was written after the bug it guards was seen on a real Breakdance page: the hero
+ * title rendered dark-on-dark (Breakdance's `.breakdance h2 { color }`), headings fell back to a system
+ * sans, primary buttons turned blue, desktop layouts appeared inside a narrow section, the stylesheet
+ * arrived after the content, and builder renders were animated.
  */
 import { launch, reporter, scrollThrough, notFullyVisible, overflowProbe, axeViolations } from './lib.mjs';
 import fs from 'node:fs';
@@ -41,14 +45,25 @@ const pageErrors = [];
 page.on('pageerror', (e) => pageErrors.push(e.message));
 await page.goto(pageUrl, { waitUntil: 'networkidle', timeout: 30000 });
 const hasGsap = await page.evaluate(() => typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined');
+const native = (await page.$('[class*="evpx-native-"]')) !== null;
+console.log(`Page under test: ${native ? 'native EV elements' : 'EV widgets in Breakdance Shortcode elements'}`);
 
 const widgetCount = await page.$$eval('.evpx-root:not(.evpx-progress)', (e) => e.length);
 const leftover = await page.evaluate(() => /\[evpx_[a-z_]+/.test(document.body.innerText));
 check('every EV widget in the Breakdance tree renders, none left as shortcode text', widgetCount >= 10 && !leftover, `widgets=${widgetCount} leftover=${leftover}`);
 
+// Once, in <head>: the page never paints unstyled before it loads, and nothing is fetched twice.
+const assets = await page.evaluate(() => ({
+	styleInHead: !!document.head.querySelector('link[rel=stylesheet][href*="assets/css/evpx.css"]'),
+	styleTags: document.querySelectorAll('link[rel=stylesheet][href*="assets/css/evpx.css"]').length,
+	coreTags: document.querySelectorAll('script[src*="assets/js/evpx.js"]').length,
+	motionTags: document.querySelectorAll('script[src*="assets/js/motion.js"]').length,
+	gsapTags: document.querySelectorAll('script[src*="gsap.min.js"]').length,
+}));
 check(
-	'stylesheet is printed in <head> (the page never paints unstyled before it loads)',
-	await page.evaluate(() => !!document.head.querySelector('link#evpx-styles-css'))
+	'stylesheet is printed in <head>, and each asset once (no double load between WordPress and Breakdance)',
+	assets.styleInHead && assets.styleTags === 1 && assets.coreTags === 1 && assets.motionTags === 1 && assets.gsapTags === 1,
+	JSON.stringify(assets)
 );
 
 const notEvpxHeadings = await page.$$eval('.evpx-root :is(h1, h2, h3, h4, h5, h6)', (els) =>
@@ -58,7 +73,7 @@ check("Breakdance's heading rules can't restyle widget headings (every heading k
 
 const heroTitleColour = await page.$eval('.evpx-hero__title', (el) => getComputedStyle(el).color).catch(() => '');
 const [r, g, b] = (heroTitleColour.match(/\d+/g) || [0, 0, 0]).map(Number);
-check('hero title stays light on the dark hero (not Breakdance\'s dark heading colour)', (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.85, heroTitleColour);
+check("hero title stays light on the dark hero (not Breakdance's dark heading colour)", (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.85, heroTitleColour);
 
 {
 	const button = await page.$('.evpx-button--primary');
@@ -153,14 +168,14 @@ await page.close();
 if (!postId) {
 	skip('builder checks', 'could not read the post id from the page URL');
 } else {
-	const ctx = await browser.newContext({ viewport: { width: 1600, height: 950 } });
+	const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
 	const b = await ctx.newPage();
 	await b.goto(`${origin}/wp-login.php`);
 	await b.fill('#user_login', process.env.EVPX_WP_USER || 'admin');
 	await b.fill('#user_pass', process.env.EVPX_WP_PASS || 'admin');
 	await Promise.all([b.waitForNavigation(), b.click('#wp-submit')]);
 
-	// Breakdance renders every Shortcode element through its own server-side-render
+	// Breakdance renders every Shortcode / native element through its own server-side-render
 	// AJAX call (POST to a front-end URL, not admin-ajax.php).
 	const ssr = [];
 	b.on('response', async (res) => {
@@ -171,7 +186,7 @@ if (!postId) {
 			const j = await res.json();
 			html = String(j?.data?.html ?? j?.html ?? '');
 		} catch {}
-		ssr.push({ status: res.status(), html });
+		ssr.push({ status: res.status(), html, body: req.postData() || '' });
 	});
 	const builderErrors = [];
 	const builderPageErrors = [];
@@ -201,17 +216,181 @@ if (!postId) {
 	} else {
 		const s = await frame.evaluate(() => ({
 			widgets: document.querySelectorAll('.evpx-root:not(.evpx-progress)').length,
-			motionAllowed: window.EVPX ? window.EVPX.motionAllowed() : 'no EVPX',
+			// Shortcode elements load the scripts through WordPress and get the "builder" flag; native
+			// elements deliver only the stylesheet in the builder, so there is nothing to switch off.
+			scripts: typeof window.EVPX !== 'undefined',
+			motionAllowed: window.EVPX ? window.EVPX.motionAllowed() : null,
 			builderFlag: window.EVPX_CONFIG && window.EVPX_CONFIG.builderContext,
+			styled: !!document.querySelector('link[rel=stylesheet][href*="assets/css/evpx.css"]'),
 			heroOpacity: document.querySelector('.evpx-hero__title') ? getComputedStyle(document.querySelector('.evpx-hero__title')).opacity : 'no hero',
 			heroFont: document.querySelector('.evpx-hero__title') ? getComputedStyle(document.querySelector('.evpx-hero__title')).fontFamily.slice(0, 12) : '',
 			triggers: window.ScrollTrigger ? window.ScrollTrigger.getAll().length : 0,
 			hidden: [...document.querySelectorAll('[data-evpx-reveal]')].filter((e) => getComputedStyle(e).opacity !== '1').length,
 		}));
+		const motionOff = native ? !s.scripts : s.motionAllowed === false && !!s.builderFlag;
 		check(
-			'builder canvas: every widget present, hero visible in its own typeface, motion off, no scroll triggers',
-			s.widgets >= 10 && s.motionAllowed === false && !!s.builderFlag && s.heroOpacity === '1' && /EVPX/.test(s.heroFont) && s.triggers === 0 && s.hidden === 0,
+			'builder canvas: every widget present and styled, hero visible in its own typeface, motion off, no scroll triggers',
+			s.widgets >= 10 && s.styled && motionOff && s.heroOpacity === '1' && /EVPX/.test(s.heroFont) && s.triggers === 0 && s.hidden === 0,
 			JSON.stringify(s)
+		);
+	}
+
+	if (native && frame) {
+		// The PRD's definition of done: widgets appear in Breakdance and can be edited visually.
+		await b.getByText('Add', { exact: true }).first().click();
+		await b.fill('input[placeholder="Search elements"]', 'EV ');
+		await b.waitForTimeout(1200);
+		const listed = await b.evaluate(() =>
+			[...document.querySelectorAll('.breakdance-add-panel__element-name')].map((e) => e.textContent.trim()).filter((t) => /^EV /.test(t))
+		);
+		await b.screenshot({ path: path.join(outDir, 'builder-add-panel.png') });
+		check('the Add panel lists all nine EV elements', listed.length === 9, listed.join(', '));
+
+		// Select each kind of element in the canvas: its panel opens with the Content section and inputs.
+		const kinds = await frame.evaluate(() => [...new Set([...document.querySelectorAll('[class*="evpx-native-"]')].flatMap((e) => [...e.classList].filter((c) => /^evpx-native-[a-z-]+$/.test(c))))]);
+		const problems = [];
+		for (const kind of kinds) {
+			const el = frame.locator(`.${kind}`).first();
+			await el.scrollIntoViewIfNeeded();
+			await el.click({ position: { x: 20, y: 20 }, force: true });
+			await b.waitForTimeout(1500);
+			const panel = await b.evaluate(() => ({ text: document.body.innerText, inputs: document.querySelectorAll('input, textarea').length }));
+			if (!panel.text.includes('Content') || panel.inputs < 2) problems.push(`${kind}: no controls`);
+		}
+		check(`selecting each of the ${kinds.length} kinds of native element in the canvas opens its controls`, kinds.length === 9 && problems.length === 0, problems.join(' | ') || `kinds=${kinds.length}`);
+
+		// Edit a control: the canvas re-renders through one SSR call and shows the change.
+		const faq = frame.locator('.evpx-native-faq').first();
+		await faq.scrollIntoViewIfNeeded();
+		await faq.click({ position: { x: 20, y: 20 }, force: true });
+		await b.waitForTimeout(1500);
+		const before = ssr.length;
+		await b.locator('input[value="FAQ"]').first().fill('Edited in the builder');
+		await b.waitForTimeout(2500);
+		const shown = await frame.locator('.evpx-native-faq .evpx-eyebrow').first().innerText().catch(() => '');
+		const posted = ssr.at(-1)?.body.match(/name="properties"\r?\n\r?\n([\s\S]*?)\r?\n------/);
+		const eyebrow = posted ? JSON.parse(posted[1])?.content?.content?.eyebrow : null;
+		check('editing a control re-renders the canvas through one server-side render and shows the change', ssr.length - before === 1 && /edited in the builder/i.test(shown) && eyebrow === 'Edited in the builder', `renders=${ssr.length - before} shown=${JSON.stringify(shown)} posted=${JSON.stringify(eyebrow)}`);
+
+		// A toggle switched off is saved as an explicit false — the plugin must treat that as "off", not "unset".
+		await b.getByText('Motion', { exact: true }).first().click();
+		await b.waitForTimeout(600);
+		const beforeToggle = ssr.length;
+		await b.locator('.breakdance-control-toggle, [class*="toggle"] input[type="checkbox"], [role="switch"]').first().click({ force: true });
+		await b.waitForTimeout(2500);
+		const toggled = ssr.at(-1)?.body.match(/name="properties"\r?\n\r?\n([\s\S]*?)\r?\n------/);
+		check('a toggle switched off in the builder is saved as false and re-renders', ssr.length - beforeToggle === 1 && toggled && JSON.parse(toggled[1])?.content?.motion?.animate === false, toggled ? JSON.stringify(JSON.parse(toggled[1])?.content?.motion) : 'no render');
+
+		// The Items repeater, on the FAQ: the empty row "Add" creates isn't rendered (an empty button, an empty
+		// entry in the structured data), giving it a question makes the item appear, its answer fills it.
+		const faqEl = frame.locator('.evpx-native-faq').first();
+		await faqEl.scrollIntoViewIfNeeded();
+		await faqEl.click({ position: { x: 20, y: 20 }, force: true });
+		await b.waitForTimeout(1500);
+		const faqItems = () => frame.locator('.evpx-native-faq .evpx-faq__item').count();
+		const itemsBefore = await faqItems();
+		await b.getByText('Items', { exact: true }).first().click();
+		await b.waitForTimeout(600);
+		await b.getByRole('button', { name: 'Add EV FAQ Item' }).click();
+		await b.waitForTimeout(2500);
+		const itemsAfterAdd = await faqItems();
+		const rowControl = (field, tag) => b.locator(`xpath=(//span[contains(@path,"].${field}")])[last()]/ancestor::div[contains(concat(" ", normalize-space(@class), " "), " breakdance-control-wrapper ")][1]//${tag}`).last();
+		await rowControl('question', 'input').fill('Do you offer site surveys?');
+		await b.waitForTimeout(3000);
+		const itemsAfterQuestion = await faqItems();
+		await rowControl('answer', 'textarea').fill('Yes: a short survey comes first.');
+		await b.waitForTimeout(3000);
+		const lastItem = await frame.evaluate(() => ([...document.querySelectorAll('.evpx-native-faq .evpx-faq__item')].at(-1)?.innerText || '').replace(/\s+/g, ' ').trim());
+		check(
+			'the Items repeater works: a new empty row is not rendered, its question adds the item, its answer shows in the canvas',
+			itemsBefore >= 2 && itemsAfterAdd === itemsBefore && itemsAfterQuestion === itemsBefore + 1 && lastItem === 'Do you offer site surveys? Yes: a short survey comes first.',
+			JSON.stringify({ itemsBefore, itemsAfterAdd, itemsAfterQuestion, lastItem })
+		);
+
+		// A picture chosen in the builder's own media library: the control saves an object, the plugin keeps
+		// its attachment id, and the canvas shows the described, responsive picture. Needs the fixture images
+		// (tests/docker/media-pages.sh); without them there is nothing to choose.
+		const heroEl = frame.locator('.evpx-native-hero').first();
+		await heroEl.scrollIntoViewIfNeeded();
+		await heroEl.click({ position: { x: 20, y: 20 }, force: true });
+		await b.waitForTimeout(1500);
+		await b.getByText('Media', { exact: true }).first().click();
+		await b.waitForTimeout(600);
+		const chooser = b.locator('.media-chooser-layer-button').first();
+		await chooser.scrollIntoViewIfNeeded();
+		await chooser.click({ force: true });
+		await b.waitForTimeout(2500);
+		const library = b.frames().find((f) => f.url().includes('breakdance_wpuiforbuilder_media'));
+		const tile = library?.locator('li.attachment[aria-label="EVPX fixture: hero"]').first();
+		if (!tile || (await tile.count()) === 0) {
+			skip('choosing a picture in the builder saves its attachment id and shows it', 'no fixture images in the media library (run tests/docker/media-pages.sh)');
+		} else {
+			const beforePicture = ssr.length;
+			// Already ticked when the page's hero has this picture; clicking it again would untick it.
+			if ((await tile.getAttribute('aria-checked')) !== 'true') await tile.click();
+			await library.locator('button.media-button-select').first().click();
+			await b.waitForTimeout(4000);
+			const picked = ssr.at(-1)?.body.match(/name="properties"\r?\n\r?\n([\s\S]*?)\r?\n------/);
+			const saved = picked ? JSON.parse(picked[1])?.content?.media?.media : null;
+			const shown = await frame.evaluate(() => {
+				const img = document.querySelector('.evpx-native-hero .evpx-hero__media img');
+				return img ? { loaded: img.complete && img.naturalWidth > 0, alt: img.alt, srcset: !!img.srcset, src: img.currentSrc } : null;
+			});
+			check(
+				'choosing a picture in the builder saves it as a media object with an id, re-renders once, and the canvas shows it described and responsive',
+				ssr.length - beforePicture === 1 && Number.isInteger(saved?.id) && saved.id > 0 && !!shown?.loaded && shown.alt !== '' && shown.srcset && /evpx-fixture-hero/.test(shown.src),
+				JSON.stringify({ renders: ssr.length - beforePicture, savedId: saved?.id, shown })
+			);
+		}
+	}
+
+	if (native && frame) {
+		// Dynamic data through the builder's own button on a text control. Breakdance hands the server-side
+		// render the raw properties, tokens included, so a native element has to resolve them itself or the
+		// canvas shows "[breakdance_dynamic …]"; and the plugin's own field must be open to everyone (a
+		// "Pro" badge means it can't be chosen without a Breakdance Pro licence).
+		const dynamicControl = (path) => b.locator(`xpath=//span[@path="${path}"]/ancestor::div[contains(concat(" ", normalize-space(@class), " "), " breakdance-control-wrapper ")][1]`);
+		const pickDynamic = async (path, field) => {
+			const wrapper = dynamicControl(path);
+			if (!(await wrapper.isVisible())) await b.getByText('Content', { exact: true }).first().click();
+			await wrapper.scrollIntoViewIfNeeded();
+			await wrapper.hover();
+			await wrapper.locator('button.dynamic-data-chooser-button').click({ force: true });
+			await b.waitForTimeout(1000);
+			const choice = b.locator('button', { hasText: field }).first();
+			const label = ((await choice.innerText().catch(() => '')) || '').replace(/\s+/g, ' ').trim();
+			const beforeChoice = ssr.length;
+			await choice.click();
+			await b.waitForTimeout(3500);
+			const sent = ssr.at(-1)?.body.match(/name="properties"\r?\n\r?\n([\s\S]*?)\r?\n------/);
+			const key = path.split('.').pop();
+			return { label, renders: ssr.length - beforeChoice, saved: sent ? JSON.parse(sent[1])?.content?.content?.[key] : null };
+		};
+
+		await frame.locator('.evpx-native-hero').first().click({ position: { x: 20, y: 20 }, force: true });
+		await b.waitForTimeout(1500);
+
+		const pageTitle = await (async () => {
+			for (const type of ['pages', 'posts']) {
+				const res = await b.request.get(`${origin}/?rest_route=/wp/v2/${type}/${postId}`);
+				if (res.ok()) return b.evaluate((html) => Object.assign(document.createElement('textarea'), { innerHTML: html }).value, (await res.json()).title.rendered);
+			}
+			return '';
+		})();
+		const postTitle = await pickDynamic('content.content.title', 'Post Title');
+		const shownTitle = await frame.locator('.evpx-native-hero .evpx-hero__title').first().innerText().catch(() => '');
+		check(
+			'dynamic data: "Post Title" chosen on the Hero title is saved as a token and the canvas shows the title, not the token',
+			/^\[breakdance_dynamic field=.post_title.\]$/.test(postTitle.saved || '') && postTitle.renders >= 1 && pageTitle !== '' && shownTitle.trim() === pageTitle.trim(),
+			JSON.stringify({ ...postTitle, shownTitle, pageTitle })
+		);
+
+		const readingTime = await pickDynamic('content.content.reading_time', 'EV Reading Time');
+		const shownMeta = await frame.evaluate(() => [...document.querySelectorAll('.evpx-native-hero .evpx-hero__meta-item')].map((e) => e.textContent.trim()));
+		check(
+			"dynamic data: the plugin's own EV Reading Time field is open to everyone (no Pro badge), is saved as a token, and the canvas shows the value",
+			readingTime.label === 'EV Reading Time' && /^\[breakdance_dynamic field=.evpx_reading_time.\]$/.test(readingTime.saved || '') && shownMeta.some((t) => /min read/.test(t)) && !shownMeta.some((t) => t.includes('[breakdance_dynamic')),
+			JSON.stringify({ ...readingTime, shownMeta })
 		);
 	}
 

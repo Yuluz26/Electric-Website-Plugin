@@ -77,12 +77,68 @@ abstract class Element {
 	 */
 	public function renderShortcode( $atts, $content = null ): string {
 		$atts    = shortcode_atts( $this->defaultAttributes(), (array) $atts, $this->shortcodeTag() );
-		$atts    = $this->withBuilderContext( $this->sanitizeAttributes( $atts ) );
 		$content = null === $content ? '' : do_shortcode( $this->stripAutopArtifacts( $content ) );
 
-		Loader::markActive();
+		return $this->renderWithAttributes( $atts, $content );
+	}
+
+	/**
+	 * The one way in for every front end — shortcode, block and Breakdance element: default,
+	 * sanitize, switch motion off for a builder, then render. Missing keys take their default.
+	 *
+	 * @param array<string, mixed> $raw     Attributes as the caller has them (unsanitized).
+	 * @param string               $content Inner content: rendered children.
+	 * @param bool                 $track   Whether this counts as "an EV element rendered" for the
+	 *                                      asset fallback. A Breakdance element delivers its own
+	 *                                      assets as Breakdance dependencies, so it says false.
+	 */
+	public function renderWithAttributes( array $raw, string $content = '', bool $track = true ): string {
+		$atts = $this->withBuilderContext( $this->sanitizeAttributes( array_merge( $this->defaultAttributes(), $raw ) ) );
+
+		if ( $track ) {
+			Loader::markActive();
+		}
 
 		return $this->render( $atts, $content );
+	}
+
+	/**
+	 * The widget that repeats inside this one (a FAQ's items, a card grid's cards), or null. A
+	 * Breakdance element edits them as rows of one repeater instead of as nested elements.
+	 */
+	public function childWidget(): ?Element {
+		$children = $this->allowedChildren();
+
+		if ( empty( $children ) ) {
+			return null;
+		}
+
+		foreach ( ( new Registry() )->all() as $element ) {
+			if ( $element->blockName() === $children[0] ) {
+				return $element;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Starting copy for a new Breakdance element, on top of the control defaults, so a widget
+	 * dragged in isn't a row of empty boxes. Shortcodes and blocks never use it.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function sampleAtts(): array {
+		return array();
+	}
+
+	/**
+	 * The rows a new Breakdance element starts with. Item widgets override this.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function sampleRows(): array {
+		return array();
 	}
 
 	/**
@@ -113,7 +169,41 @@ abstract class Element {
 			}
 		}
 
+		return $this->builderPreview( $atts );
+	}
+
+	/**
+	 * How a widget shows itself while being edited, when what a visitor sees would hide part of
+	 * what the editor is changing: a comparison that shows one tab at a time, an FAQ answer folded
+	 * away. Widgets override this to show everything at once; it applies only inside a builder.
+	 *
+	 * @param array<string, mixed> $atts Sanitized, motion already off.
+	 * @return array<string, mixed>
+	 */
+	protected function builderPreview( array $atts ): array {
 		return $atts;
+	}
+
+	/**
+	 * The vertical rhythm control shared by every full-width section widget (see --evpx-section-y in
+	 * the stylesheet). Inside a Breakdance Section, which brings its own padding, "None" avoids the
+	 * two adding up.
+	 *
+	 * @return array<string, mixed>
+	 */
+	protected static function spacingControl(): array {
+		return array(
+			'key'     => 'spacing',
+			'label'   => __( 'Vertical spacing', 'ev-charging-experience' ),
+			'type'    => 'select',
+			'group'   => 'layout',
+			'default' => 'default',
+			'options' => array(
+				'default' => __( 'Default', 'ev-charging-experience' ),
+				'compact' => __( 'Compact', 'ev-charging-experience' ),
+				'none'    => __( 'None (the container already has padding)', 'ev-charging-experience' ),
+			),
+		);
 	}
 
 	/**
@@ -164,11 +254,7 @@ abstract class Element {
 	 * @param string                $content Server-rendered inner blocks HTML.
 	 */
 	public function renderBlock( array $atts, string $content = '' ): string {
-		$atts = $this->withBuilderContext( $this->sanitizeAttributes( array_merge( $this->defaultAttributes(), $atts ) ) );
-
-		Loader::markActive();
-
-		return $this->render( $atts, $content );
+		return $this->renderWithAttributes( $atts, $content );
 	}
 
 	/** @return array<string, mixed> */

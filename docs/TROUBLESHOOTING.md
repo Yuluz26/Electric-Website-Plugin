@@ -6,22 +6,49 @@ The plugin isn't active, or you're looking at unsaved/preview content that
 bypassed `do_shortcode`. Confirm the plugin is active in Plugins.
 
 **Styles are missing on a page that clearly has an EV widget.**
-Assets load conditionally. The stylesheet is detected from the post's content and, for a page
-designed in Breakdance, from its element tree, and printed in `<head>`. A widget anywhere else (a
-Breakdance header, footer or template, a widget area) is caught by a fallback that enqueues the
-moment an `[evpx_*]` shortcode actually renders — reload once; if it's still missing, check your
-browser console for a failed request to the plugin's own `assets/css/evpx.css` (a path or
-permissions problem) — the plugin makes no other style requests.
+Assets load conditionally. A native Breakdance element brings its stylesheet through Breakdance (view the
+source: `assets/css/evpx.css?bd_ver=…`). For shortcodes and blocks the stylesheet is detected from the post's
+content and, for a page designed in Breakdance, from its element tree, and printed in `<head>`; a widget
+anywhere else (a Breakdance header, footer or template, a widget area) is caught by a fallback that enqueues
+the moment an `[evpx_*]` shortcode actually renders — reload once; if it's still missing, check your browser
+console for a failed request to the plugin's own `assets/css/evpx.css` (a path or permissions problem) — the
+plugin makes no other style requests.
 
 **The page paints unstyled for a moment, then jumps into place.**
-The widget lives somewhere detection can't see, so the stylesheet arrives from the footer
-fallback. Load it in `<head>` for those requests:
-`add_filter( 'evpx_load_assets', '__return_true' );` (the filter receives the detected boolean and
-the queried post, so you can restrict it).
+Only for a shortcode in a footer or header on a plain classic theme, where `<head>` is printed before the body
+renders and detection can't see it: the stylesheet arrives from the footer fallback. Load it in `<head>` for
+those requests: `add_filter( 'evpx_load_assets', '__return_true' );` (the filter receives the detected boolean
+and the queried post, so you can restrict it). Native elements, and any theme that renders the body first
+(block themes, Breakdance's Zero theme and templates), don't show this.
+
+**The EV elements aren't in Breakdance's Add panel.**
+Search for "EV" in the panel, or look for the **EV Charging** category. If it isn't there: Breakdance must be
+active (the elements are only declared once it is), and the plugin file must be loaded — a cache or
+"must-use" loader that includes it late, after Breakdance has finished starting, hides them. Look in
+`wp-content/debug.log` for a PHP fatal mentioning `EVPX`.
+
+**A page built with the EV elements shows an unknown element after an update.**
+A page stores its elements' PHP class names (`EVPX\Hero`, `EVPX\Faq`, …). If a class was renamed or the plugin
+was deactivated, Breakdance can no longer find it. Reactivate the plugin; the classes are never renamed.
+
+**A widget is invisible, or its text sticks out of nothing.**
+The widget has collapsed to zero width. That was a bug — a size container has no intrinsic width, and Breakdance's
+Rich Text element (which shows a post's content) is only as wide as its content — and 0.4.0 fixes it with two
+zero-specificity rules. If you still see it, some other rule wins: inspect `.evpx-root` and its parent, and give
+the parent `width: 100%`, or the widget `align-self: stretch` if the parent is a flex column.
+
+**The stylesheet or GSAP is loaded twice.**
+It can happen on a plain classic theme when the page mixes ways of adding widgets — shortcodes or blocks in the
+content and a native element in a Breakdance header, footer or template. The scripts load once; the stylesheet
+may appear twice (about 8 KB gzipped, identical rules). Block themes and Breakdance's templates never do this.
 
 **A widget has huge empty space above and below it inside a Breakdance Section.**
-The Section's own padding and the widget's rhythm add up. Set the Section's vertical padding to 0, or
-`.evpx-root { --evpx-section-y: 0; }`.
+The Section's own padding and the widget's rhythm add up. Set the element's **Spacing** control to *none*, set the
+Section's vertical padding to 0, or `.evpx-root { --evpx-section-y: 0; }`.
+
+**Related Articles shows no pictures although some articles have a featured image.**
+Pictures appear only when every listed article has one; a row of photographs with a blank tile among them looked
+broken. Give the missing article a featured image, or pick articles that all have one (source: hand-picked).
 
 **A theme or plugin still overrides a widget's heading or link colour.**
 Widget rules are scoped under `.evpx-root` (specificity 0,2,0), which beats bare `h2`/`a` rules and
@@ -67,8 +94,8 @@ blank lines between nested shortcode tags in the source.
 
 **A page built entirely in Breakdance looks off after installing.**
 It shouldn't — nothing in this plugin touches Breakdance's own CSS, templates, or element output;
-it only adds new shortcodes/blocks and, separately, an Element Studio save location. If you see a
-regression, please check whether it reproduces with the plugin deactivated before reporting it as
+it only adds its own elements, shortcodes and blocks and, separately, an Element Studio save location. If you
+see a regression, please check whether it reproduces with the plugin deactivated before reporting it as
 caused by this plugin.
 
 **A widget inside a Breakdance column shows its phone layout on a wide screen.**

@@ -20,6 +20,8 @@ status=0
 
 echo "== structure"
 "${COMPOSE[@]}" cp tests/docker/breakdance-real-check.php wordpress:/tmp/breakdance-real-check.php
+"${COMPOSE[@]}" cp tests/docker/native-helpers.php wordpress:/tmp/native-helpers.php
+"${COMPOSE[@]}" cp docs/demo-article.txt wordpress:/tmp/demo-article.txt
 wp eval-file /tmp/breakdance-real-check.php || status=1
 
 echo
@@ -28,11 +30,17 @@ echo "== behaviour: does Breakdance load an element saved in this plugin's folde
 PROBE="/var/www/html/wp-content/plugins/${EVPX_PLUGIN_DIR:-ev-charging-experience}/element-studio/elements/evpx-probe"
 cleanup() { "${COMPOSE[@]}" exec -T wordpress rm -rf "$PROBE"; }
 trap cleanup EXIT
-# Root creates it (the plugin directory is a bind mount); www-data only needs to read it.
-"${COMPOSE[@]}" exec -T wordpress sh -c "mkdir -p $PROBE && echo '<?php define( \"EVPX_PROBE_LOADED\", true );' > $PROBE/evpx-probe.php && chmod -R a+rX $PROBE"
+# The probe also declares a class named like one of the plugin's native elements (Hero), in the
+# namespace this plugin registered for Element Studio — the one Element Studio would write for an
+# element saved here. If that were the namespace of the native elements (EVPX), loading it would be a
+# fatal "cannot redeclare class". Root creates the file (the plugin directory is a bind mount);
+# www-data only needs to read it.
+FOLDER="${EVPX_PLUGIN_DIR:-ev-charging-experience}"
+STUDIO_NS="$(wp eval 'foreach ( \Breakdance\ElementStudio\ElementStudioController::getInstance()->saveLocations as $l ) { if ( "element" === $l["type"] && "'"$FOLDER"'/element-studio/elements" === $l["directoryPath"] ) { echo $l["namespace"]; } }' 2>&1)"
+"${COMPOSE[@]}" exec -T wordpress sh -c "mkdir -p $PROBE && printf '%s\n' '<?php' 'namespace ${STUDIO_NS};' 'final class Hero {}' 'define( \"EVPX_PROBE_LOADED\", true );' > $PROBE/evpx-probe.php && chmod -R a+rX $PROBE"
 RESULT="$(wp eval 'echo defined( "EVPX_PROBE_LOADED" ) ? "loaded" : "missing";' 2>&1)"
 if [ "$RESULT" = "loaded" ]; then
-	echo "PASS — Breakdance required the element file from this plugin's save location"
+	echo "PASS — Breakdance required the element file from this plugin's save location, next to the native elements of the same name"
 else
 	echo "FAIL — Breakdance did not load it (got: $RESULT)"
 	status=1

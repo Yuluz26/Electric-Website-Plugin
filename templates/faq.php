@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var string $spacing Vertical rhythm: default | compact | none.
  * @var string $eyebrow
  * @var string $heading
  * @var string $content Rendered FaqItem children.
@@ -10,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<section class="evpx-root alignfull evpx-faq">
+<section class="evpx-root alignfull evpx-faq" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container evpx-faq__container">
 		<div class="evpx-faq__intro" data-evpx-reveal>
 			<?php if ( $eyebrow ) : ?><p class="evpx-eyebrow"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>

@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var string $spacing Vertical rhythm: default | compact | none.
  * @var string $eyebrow
  * @var string $heading
  * @var string $body HTML
@@ -13,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<section class="evpx-root alignfull evpx-section evpx-section--<?php echo esc_attr( $layout ); ?>">
+<section class="evpx-root alignfull evpx-section evpx-section--<?php echo esc_attr( $layout ); ?>" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container evpx-section__grid">
 		<div
 			class="evpx-section__text evpx-surface--<?php echo esc_attr( $surface ); ?>"

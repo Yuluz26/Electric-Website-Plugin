@@ -1,8 +1,8 @@
 # EV Charging Experience
 
 A WordPress plugin that adds a premium, neumorphic, editorial set of
-EV-charging article components — built to extend Breakdance without ever
-overriding it, and to work as plain WordPress shortcodes/blocks with no
+EV-charging article components — native elements in Breakdance's Add panel, built to extend
+Breakdance without ever overriding it, and plain WordPress shortcodes/blocks that work with no
 page builder at all.
 
 Built from the staged prompt pack in `docs/prompt-pack/` (PRD → UI/UX →
@@ -14,8 +14,9 @@ element inventory: `docs/ARCHITECTURE.md`.
 Nine widgets — **EV Article Hero**, **EV Section**, **EV AC/DC Comparison**
 (signature component), **EV Scenario Cards**, **EV Technical Flow**, **EV Decision
 Factors**, **EV FAQ**, **EV Related Articles**, **EV CTA** — plus the three item elements
-that nest inside the container widgets. Each is a shortcode *and* a Gutenberg block, same
-renderer, same output. Full control reference: `docs/WIDGETS.md`.
+that nest inside the container widgets. Each is a shortcode, a Gutenberg block *and* a native
+Breakdance element (category **EV Charging**), same renderer, same output. Full control
+reference: `docs/WIDGETS.md`.
 
 A complete demo article — "Choosing AC or DC Charging for Your Site," original copy
 grounded in independently-verified AC/DC charging facts, not copied from any reference — is
@@ -28,9 +29,9 @@ without photography; `docs/MEDIA-BRIEF.md` is the shot list.
 wp plugin activate ev-charging-experience
 ```
 
-Then either drop `[evpx_hero]` (etc.) into any post/page content, or
-search "EV" in the block inserter. Full setup, including the Breakdance
-Element Studio bridge for native drag-in controls: `docs/INSTALLATION.md`.
+Then either search "EV" in Breakdance's Add panel, drop `[evpx_hero]` (etc.) into any post/page
+content, or search "EV" in the block inserter. Full setup: `docs/INSTALLATION.md`; everything about
+Breakdance: `docs/BREAKDANCE.md`.
 
 ## Documentation
 
@@ -39,7 +40,7 @@ Element Studio bridge for native drag-in controls: `docs/INSTALLATION.md`.
 | `docs/ARCHITECTURE.md` | Requirements, architecture, design tokens, risks |
 | `docs/INSTALLATION.md` | Install, Breakdance setup, compatibility |
 | `docs/WIDGETS.md` | Every widget's controls |
-| `docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md` | Building native Breakdance elements |
+| `docs/BREAKDANCE.md` | The native elements, the Shortcode element, Element Studio, templates, how it's built |
 | `docs/TROUBLESHOOTING.md` | Common issues |
 | `docs/QA-REPORT.md` | What was tested, bugs found and fixed, what's unverified |
 | `docs/MEDIA-BRIEF.md` | Photography shot list, sourcing and alt-text rules |
@@ -60,9 +61,13 @@ bash tests/build-zip.sh                         # dist/ev-charging-experience.zi
 
 # Against a real Breakdance (you supply the licensed ZIP; it is never committed):
 EVPX_BREAKDANCE_ZIP=/path/to/breakdance.zip bash tests/docker/setup.sh
-bash tests/docker/breakdance-real-check.sh      # integration: save locations, Dynamic Data, reading time
-bash tests/docker/breakdance-page.sh            # a page designed in Breakdance from the demo article
-node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-url)"   # 16 checks, front end + builder
+bash tests/docker/breakdance-real-check.sh      # integration: native elements, Element Studio, Dynamic Data, reading time
+bash tests/docker/breakdance-page.sh            # two pages designed in Breakdance from the demo article (Shortcode / native)
+node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-native-url)"   # front end + the builder itself
+bash tests/docker/builder-save-check.sh         # the builder round-trip: dropdown, Add panel, Save, front end
+bash tests/docker/media-pages.sh                # generated pictures, then: node tests/playwright/media-qa.mjs …
+bash tests/docker/template-check.sh             # footers and templates under a block, the Zero and a classic theme
+bash tests/docker/isolation-check.sh            # unrelated pages are pixel-identical with the plugin on and off
 ```
 
 The browser scripts need `playwright` (and optionally `axe-core`) installed in
@@ -72,9 +77,10 @@ is served locally — the header of each script explains the details.
 ## Non-negotiables this plugin follows
 
 Namespaced everywhere (`EVPX` in PHP, `.evpx-*` in CSS, `evpx_*`/`evpx/*`
-for shortcodes/blocks). No bare-element or global CSS selectors, and every rule scoped
-under `.evpx-root` so a host's `h2`/`a` rules can't restyle a widget. Layout follows the widget's
-own box (container queries), not the viewport. No
+for shortcodes/blocks, `EVPXStudio` for Element Studio). No bare-element or global CSS selectors (one
+zero-specificity rule asks the box that holds a widget to fill its container; see the stylesheet header),
+and every rule scoped under `.evpx-root` so a host's `h2`/`a` rules can't restyle a widget. Layout follows
+the widget's own box (container queries), not the viewport. No
 Breakdance core files, templates, or global styles touched. Every
 Breakdance API call guarded with `function_exists()`/`class_exists()` —
 the plugin never fatals with Breakdance absent. Assets load only on pages

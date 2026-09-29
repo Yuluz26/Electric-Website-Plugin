@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var string $spacing Vertical rhythm: default | compact | none.
  * @var string $eyebrow
  * @var string $heading
  * @var string $columns
@@ -11,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<section class="evpx-root alignfull evpx-scenarios">
+<section class="evpx-root alignfull evpx-scenarios" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container">
 		<?php if ( $eyebrow || $heading ) : ?>
 			<div class="evpx-scenarios__intro" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>

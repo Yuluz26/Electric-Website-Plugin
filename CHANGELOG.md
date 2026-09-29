@@ -1,5 +1,68 @@
 # Changelog
 
+## 0.4.0
+
+The nine widgets are now native Breakdance elements. Running them against a real Breakdance with its own
+Zero theme, its templates, pictures, dynamic-data picker and repeater turned up ten more bugs, all fixed and
+now guarded by tests (`docs/QA-REPORT.md`, bugs 24–33).
+
+**Added — native Breakdance elements**
+- The nine widgets appear in Breakdance's Add panel under **EV Charging**, with controls in sections
+  (Content, Media, Layout, Visual, Motion, Responsive, Advanced), an **Items** repeater for the FAQ, Scenario
+  Cards and Decision Factors, Breakdance's dynamic-data button on text and URL fields (including the plugin's
+  own **EV Reading Time**), the media library for pictures, and live canvas rendering. Same renderer as the
+  shortcodes and blocks, so the markup is identical. This is what the PRD's "custom widgets appear in
+  Breakdance and can be edited visually" asks for; until now it was only met through Breakdance's Shortcode
+  element, which still works.
+- In the builder the comparison shows both panels and every FAQ answer is open, so both can be edited.
+- A **Spacing** control (default / compact / none) on the eight section widgets, also available as the
+  `spacing` shortcode/block attribute.
+- Each native element brings its stylesheet and scripts as Breakdance dependencies: printed once per page,
+  in `<head>` for the stylesheet, wherever the element sits (a page, a template, a header, a footer).
+- Starting copy and sample rows, so a new element isn't an empty box. Translatable.
+
+**Fixed**
+- Widgets collapsed to zero width in a post's content under Breakdance's Zero theme and default Single Post
+  template: a size container has no intrinsic width, and Breakdance's Rich Text element only grows to its
+  content. Two zero-specificity rules make the widget and the box around it fill their container.
+- Related Articles drew blank tiles next to real photographs when only some articles had a featured image.
+  Pictures now show only when every listed article has one.
+- The hero's meta line left a separator dangling at the end of a wrapped line; the separators are hairlines
+  that fall outside the box, and are clipped, where a line starts.
+- A page mixing shortcodes or blocks with a native element in a Breakdance template loaded the stylesheet and
+  GSAP twice, and a widget in a footer or template got its stylesheet after the content even on block themes.
+  One flag decides who delivers, the assets are found before `<head>` when the body has rendered first, and on
+  a classic theme the already-queued scripts are withdrawn.
+- White type over a bright picture was unreadable: the hero's scrim faded to nothing at the top, where the
+  eyebrow and the first line of the title sit (1.5:1 and 1.9:1 over an overcast sky). Hero and CTA now share
+  one `--evpx-scrim` token (0.6), and their eyebrows are no longer dimmed. Measured worst case is 5.0:1 or better.
+- Dynamic data showed as raw text in the builder canvas: choosing "Post Title" on a native element saved the
+  token correctly and the front end resolved it, but Breakdance's server-side render hands an element the
+  unresolved token. Native elements now resolve it themselves, the way Breakdance's own Google Map does.
+- The empty row the Items repeater's "Add" button creates was rendered: an empty FAQ button, and an empty entry in
+  the FAQ's structured data. A row now shows once it has its title (the question, for an FAQ item).
+- The **EV Reading Time** dynamic field was "Pro only" — Breakdance's default for a field that doesn't say
+  otherwise: it carried a Pro badge and could not be chosen without a Breakdance Pro licence. It is open to everyone.
+- The Element Studio save location shared the PHP namespace `EVPX` with the native elements: an element named
+  "Hero" saved in Element Studio would have been a fatal "cannot redeclare class". It is now `EVPXStudio`.
+
+**Changed**
+- `docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md` is now `docs/BREAKDANCE.md`, and covers all of it.
+- `Related Articles`: see above; nothing else changes for existing shortcodes and blocks.
+
+**Tests**
+- `breakdance-real-check.sh`: 22 checks (native elements' contract, dynamic-data paths, toggles, same markup as
+  the shortcode, Element Studio namespace next to a same-named class).
+- `breakdance-qa.mjs` on a native page also drives the builder: Add panel, selecting each element, editing,
+  toggling, and choosing a picture in the media library.
+- New: `builder-save-check.sh` (choose a dropdown option, edit, Save, front end, reopen the builder; add an
+  element from the Add panel to an empty page and save it) and `isolation-check.sh` (three pages without an EV
+  element are pixel-identical with the plugin active and inactive, under two themes).
+- New: `media-pages.sh` + `media-qa.mjs` (generated pictures: crop, alt, srcset, related row, wrapped meta,
+  contrast of hero and CTA type over a near-white picture),
+  `template-check.sh` + `template-qa.mjs` (footers and a Single Post template under a block theme, Breakdance's
+  Zero theme and a bare classic theme).
+
 ## 0.3.0
 
 First release checked against a real Breakdance (2.8.3), on the front end and in the builder. That

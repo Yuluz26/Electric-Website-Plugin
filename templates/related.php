@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var string $spacing Vertical rhythm: default | compact | none.
  * @var string                         $eyebrow
  * @var string                         $heading
  * @var string                         $count
@@ -11,11 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Only reserve image space when at least one article has an image; a row of
-// identical empty placeholders reads as broken, a text-only list reads as intended.
-$has_any_image = (bool) array_filter( array_column( $items, 'image_html' ) );
+// Pictures appear only when every article has one. Blank tiles beside real photographs read as
+// broken; an all-text row reads as intended, and so does an all-picture row.
+$show_images = ! in_array( '', array_column( $items, 'image_html' ), true );
 ?>
-<section class="evpx-root alignfull evpx-related">
+<section class="evpx-root alignfull evpx-related" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container">
 		<?php if ( $eyebrow || $heading ) : ?>
 			<div class="evpx-related__intro" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
@@ -27,10 +28,8 @@ $has_any_image = (bool) array_filter( array_column( $items, 'image_html' ) );
 		<ul class="evpx-related__list evpx-related__list--cols-<?php echo esc_attr( $count ); ?>" role="list">
 			<?php foreach ( $items as $item ) : ?>
 				<li class="evpx-related__item">
-					<?php if ( $item['image_html'] ) : ?>
+					<?php if ( $show_images ) : ?>
 						<div class="evpx-related__media"><?php echo $item['image_html']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_the_post_thumbnail() output */ ?></div>
-					<?php elseif ( $has_any_image ) : ?>
-						<div class="evpx-related__media evpx-related__media--empty evpx-surface--recessed" aria-hidden="true"></div>
 					<?php endif; ?>
 
 					<div class="evpx-related__body">

@@ -26,6 +26,9 @@ final class Loader {
 
 	private static bool $active = false;
 
+	/** A native element rendered on this request, so Breakdance prints the assets for it. */
+	private static bool $delivered = false;
+
 	private static int $quiet = 0;
 
 	public const CSS_HANDLE     = 'evpx-styles';
@@ -39,6 +42,31 @@ final class Loader {
 	public static function markActive(): void {
 		if ( 0 === self::$quiet ) {
 			self::$active = true;
+		}
+	}
+
+	/**
+	 * A native Breakdance element rendered. Breakdance prints the stylesheet and scripts for it from
+	 * the dependencies the element declares (NativeElement::dependencies()), in <head> and once per
+	 * page, wherever it sits. WordPress must then not queue the same files a second time for the
+	 * shortcodes and blocks on the page: two copies of GSAP is what that would mean.
+	 *
+	 * A dependency condition can't do this job from Breakdance's side — Breakdance caches the
+	 * dependencies it collects per document, so a condition that depends on the request would be
+	 * frozen in the cache.
+	 */
+	public static function breakdanceDelivers(): void {
+		if ( 0 !== self::$quiet ) {
+			return;
+		}
+
+		self::$delivered = true;
+
+		// A classic theme prints <head> before it renders the body, so WordPress may have queued
+		// the scripts already. They are only printed in the footer, so they can still be withdrawn.
+		// (The stylesheet has been printed by then; a second copy of that is harmless, a second copy of GSAP is not.)
+		foreach ( array( self::JS_HANDLE, self::GSAP_HANDLE, self::ST_HANDLE, self::MOTION_HANDLE ) as $handle ) {
+			wp_dequeue_script( $handle );
 		}
 	}
 
@@ -70,45 +98,34 @@ final class Loader {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueueBlockEditorAssets' ) );
 	}
 
+	/**
+	 * Every URL the front end loads, with the GSAP filters applied. One list for both
+	 * consumers: WordPress's enqueue below, and the dependencies a Breakdance element declares.
+	 *
+	 * GSAP is not bundled (its licence restricts redistribution inside products like page-builder
+	 * add-ons), so it loads from cdnjs by default. Sites that need it self-hosted (strict CSP,
+	 * privacy policy, offline) point the filters at their own copy.
+	 *
+	 * @return array{style: string, core: string, gsap: string, scrolltrigger: string, motion: string}
+	 */
+	public static function urls(): array {
+		return array(
+			'style'         => EVPX_URL . 'assets/css/evpx.css',
+			'core'          => EVPX_URL . 'assets/js/evpx.js',
+			'gsap'          => (string) apply_filters( 'evpx_gsap_src', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/' . self::GSAP_VERSION . '/gsap.min.js' ),
+			'scrolltrigger' => (string) apply_filters( 'evpx_scrolltrigger_src', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/' . self::GSAP_VERSION . '/ScrollTrigger.min.js' ),
+			'motion'        => EVPX_URL . 'assets/js/motion.js',
+		);
+	}
+
 	public function registerAssets(): void {
-		wp_register_style(
-			self::CSS_HANDLE,
-			EVPX_URL . 'assets/css/evpx.css',
-			array(),
-			EVPX_VERSION
-		);
+		$urls = self::urls();
 
-		// GSAP is not bundled (its licence restricts redistribution inside
-		// products like page-builder add-ons), so it loads from cdnjs by
-		// default. Sites that need it self-hosted (strict CSP, privacy policy,
-		// offline) can point these filters at their own copy.
-		$gsap_src = apply_filters(
-			'evpx_gsap_src',
-			'https://cdnjs.cloudflare.com/ajax/libs/gsap/' . self::GSAP_VERSION . '/gsap.min.js'
-		);
-		$st_src = apply_filters(
-			'evpx_scrolltrigger_src',
-			'https://cdnjs.cloudflare.com/ajax/libs/gsap/' . self::GSAP_VERSION . '/ScrollTrigger.min.js'
-		);
-
-		wp_register_script( self::GSAP_HANDLE, $gsap_src, array(), self::GSAP_VERSION, true );
-		wp_register_script( self::ST_HANDLE, $st_src, array( self::GSAP_HANDLE ), self::GSAP_VERSION, true );
-
-		wp_register_script(
-			self::JS_HANDLE,
-			EVPX_URL . 'assets/js/evpx.js',
-			array(),
-			EVPX_VERSION,
-			true
-		);
-
-		wp_register_script(
-			self::MOTION_HANDLE,
-			EVPX_URL . 'assets/js/motion.js',
-			array( self::JS_HANDLE, self::GSAP_HANDLE, self::ST_HANDLE ),
-			EVPX_VERSION,
-			true
-		);
+		wp_register_style( self::CSS_HANDLE, $urls['style'], array(), EVPX_VERSION );
+		wp_register_script( self::GSAP_HANDLE, $urls['gsap'], array(), self::GSAP_VERSION, true );
+		wp_register_script( self::ST_HANDLE, $urls['scrolltrigger'], array( self::GSAP_HANDLE ), self::GSAP_VERSION, true );
+		wp_register_script( self::JS_HANDLE, $urls['core'], array(), EVPX_VERSION, true );
+		wp_register_script( self::MOTION_HANDLE, $urls['motion'], array( self::JS_HANDLE, self::GSAP_HANDLE, self::ST_HANDLE ), EVPX_VERSION, true );
 
 		wp_localize_script(
 			self::JS_HANDLE,
@@ -120,8 +137,12 @@ final class Loader {
 	}
 
 	public function maybeEnqueueEarly(): void {
-		$post  = is_singular() ? get_post( get_queried_object_id() ) : null;
-		$found = $post instanceof \WP_Post && $this->postUsesElements( $post );
+		$post = is_singular() ? get_post( get_queried_object_id() ) : null;
+
+		// Block themes and Breakdance's own templates render the page body before <head> is printed,
+		// so by now an element may already have rendered — in the content, a header or a footer.
+		// That is exact, and covers what a look at the queried post's content can't see.
+		$found = self::$active || ( $post instanceof \WP_Post && $this->postUsesElements( $post ) );
 
 		/**
 		 * Load the EV stylesheet and scripts in <head> for this request.
@@ -140,7 +161,7 @@ final class Loader {
 	}
 
 	public function maybeEnqueueLate(): void {
-		if ( ! self::$active ) {
+		if ( ! self::$active || self::$delivered ) {
 			return;
 		}
 
@@ -153,7 +174,7 @@ final class Loader {
 	}
 
 	public function enqueueBlockEditorAssets(): void {
-		$this->enqueueAll();
+		$this->queueAssets();
 
 		wp_enqueue_script(
 			'evpx-block-editor',
@@ -170,7 +191,14 @@ final class Loader {
 		);
 	}
 
+	/** The front-end enqueue: skipped once Breakdance is printing the same files for a native element. */
 	private function enqueueAll(): void {
+		if ( ! self::$delivered ) {
+			$this->queueAssets();
+		}
+	}
+
+	private function queueAssets(): void {
 		wp_enqueue_style( self::CSS_HANDLE );
 		wp_enqueue_script( self::JS_HANDLE );
 		wp_enqueue_script( self::GSAP_HANDLE );

@@ -5,7 +5,7 @@ Status: MVP → Production build. Source prompts: `docs/prompt-pack/` (01–06).
 ## 1. Confirmed requirements
 
 - WordPress plugin, installable on any WP + Breakdance site without visually touching unrelated pages.
-- 9 content widgets (12 registered elements — three of them are nested item elements, see §3) that render a premium, neumorphic, editorial EV-charging article.
+- 9 content widgets (12 registered elements — three of them are nested item elements, see §3) that render a premium, neumorphic, editorial EV-charging article, available as native Breakdance elements, shortcodes and Gutenberg blocks.
 - GSAP-driven motion that respects `prefers-reduced-motion`, never runs in the Breakdance builder canvas.
 - Everything namespaced (`EVPX`), CSS/JS isolated, assets conditionally loaded.
 - No fatal errors with or without Breakdance active; safe activate/deactivate.
@@ -14,38 +14,37 @@ Status: MVP → Production build. Source prompts: `docs/prompt-pack/` (01–06).
 
 ### 2.1 Breakdance integration strategy — read this first
 
-Breakdance's native "custom element" system (**Element Studio**) is a closed, GUI-only
-generator: you build the element visually inside a licensed Breakdance install and it
-writes PHP+Twig files into a folder your plugin registers with
-`\Breakdance\ElementStudio\registerSaveLocation()`. Confirmed by cloning and reading
-Breakdance's own `soflyy/breakdance-custom-elements` and `soflyy/breakdance-developer-docs`
-repos — there is no documented format for hand-authoring that generated output, and no raw
-"PHP element class" API the way Elementor/Gutenberg expose one.
+Breakdance has two extension routes: **Element Studio**, a GUI generator that writes an element's files into
+a folder your plugin registers with `\Breakdance\ElementStudio\registerSaveLocation()`, and the thing its
+output is in the end — a PHP class extending `\Breakdance\Elements\Element`. Neither is documented for
+hand-authoring. The first releases had no licensed Breakdance to read or run, so they shipped shortcodes and
+blocks plus a registered Element Studio location, and the PRD's "custom widgets appear in Breakdance and can be
+edited visually" was met only through Breakdance's Shortcode element. From 0.4.0, after reading Breakdance
+2.8.3's source and running the plugin against it (`docs/QA-REPORT.md`), the plugin also ships the elements
+themselves. There are five integration points, all around **one renderer**:
 
-Element Studio is a GUI, so it can't be driven from a headless build environment, and
-guessing at its generated-file schema would risk exactly the silent builder breakage the SOP
-forbids. The plugin was instead verified against a real Breakdance 2.8.3 — its source read, then
-run on the front end and in the builder (`docs/QA-REPORT.md`). So:
+1. **Native Breakdance elements** (`src/Breakdance/Native/`): nine PHP classes, `EVPX\Hero`, `EVPX\Faq`, …,
+   listed in the Add panel under **EV Charging**, with controls, an Items repeater, Dynamic Data on text fields
+   and live canvas rendering. Each names its widget; controls, defaults and markup come from that widget
+   (`Native\Controls` translates the one control schema to Breakdance's controls and back). They are declared
+   only once Breakdance has announced itself. `docs/BREAKDANCE.md` has the details.
+2. **Every component is a WordPress shortcode** with a full attribute-based control surface (content, media,
+   layout, visual, motion — matching the PRD's control categories). Shortcodes render through Breakdance's
+   Shortcode element, or anywhere else WordPress renders content.
+3. **Every component is also a server-rendered Gutenberg block** (same renderer, same attributes) so it can be
+   inserted visually with a live preview.
+4. The plugin registers **Element Studio save locations** on `breakdance_loaded` (priority 9, from a hook added
+   when the plugin file loads — Breakdance reads save locations at priority 10, and fires the action before any
+   `plugins_loaded` callback of this plugin could add one) for elements a site owner designs on top of the
+   plugin's CSS. Their PHP namespace is `EVPXStudio`, not `EVPX`, so an element someone names "Hero" can't
+   redeclare a native one.
+5. One **Dynamic Data** field (EV Reading Time, not Pro-only) is registered via the documented
+   `\Breakdance\DynamicData\*` classes so native Breakdance elements elsewhere on the page can also show it.
 
-1. **Every component is a WordPress shortcode** with a full attribute-based control
-   surface (content, media, layout, visual, motion — matching the PRD's control
-   categories). Shortcodes render through Breakdance's native, version-proof "Shortcode"
-   element — this has been stable for years and carries zero integration risk.
-2. **Every component is also a server-rendered Gutenberg block** (same renderer, same
-   attributes) so it can be inserted visually with a live preview, including inside
-   Breakdance (which embeds WP content/blocks natively).
-3. The plugin registers the real Element Studio save location on `breakdance_loaded` (at
-   priority 9, from a hook added when the plugin file loads — Breakdance reads save locations
-   at priority 10, and fires the action before any `plugins_loaded` callback of this plugin
-   could add one), and `docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md` lists each widget's root
-   class and controls; the markup to reproduce is in `templates/`.
-4. One Dynamic Data field (EV Reading Time) is registered via the documented
-   `\Breakdance\DynamicData\*` classes so native Breakdance elements elsewhere on the
-   page can also show it.
-
-Every Breakdance API call is guarded with `function_exists()` / `class_exists()` before
-use, per Breakdance's own documented pattern — the plugin is fully inert (but still
-renders shortcodes/blocks) with Breakdance deactivated.
+Every Breakdance API call is guarded with `function_exists()` / `class_exists()` before use, per Breakdance's
+own documented pattern — the plugin is fully inert (but still renders shortcodes/blocks) with Breakdance
+deactivated. The native element classes extend a Breakdance class, so their files aren't loaded at all
+without it.
 
 ### 2.2 Folder structure
 
@@ -57,6 +56,7 @@ Electric-Website-Plugin/
 ├── src/
 │   ├── Core/                       # Plugin, Activation, Deactivation
 │   ├── Breakdance/                 # Compatibility, ElementStudioBridge, DynamicData (+ Fields/)
+│   │   └── Native/                 # NativeElements, NativeElement (trait), Controls, elements/ (one class per element)
 │   ├── Elements/                   # Element (shared contract), Registry, Widgets/ (one class each)
 │   ├── Assets/                     # Loader — conditional CSS/JS, GSAP source filters
 │   ├── Admin/                      # Notices (informational only; no settings screen)
@@ -67,7 +67,7 @@ Electric-Website-Plugin/
 │   └── fonts/                      # Fraunces + Libre Franklin woff2 (SIL OFL) + licence
 ├── templates/                      # one PHP view partial per element
 ├── languages/                      # .pot translation template
-├── tests/                          # docker/ (setup, real-Breakdance checks), playwright/ (qa, breakdance-qa), contrast-check, build-zip
+├── tests/                          # docker/ (setup, real-Breakdance, media and template checks), playwright/ (qa, breakdance-qa, media-qa, template-qa), contrast-check, build-zip
 └── docs/
 ```
 
@@ -95,8 +95,9 @@ Electric-Website-Plugin/
 | 9 | EV CTA | `[evpx_cta]` | `evpx/cta` | accent / dark / media variants |
 
 Each element declares its controls once (`Element::controls()`); defaults, sanitization, the
-shortcode attribute set, the block attribute schema and the block-editor Inspector panels are
-all derived from that one list. `docs/WIDGETS.md` is the human-readable reference.
+shortcode attribute set, the block attribute schema, the block-editor Inspector panels and the native
+Breakdance element's controls are all derived from that one list. `docs/WIDGETS.md` is the human-readable
+reference. The eight section widgets also share one `spacing` control (default / compact / none).
 
 Not built, deliberately: separate Article Meta / Intro / Infrastructure Panel widgets (Hero,
 Section and Technical Flow already cover them) and a Media Showcase (it would need real
@@ -208,7 +209,10 @@ fallback where container queries are unsupported): eyebrow 13px, body 17px/1.65,
 
 - Spacing unit 4px: tokens `--evpx-space-1` (0.25rem) … `--evpx-space-32` (8rem)
 - Radii: `--evpx-radius-sm` 8px, `--evpx-radius-md` 16px, `--evpx-radius-lg` 24px (no pills on cards/buttons)
-- Vertical rhythm of every section widget: `--evpx-section-y` (default `--evpx-space-24`)
+- Darkening behind white type over a picture (hero, CTA): `--evpx-scrim` (0.6), the value at which type stays
+  above 4.5:1 over a near-white photograph; `tests/playwright/media-qa.mjs` measures it
+- Vertical rhythm of every section widget: `--evpx-section-y` (default `--evpx-space-24`); the `spacing`
+  control sets it to `--evpx-space-12` (compact) or `0` (none) through `data-evpx-spacing` on the widget
 - Layout breakpoints are **container** thresholds, not viewport ones: 40rem (two-column grids),
   48rem (side-by-side comparison, wider container padding; below it the flow turns vertical),
   64rem (two-column section/decision layouts, three-column grids), and a narrow-box tightening
@@ -252,20 +256,43 @@ part of the contract (they're stated at the top of `assets/css/evpx.css`):
   `minmax(0, …)` so they can shrink, and the tab bar wraps. Only preferences — colour scheme,
   reduced motion, scripting — and the hero's own minimum height (a box can't query itself) remain
   `@media`.
+- **A size container has no intrinsic width.** Wherever the host shrink-wraps its children, the widget
+  would collapse to nothing. Breakdance does exactly this: a Section is a flex column with
+  `align-items: flex-start`, and its Rich Text element — which is how a post's content is shown in its
+  default Single Post template — is a flex item only as wide as its content. Found by running the widgets in
+  a post under Breakdance's own Zero theme (every widget had `width: 0`, its text overflowing a box that
+  wasn't there). Two rules answer it, both inside the `@supports` block: the widget asks to be stretched in a
+  flex parent (`align-self: stretch`), and the box that holds it is asked to fill its own container
+  (`:where(:has(> .evpx-root)) { width: stretch }`, with the prefixed spellings). `:where()` keeps that at
+  zero specificity, so any rule of the host's wins. Breakdance's own Shortcode element and the native
+  elements' wrapper are already full width. `tests/docker/template-check.sh` fails on a collapsed widget.
 
 ## 6. Asset strategy
 
-- CSS/JS are enqueued in `<head>` when `has_shortcode()` / block presence is detected in the
-  post, or an EV shortcode is found in the post's **Breakdance element tree** (a page designed in
-  Breakdance has an empty `post_content`). Anything detection can't see — a widget in a Breakdance
-  header, footer or template — falls back to enqueuing in the footer the moment it renders, and
-  the `evpx_load_assets` filter forces `<head>` loading where the flash of unstyled content
-  matters.
-- GSAP + ScrollTrigger come from cdnjs by default and are only enqueued alongside an EV
-  element. They are not bundled (GSAP's licence restricts redistribution inside builder
-  add-ons); `evpx_gsap_src` / `evpx_scrolltrigger_src` filters point them at a self-hosted
-  copy. `motion.js` only initialises if `window.gsap` exists and does nothing otherwise,
-  and the fully working baseline never depends on it.
+Two independent ways deliver the same files, and they must not both do it on one page:
+
+- **Shortcodes and blocks: WordPress.** CSS/JS are enqueued in `<head>` when `has_shortcode()` / block presence
+  is detected in the post, when an EV shortcode is found in the post's **Breakdance element tree** (a page
+  designed in Breakdance has an empty `post_content`), or when an element has already rendered by the time
+  `<head>` is printed — which is the case under block themes and Breakdance's own templates, where the body
+  renders first, and so covers widgets in a header, footer or template. Anything left (a widget in a footer on a
+  plain classic theme) falls back to enqueuing in the footer the moment it renders, and the `evpx_load_assets`
+  filter forces `<head>` loading where the flash of unstyled content matters.
+- **Native elements: Breakdance.** Each declares the stylesheet and scripts as its dependencies, and Breakdance
+  prints them once per page (`?bd_ver=`), wherever the element sits — including in the builder canvas, which
+  gets the stylesheet only, so an element added to an empty page is styled without a reload.
+- **No second copy.** Breakdance caches the dependencies it collects per document, so a dependency *condition*
+  that looks at the current request would be frozen into that cache; the dedupe is done on the WordPress side.
+  When a native element renders, `Loader::breakdanceDelivers()` records it and WordPress queues nothing further.
+  Under block themes and Breakdance templates the elements have rendered before `<head>`, so nothing is queued
+  at all. On a plain classic theme `<head>` comes first: WordPress has queued the assets by then, so the
+  scripts (which print in the footer) are withdrawn, and only the stylesheet — printed already, and harmless
+  twice — can appear twice. Both files are idempotent anyway (`evpx.js` and `motion.js` guard against a second
+  run).
+- GSAP + ScrollTrigger come from cdnjs by default and are only loaded alongside an EV element. They are not
+  bundled (GSAP's licence restricts redistribution inside builder add-ons); `evpx_gsap_src` /
+  `evpx_scrolltrigger_src` filters point them at a self-hosted copy. `motion.js` only initialises if
+  `window.gsap` exists and does nothing otherwise, and the fully working baseline never depends on it.
 - Nothing hides content waiting for JavaScript: the hero's hold-back has a pure-CSS failsafe
   and is skipped for reduced motion and `scripting: none`; scroll reveals only apply to
   content that starts below the fold.
@@ -286,18 +313,25 @@ part of the contract (they're stated at the top of `assets/css/evpx.css`):
 - The plugin boots when its file loads, not on `plugins_loaded`: Breakdance fires
   `breakdance_loaded` from its own `plugins_loaded` callback, and "breakdance" loads before this
   plugin, so a hook added from a later `plugins_loaded` callback would never run.
+- Under a Breakdance template (a footer, a Single Post template) the plugin was run with Twenty Twenty-Five,
+  Breakdance's Zero theme and a bare classic theme; `tests/docker/template-check.sh` repeats it.
 
 ## 8. Acceptance criteria
 
 Same as `docs/prompt-pack/04_MVP.md` "MVP acceptance criteria", plus: shortcode and block
-output are byte-identical (single renderer, two entry points), PHP 7.4–8.4 syntax-clean,
-zero JS console errors, zero PHP notices/warnings under `WP_DEBUG`.
+output are byte-identical, and a native Breakdance element renders the same markup (single renderer,
+three entry points), PHP 7.4–8.4 syntax-clean, zero JS console errors, zero PHP notices/warnings under
+`WP_DEBUG`, and — the PRD's definition of done — activating the plugin changes nothing on a page that has no
+EV element (`tests/docker/isolation-check.sh`).
 
 ## 9. Risks & mitigations
 
 | Risk | Mitigation |
 |---|---|
 | Assumptions about Breakdance that a stub can't check (load order, builder signals, global CSS) | Run against a real Breakdance 2.8.3: `tests/docker/breakdance-real-check.sh`, `tests/playwright/breakdance-qa.mjs`; the stub now mirrors the real load order |
+| A native element's class name is stored in every page built with it | The classes in `src/Breakdance/Native/elements/` are public API and are never renamed; the Element Studio namespace is `EVPXStudio` so a user's element can't take the same name |
+| Assets delivered twice (WordPress and Breakdance each queue them) | One flag, `Loader::breakdanceDelivers()`; scripts idempotent; `tests/docker/template-check.sh` counts every asset on a page under three themes |
+| Widget collapsing to zero width in a shrink-wrapping host | Two zero-specificity rules (§5.6), asserted under Breakdance's Zero theme |
 | Host CSS overriding widget typography, or a desktop layout in a narrow column | Rules scoped under `.evpx-root`; container queries; both asserted on a real Breakdance page (§5.6) |
 | Reference article unreachable (egress-blocked) | Rebuilt content model from the prompt pack's own detailed structure + independently verified AC/DC facts |
 | Neumorphism hurting contrast/accessibility | Decorative-shadow-only rule (§5); `tests/contrast-check.mjs` + `axe-core` in the QA suite |

@@ -27,9 +27,9 @@ foreach ( $locations as $l ) {
 	$by_type[ $l['type'] ] = $l;
 }
 $check(
-	'elements location: namespace EVPX, plugin-relative path, non-empty label, flag false',
+	'elements location: namespace EVPXStudio, plugin-relative path, non-empty label, flag false',
 	isset( $by_type['element'] )
-		&& 'EVPX' === $by_type['element']['namespace']
+		&& 'EVPXStudio' === $by_type['element']['namespace']
 		&& 'ev-charging-experience/element-studio/elements' === $by_type['element']['path']
 		&& '' !== $by_type['element']['label']
 		&& false === $by_type['element']['flag'],

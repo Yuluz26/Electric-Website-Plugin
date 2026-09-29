@@ -3,12 +3,23 @@
 Twelve elements: nine widgets you place on a page, plus three item elements that only make
 sense inside their container (Scenario Card, Decision Factor, FAQ Item).
 
-Every element works two ways: as a shortcode (`[evpx_xxx attr="value"]`) and as a Gutenberg
-block (`EV Charging Experience` category in the block inserter). Both use the exact same PHP
-renderer — output is identical.
+Every element works as a shortcode (`[evpx_xxx attr="value"]`) and as a Gutenberg block
+(`EV Charging Experience` category in the block inserter); the nine widgets are also native Breakdance
+elements (**EV Charging** category in the Add panel, see `docs/BREAKDANCE.md`), where the item elements
+become the rows of a repeater. All of them use the exact same PHP renderer — output is identical. The keys
+below are the shortcode and block attributes; a native element has a control for each of them.
 
 Groups map to the editor organization the PRD specifies: Content, Media,
-Layout, Visual, Motion, Responsive, Advanced.
+Layout, Visual, Motion, Responsive, Advanced. In Breakdance each group is a section of the element's panel.
+
+## Spacing — every section widget
+
+`spacing` (select: default / compact / none, layout) sets the vertical rhythm of a section widget: Section,
+Comparison, Scenario Cards, Technical Flow, Decision Factors, FAQ, Related Articles and CTA. `default` is
+the full rhythm, `compact` about half, `none` removes it — use `none` inside a Breakdance Section that
+already has its own padding. It sets the `--evpx-section-y` token on the widget, so
+`.evpx-root { --evpx-section-y: 0; }` in your own CSS does the same. The Hero has no rhythm to set: it has its
+own minimum height.
 
 ## EV Article Hero — `[evpx_hero]` / `evpx/hero`
 
@@ -88,9 +99,9 @@ them. Holds one or more **EV Decision Factor** children.
 `post_ids` (comma-separated, manual mode only); `post_type` (advanced; only public types are
 accepted, otherwise falls back to `post`); `count` select 2/3 (layout); `animate` toggle
 (motion). Lists real published posts, excluding the current page and password-protected
-posts. With nothing to list, visitors see nothing and editors see a one-line note. If no
-listed article has a featured image the image slot is omitted entirely rather than showing
-empty boxes.
+posts. With nothing to list, visitors see nothing and editors see a one-line note. Pictures
+appear only when every listed article has a featured image: otherwise the row is text only, since blank
+tiles beside real photographs read as broken. Give every article a featured image and the row shows them all.
 
 ## EV CTA — `[evpx_cta]` / `evpx/cta`
 
@@ -110,3 +121,7 @@ empty boxes.
 `[evpx_faq]…[/evpx_faq]` with nested `[evpx_faq_item question="…" answer="…"]` and
 `[evpx_decision_factors]…[/evpx_decision_factors]` with nested `[evpx_decision_factor …]`
 follow the same pattern.
+
+In a native Breakdance element there are no child elements: the items are the rows of the **Items**
+repeater, with the same fields as the item widget's controls above. A row is rendered once it has its title
+(the question, for an FAQ item); the empty row the repeater's "Add" button creates is left out.

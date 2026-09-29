@@ -24,6 +24,7 @@ final class RelatedArticles extends Element {
 
 	public function controls(): array {
 		return array(
+			self::spacingControl(),
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'Keep reading', 'ev-charging-experience' ) ),
 			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'Related articles', 'ev-charging-experience' ) ),
 			array(
@@ -78,6 +79,7 @@ final class RelatedArticles extends Element {
 		return $this->view(
 			'related',
 			array(
+				'spacing' => $atts['spacing'],
 				'eyebrow' => $atts['eyebrow'],
 				'heading' => $atts['heading'],
 				'count'   => $atts['count'],
