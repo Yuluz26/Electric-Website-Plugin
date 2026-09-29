@@ -1,10 +1,21 @@
 /**
  * EV Charging Experience — design tokens + component styles.
  *
- * Isolation contract (see docs/prompt-pack/03_SOP.md Phase 7):
- * every rule is scoped under .evpx-* — never a bare element selector
- * (h1, img, section, .container, .button...). Nothing here can leak onto
- * an unrelated Breakdance page or theme element.
+ * Isolation contract (see docs/prompt-pack/03_SOP.md Phase 7), both ways:
+ *
+ * - Nothing here can leak onto an unrelated Breakdance page or theme element:
+ *   no bare element selectors, everything is .evpx-*.
+ * - Nothing on the host can leak in. Builders and themes style bare headings
+ *   and links (Breakdance: `.breakdance h2 { color; font-family; font-size }`,
+ *   specificity 0,1,1), which beats a lone class. So every rule is scoped under
+ *   .evpx-root (0,2,0): `.evpx-root .evpx-hero__title` for descendants,
+ *   `.evpx-root.evpx-hero` for the widget's own element. Write new rules the
+ *   same way. Site owners override with the same two-class selector.
+ *
+ * Responsive contract: layout answers to the width of the box the widget sits
+ * in (container queries on .evpx-root), not the viewport — a widget dropped in
+ * a half-width Breakdance column must not get its desktop layout. Only
+ * preferences (colour scheme, motion, scripting) stay as @media.
  *
  * Neumorphism contract: shadows are decorative surface depth only. Text
  * contrast and interactive affordances always come from real color/border,
@@ -99,6 +110,10 @@
 	--evpx-max-width: 1200px;
 	--evpx-measure: 65ch;
 
+	/* Vertical rhythm of every full-width section widget. Inside a Breakdance
+	   Section, which brings its own padding, set this to 0 (or a smaller step). */
+	--evpx-section-y: var(--evpx-space-24);
+
 	color-scheme: light;
 	background: var(--evpx-surface-base);
 	color: var(--evpx-ink);
@@ -145,8 +160,23 @@
    -------------------------------------------------------------------- */
 
 .evpx-root {
+	/* Set, not inherited: the host's body size and Breakdance's hard `text-align: left`
+	   would otherwise change every em-based size and flip RTL layouts. */
+	font-size: 1rem;
 	line-height: 1.5;
+	text-align: start;
 	-webkit-font-smoothing: antialiased;
+}
+
+/* Size the widget to the box it sits in. Inside @supports so a browser without
+   container queries keeps the viewport-based fluid sizes above and the
+   single-column layout (every @container rule below is additive to it). */
+@supports (container-type: inline-size) {
+	.evpx-root {
+		container-type: inline-size;
+		--evpx-size-heading: clamp(1.75rem, 1.35rem + 2cqi, 2.5rem);
+		--evpx-size-display: clamp(2.5rem, 1.6rem + 4.5cqi, 5.5rem);
+	}
 }
 
 .evpx-root *,
@@ -166,7 +196,7 @@
 	color: inherit;
 }
 
-.evpx-container {
+.evpx-root .evpx-container {
 	width: 100%; /* without this, a flex/grid parent (e.g. .evpx-hero) shrinks
 	                this to fit its content instead of filling to max-width */
 	max-width: var(--evpx-max-width);
@@ -174,13 +204,13 @@
 	padding-inline: var(--evpx-space-6);
 }
 
-@media (min-width: 768px) {
-	.evpx-container {
+@container (min-width: 48rem) {
+	.evpx-root .evpx-container {
 		padding-inline: var(--evpx-space-8);
 	}
 }
 
-.evpx-eyebrow {
+.evpx-root .evpx-eyebrow {
 	font-family: var(--evpx-font-body);
 	font-size: var(--evpx-size-eyebrow);
 	font-weight: 600;
@@ -192,7 +222,7 @@
 	gap: var(--evpx-space-2);
 }
 
-.evpx-eyebrow::before {
+.evpx-root .evpx-eyebrow::before {
 	content: '';
 	width: 18px;
 	height: 1px;
@@ -200,7 +230,7 @@
 	display: inline-block;
 }
 
-.evpx-heading {
+.evpx-root .evpx-heading {
 	font-family: var(--evpx-font-display);
 	font-weight: 600;
 	line-height: 1.1;
@@ -209,18 +239,18 @@
 	margin: 0;
 }
 
-.evpx-body {
+.evpx-root .evpx-body {
 	font-size: var(--evpx-size-body);
 	line-height: 1.65;
 	color: var(--evpx-ink-muted);
 	max-width: var(--evpx-measure);
 }
 
-.evpx-body p + p {
+.evpx-root .evpx-body p + p {
 	margin-top: var(--evpx-space-4);
 }
 
-.evpx-visually-hidden {
+.evpx-root .evpx-visually-hidden {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -247,7 +277,7 @@
       docs/ARCHITECTURE.md)
    -------------------------------------------------------------------- */
 
-.evpx-surface--raised {
+.evpx-root .evpx-surface--raised {
 	background: var(--evpx-surface-base);
 	border-radius: var(--evpx-radius-lg);
 	box-shadow:
@@ -255,7 +285,7 @@
 		-8px -8px 16px var(--evpx-surface-raised-hi);
 }
 
-.evpx-surface--raised-sm {
+.evpx-root .evpx-surface--raised-sm {
 	background: var(--evpx-surface-base);
 	border-radius: var(--evpx-radius-md);
 	box-shadow:
@@ -263,7 +293,7 @@
 		-4px -4px 10px var(--evpx-surface-raised-hi);
 }
 
-.evpx-surface--recessed {
+.evpx-root .evpx-surface--recessed {
 	background: var(--evpx-surface-base);
 	border-radius: var(--evpx-radius-md);
 	box-shadow:
@@ -271,13 +301,13 @@
 		inset -5px -5px 10px var(--evpx-surface-recessed-lo);
 }
 
-.evpx-surface--flat {
+.evpx-root .evpx-surface--flat {
 	background: transparent;
 	box-shadow: none;
 	border-radius: 0;
 }
 
-.evpx-surface--accent {
+.evpx-root .evpx-surface--accent {
 	background: var(--evpx-accent);
 	color: var(--evpx-accent-ink);
 	border-radius: var(--evpx-radius-md);
@@ -288,7 +318,7 @@
    4. Shared controls (button, chip) — real contrast, never shadow-only
    -------------------------------------------------------------------- */
 
-.evpx-button {
+.evpx-root .evpx-button {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--evpx-space-2);
@@ -303,32 +333,68 @@
 	transition: transform var(--evpx-dur-micro) var(--evpx-ease-premium), box-shadow var(--evpx-dur-micro) var(--evpx-ease-premium);
 }
 
-.evpx-button--primary {
+.evpx-root .evpx-button--primary {
 	background: var(--evpx-accent);
 	color: var(--evpx-accent-ink);
 }
 
-.evpx-button--secondary {
+.evpx-root .evpx-button--secondary {
 	background: transparent;
 	color: var(--evpx-ink);
 	border-color: var(--evpx-border);
 }
 
-.evpx-button:hover,
-.evpx-button:focus-visible {
+.evpx-root .evpx-button:hover,
+.evpx-root .evpx-button:focus-visible {
 	transform: translateY(-2px);
 }
 
-.evpx-button:focus-visible {
+.evpx-root .evpx-button:focus-visible {
 	outline: 2px solid var(--evpx-accent-text);
 	outline-offset: 3px;
 }
 
-.evpx-button__arrow {
+/* A host's link-hover colour (Breakdance: `.breakdance a:hover`, 0,2,1) outranks
+   a link's resting colour rule, so each link colour is restated for :hover at
+   0,3,0 or more. Body-copy links get an explicit colour too, so their contrast
+   is decided here (on our surfaces), not by the host's link colour. */
+.evpx-root .evpx-button--primary:hover {
+	color: var(--evpx-accent-ink);
+}
+
+.evpx-root .evpx-button--secondary:hover {
+	color: var(--evpx-ink);
+}
+
+.evpx-root .evpx-scenario-card__cta:hover {
+	color: var(--evpx-accent-text);
+}
+
+.evpx-root .evpx-related__link:hover {
+	color: var(--evpx-ink);
+}
+
+.evpx-root .evpx-body a {
+	color: var(--evpx-accent-text);
+	text-decoration: underline;
+	text-underline-offset: 0.18em;
+}
+
+.evpx-root .evpx-body a:hover {
+	color: var(--evpx-ink);
+}
+
+/* On a dark or accent fill the accent-coloured link above would fail contrast. */
+.evpx-root.evpx-hero .evpx-hero__excerpt a,
+.evpx-root.evpx-cta .evpx-cta__body a {
+	color: inherit;
+}
+
+.evpx-root .evpx-button__arrow {
 	transition: transform var(--evpx-dur-micro) var(--evpx-ease-premium);
 }
 
-.evpx-button:hover .evpx-button__arrow {
+.evpx-root .evpx-button:hover .evpx-button__arrow {
 	transform: translateX(3px);
 }
 
@@ -343,7 +409,7 @@
    5. Hero
    -------------------------------------------------------------------- */
 
-.evpx-hero {
+.evpx-root.evpx-hero {
 	position: relative;
 	display: flex;
 	align-items: flex-end;
@@ -353,64 +419,64 @@
 	color: #fff;
 }
 
-.evpx-hero[data-evpx-hero-mode='light'] {
+.evpx-root.evpx-hero[data-evpx-hero-mode='light'] {
 	background: var(--evpx-surface-base);
 	color: var(--evpx-ink);
 }
 
-.evpx-hero__media {
+.evpx-root .evpx-hero__media {
 	position: absolute;
 	inset: 0;
 }
 
-.evpx-hero__image {
+.evpx-root .evpx-hero__image {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 	object-position: center;
 }
 
-.evpx-hero__scrim {
+.evpx-root .evpx-hero__scrim {
 	position: absolute;
 	inset: 0;
 	background: linear-gradient(180deg, rgba(10, 12, 15, 0) 0%, rgba(10, 12, 15, 0.55) 62%, rgba(10, 12, 15, 0.86) 100%);
 }
 
-.evpx-hero__content {
+.evpx-root .evpx-hero__content {
 	position: relative;
 	z-index: 1;
 	padding-block: var(--evpx-space-16) var(--evpx-space-12);
 	max-width: 46rem;
 }
 
-.evpx-hero .evpx-eyebrow {
+.evpx-root.evpx-hero .evpx-eyebrow {
 	color: #fff;
 	opacity: 0.85;
 }
 
-.evpx-hero[data-evpx-hero-mode='light'] .evpx-eyebrow {
+.evpx-root.evpx-hero[data-evpx-hero-mode='light'] .evpx-eyebrow {
 	color: var(--evpx-accent-text);
 	opacity: 1;
 }
 
-.evpx-hero__title {
+.evpx-root .evpx-hero__title {
 	font-size: var(--evpx-size-display);
 	margin-top: var(--evpx-space-4);
 	color: inherit;
 }
 
-.evpx-hero__excerpt {
+.evpx-root .evpx-hero__excerpt {
 	margin-top: var(--evpx-space-6);
 	font-size: 1.125rem;
 	color: rgba(255, 255, 255, 0.82);
 	max-width: 38rem;
 }
 
-.evpx-hero[data-evpx-hero-mode='light'] .evpx-hero__excerpt {
+.evpx-root.evpx-hero[data-evpx-hero-mode='light'] .evpx-hero__excerpt {
 	color: var(--evpx-ink-muted);
 }
 
-.evpx-hero__meta {
+.evpx-root .evpx-hero__meta {
 	margin-top: var(--evpx-space-6);
 	display: flex;
 	flex-wrap: wrap;
@@ -419,28 +485,31 @@
 	color: rgba(255, 255, 255, 0.7);
 }
 
-.evpx-hero[data-evpx-hero-mode='light'] .evpx-hero__meta {
+.evpx-root.evpx-hero[data-evpx-hero-mode='light'] .evpx-hero__meta {
 	color: var(--evpx-ink-faint);
 }
 
-.evpx-hero__meta-item:not(:last-child)::after {
+.evpx-root .evpx-hero__meta-item:not(:last-child)::after {
 	content: '\2022';
 	margin-inline-start: var(--evpx-space-3);
 	opacity: 0.6;
 }
 
-.evpx-hero__cta {
+.evpx-root .evpx-hero__cta {
 	margin-top: var(--evpx-space-8);
 }
 
+/* The widget's own box can't query itself, so its minimum height follows the
+   viewport; everything inside it follows the box. */
 @media (max-width: 767px) {
-	.evpx-hero {
+	.evpx-root.evpx-hero {
 		min-height: 30rem;
-		align-items: flex-end;
 	}
+}
 
-	.evpx-hero__content {
-		padding-block: var(--evpx-space-8) var(--evpx-space-8);
+@container (max-width: 47.99rem) {
+	.evpx-root .evpx-hero__content {
+		padding-block: var(--evpx-space-8);
 	}
 }
 
@@ -448,55 +517,51 @@
    6. Section
    -------------------------------------------------------------------- */
 
-.evpx-section {
-	padding-block: var(--evpx-space-24);
+.evpx-root.evpx-section {
+	padding-block: var(--evpx-section-y);
 }
 
-.evpx-section__grid {
+.evpx-root .evpx-section__grid {
 	display: grid;
+	grid-template-columns: minmax(0, 1fr); /* also for text-only/stacked, whose grid would otherwise size to its content */
 	gap: var(--evpx-space-12);
 	align-items: center;
 }
 
-.evpx-section--media-right .evpx-section__grid,
-.evpx-section--media-left .evpx-section__grid {
-	grid-template-columns: 1fr;
-}
-
-@media (min-width: 1024px) {
-	.evpx-section--media-right .evpx-section__grid,
-	.evpx-section--media-left .evpx-section__grid {
-		grid-template-columns: 1fr 1fr;
+@container (min-width: 64rem) {
+	.evpx-root.evpx-section--media-right .evpx-section__grid,
+	.evpx-root.evpx-section--media-left .evpx-section__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
-	.evpx-section--media-left .evpx-section__text {
+	.evpx-root.evpx-section--media-left .evpx-section__text {
 		order: 2;
 	}
 }
 
-.evpx-section--stacked .evpx-section__media {
+.evpx-root.evpx-section--stacked .evpx-section__media {
 	margin-bottom: var(--evpx-space-8);
 }
 
-.evpx-section__text {
+.evpx-root .evpx-section__text {
 	padding: 0;
 }
 
-.evpx-section__text.evpx-surface--raised,
-.evpx-section__text.evpx-surface--recessed {
+.evpx-root .evpx-section__text.evpx-surface--raised,
+.evpx-root .evpx-section__text.evpx-surface--recessed {
 	padding: var(--evpx-space-8);
 }
 
-.evpx-section__heading {
+.evpx-root .evpx-section__heading {
 	font-size: var(--evpx-size-heading);
 	margin-top: var(--evpx-space-3);
 }
 
-.evpx-section__body {
+.evpx-root .evpx-section__body {
 	margin-top: var(--evpx-space-4);
 }
 
-.evpx-section__media img {
+.evpx-root .evpx-section__media img {
 	border-radius: var(--evpx-radius-lg);
 }
 
@@ -504,18 +569,20 @@
    7. AC/DC Comparison — signature component
    -------------------------------------------------------------------- */
 
-.evpx-comparison {
-	padding-block: var(--evpx-space-24);
+.evpx-root.evpx-comparison {
+	padding-block: var(--evpx-section-y);
 }
 
-.evpx-comparison__tabs {
+.evpx-root .evpx-comparison__tabs {
 	display: inline-flex;
+	flex-wrap: wrap; /* in a very narrow column the tabs drop to a second row instead of overflowing */
+	max-width: 100%;
 	gap: var(--evpx-space-1);
 	padding: var(--evpx-space-1);
 	margin-bottom: var(--evpx-space-8);
 }
 
-.evpx-comparison__tabs {
+.evpx-root .evpx-comparison__tabs {
 	background: var(--evpx-surface-base);
 	border-radius: var(--evpx-radius-md);
 	box-shadow:
@@ -523,14 +590,15 @@
 		inset -4px -4px 8px var(--evpx-surface-recessed-lo);
 }
 
-.evpx-comparison__tabs[hidden] {
+.evpx-root .evpx-comparison__tabs[hidden] {
 	display: none; /* author display:inline-flex would otherwise beat the UA [hidden] rule */
 }
 
-.evpx-comparison__tab {
+.evpx-root .evpx-comparison__tab {
 	font-family: var(--evpx-font-body);
 	font-weight: 600;
 	font-size: 0.9375rem;
+	flex: 1 1 auto;
 	padding: 0.75em 1.5em;
 	border: 0;
 	border-radius: var(--evpx-radius-sm);
@@ -540,7 +608,7 @@
 	transition: background var(--evpx-dur-micro) var(--evpx-ease-premium), color var(--evpx-dur-micro) var(--evpx-ease-premium), box-shadow var(--evpx-dur-micro) var(--evpx-ease-premium);
 }
 
-.evpx-comparison__tab--active {
+.evpx-root .evpx-comparison__tab--active {
 	background: var(--evpx-surface-base);
 	color: var(--evpx-ink);
 	box-shadow:
@@ -548,35 +616,39 @@
 		-3px -3px 6px var(--evpx-surface-raised-hi);
 }
 
-.evpx-comparison__panels {
+.evpx-root .evpx-comparison__panels {
 	display: grid;
 	gap: var(--evpx-space-8);
-	grid-template-columns: 1fr;
+	grid-template-columns: minmax(0, 1fr);
 }
 
-.evpx-comparison[data-mode='side-by-side'] .evpx-comparison__panels {
-	grid-template-columns: 1fr;
+.evpx-root.evpx-comparison[data-mode='side-by-side'] .evpx-comparison__panels {
+	grid-template-columns: minmax(0, 1fr);
 }
 
-@media (min-width: 768px) {
-	.evpx-comparison[data-mode='side-by-side'] .evpx-comparison__panels {
-		grid-template-columns: 1fr 1fr;
+@container (min-width: 48rem) {
+	.evpx-root.evpx-comparison[data-mode='side-by-side'] .evpx-comparison__panels {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
-.evpx-comparison__panel {
+.evpx-root .evpx-comparison__panel {
 	max-width: 42rem;
 }
 
-.evpx-comparison__panel--hidden {
+.evpx-root .evpx-comparison__panel--hidden {
 	display: none;
 }
 
-.evpx-comparison__description {
+.evpx-root .evpx-comparison__title {
+	font-size: 1.375rem;
+}
+
+.evpx-root .evpx-comparison__description {
 	margin-top: var(--evpx-space-3);
 }
 
-.evpx-comparison__data {
+.evpx-root .evpx-comparison__data {
 	margin: var(--evpx-space-6) 0 0;
 	padding: var(--evpx-space-6);
 	display: grid;
@@ -584,15 +656,15 @@
 	border-left: 3px solid var(--evpx-border);
 }
 
-.evpx-comparison--split .evpx-comparison__panel--ac .evpx-comparison__data {
+.evpx-root.evpx-comparison--split .evpx-comparison__panel--ac .evpx-comparison__data {
 	border-left-color: var(--evpx-technical);
 }
 
-.evpx-comparison--split .evpx-comparison__panel--dc .evpx-comparison__data {
+.evpx-root.evpx-comparison--split .evpx-comparison__panel--dc .evpx-comparison__data {
 	border-left-color: var(--evpx-accent-text);
 }
 
-.evpx-comparison__data-row {
+.evpx-root .evpx-comparison__data-row {
 	display: flex;
 	align-items: baseline;
 	justify-content: space-between;
@@ -600,20 +672,20 @@
 	margin: 0;
 }
 
-.evpx-comparison__data-row dt {
+.evpx-root .evpx-comparison__data-row dt {
 	font-size: 0.8125rem;
 	color: var(--evpx-ink-faint);
 	font-weight: 500;
 }
 
-.evpx-comparison__data-row dd {
+.evpx-root .evpx-comparison__data-row dd {
 	margin: 0;
 	font-weight: 600;
 	text-align: right;
 	font-variant-numeric: tabular-nums;
 }
 
-.evpx-comparison__data-row--power dd {
+.evpx-root .evpx-comparison__data-row--power dd {
 	font-family: var(--evpx-font-display);
 	font-size: 1.5rem;
 	font-weight: 600;
@@ -623,43 +695,43 @@
    8. Scenario Cards
    -------------------------------------------------------------------- */
 
-.evpx-scenarios {
-	padding-block: var(--evpx-space-24);
+.evpx-root.evpx-scenarios {
+	padding-block: var(--evpx-section-y);
 }
 
-.evpx-scenarios__intro {
+.evpx-root .evpx-scenarios__intro {
 	max-width: 40rem;
 	margin-bottom: var(--evpx-space-12);
 }
 
-.evpx-scenarios__heading {
+.evpx-root .evpx-scenarios__heading {
 	font-size: var(--evpx-size-heading);
 	margin-top: var(--evpx-space-3);
 }
 
-.evpx-scenarios__grid {
+.evpx-root .evpx-scenarios__grid {
 	display: grid;
 	gap: var(--evpx-space-6);
-	grid-template-columns: 1fr;
+	grid-template-columns: minmax(0, 1fr);
 }
 
-@media (min-width: 640px) {
-	.evpx-scenarios__grid--cols-2 {
-		grid-template-columns: repeat(2, 1fr);
+@container (min-width: 40rem) {
+	.evpx-root .evpx-scenarios__grid--cols-2 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
-	.evpx-scenarios__grid--cols-3 {
-		grid-template-columns: repeat(2, 1fr);
-	}
-}
-
-@media (min-width: 1024px) {
-	.evpx-scenarios__grid--cols-3 {
-		grid-template-columns: repeat(3, 1fr);
+	.evpx-root .evpx-scenarios__grid--cols-3 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
-.evpx-scenario-card {
+@container (min-width: 64rem) {
+	.evpx-root .evpx-scenarios__grid--cols-3 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.evpx-root .evpx-scenario-card {
 	padding: var(--evpx-space-8);
 	display: flex;
 	flex-direction: column;
@@ -667,22 +739,22 @@
 	transition: transform var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
-.evpx-scenario-card:hover {
+.evpx-root .evpx-scenario-card:hover {
 	transform: translateY(-4px);
 }
 
-.evpx-scenario-card__icon-image {
+.evpx-root .evpx-scenario-card__icon-image {
 	width: 40px;
 	height: 40px;
 	object-fit: contain;
 	border-radius: var(--evpx-radius-sm);
 }
 
-.evpx-scenario-card__label {
+.evpx-root .evpx-scenario-card__label {
 	margin: 0;
 }
 
-.evpx-scenario-card__title {
+.evpx-root .evpx-scenario-card__title {
 	font-family: var(--evpx-font-display);
 	font-size: 1.375rem;
 	font-weight: 600;
@@ -690,11 +762,11 @@
 	color: var(--evpx-ink);
 }
 
-.evpx-scenario-card__description {
+.evpx-root .evpx-scenario-card__description {
 	font-size: 0.9375rem;
 }
 
-.evpx-scenario-card__facts {
+.evpx-root .evpx-scenario-card__facts {
 	margin: var(--evpx-space-2) 0 0;
 	display: grid;
 	gap: var(--evpx-space-2);
@@ -702,21 +774,21 @@
 	padding-top: var(--evpx-space-4);
 }
 
-.evpx-scenario-card__facts dt {
+.evpx-root .evpx-scenario-card__facts dt {
 	font-size: 0.75rem;
 	color: var(--evpx-ink-faint);
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
 }
 
-.evpx-scenario-card__facts dd {
+.evpx-root .evpx-scenario-card__facts dd {
 	margin: 0.2em 0 0;
 	font-size: 0.9375rem;
 	font-weight: 500;
 	color: var(--evpx-ink);
 }
 
-.evpx-scenario-card__cta {
+.evpx-root .evpx-scenario-card__cta {
 	margin-top: auto;
 	padding-top: var(--evpx-space-3);
 	display: inline-flex;
@@ -728,7 +800,7 @@
 	text-decoration: none;
 }
 
-.evpx-scenario-card__cta:hover .evpx-button__arrow {
+.evpx-root .evpx-scenario-card__cta:hover .evpx-button__arrow {
 	transform: translateX(3px);
 }
 
@@ -736,17 +808,17 @@
    9. Technical Flow
    -------------------------------------------------------------------- */
 
-.evpx-flow {
-	padding-block: var(--evpx-space-24);
+.evpx-root.evpx-flow {
+	padding-block: var(--evpx-section-y);
 }
 
-.evpx-flow__heading {
+.evpx-root .evpx-flow__heading {
 	font-size: var(--evpx-size-heading);
 	max-width: 34rem;
 	margin-bottom: var(--evpx-space-10);
 }
 
-.evpx-flow__steps {
+.evpx-root .evpx-flow__steps {
 	list-style: none;
 	margin: 0;
 	padding: var(--evpx-space-10) var(--evpx-space-6);
@@ -757,16 +829,16 @@
 	gap: var(--evpx-space-4);
 }
 
-.evpx-flow--vertical .evpx-flow__steps {
+.evpx-root.evpx-flow--vertical .evpx-flow__steps {
 	flex-direction: column;
 	align-items: flex-start;
 }
 
-.evpx-flow--compact .evpx-flow__steps {
+.evpx-root.evpx-flow--compact .evpx-flow__steps {
 	padding: var(--evpx-space-6) var(--evpx-space-4);
 }
 
-.evpx-flow__step {
+.evpx-root .evpx-flow__step {
 	display: flex;
 	align-items: center;
 	gap: var(--evpx-space-3);
@@ -774,7 +846,7 @@
 	flex: 1 1 auto;
 }
 
-.evpx-flow__step:not(:last-child)::after {
+.evpx-root .evpx-flow__step:not(:last-child)::after {
 	content: '';
 	flex: 1 1 2rem;
 	height: 1px;
@@ -782,7 +854,7 @@
 	margin-inline: var(--evpx-space-2);
 }
 
-.evpx-flow--vertical .evpx-flow__step:not(:last-child)::after {
+.evpx-root.evpx-flow--vertical .evpx-flow__step:not(:last-child)::after {
 	position: absolute;
 	left: 19px;
 	top: 44px;
@@ -793,7 +865,7 @@
 	margin: 0;
 }
 
-.evpx-flow__node {
+.evpx-root .evpx-flow__node {
 	flex: none;
 	width: 40px;
 	height: 40px;
@@ -809,26 +881,26 @@
 	font-variant-numeric: tabular-nums;
 }
 
-.evpx-flow__label {
+.evpx-root .evpx-flow__label {
 	font-size: 0.9375rem;
 	font-weight: 500;
 	color: var(--evpx-ink);
 	white-space: nowrap;
 }
 
-.evpx-flow--compact .evpx-flow__node {
+.evpx-root.evpx-flow--compact .evpx-flow__node {
 	width: 32px;
 	height: 32px;
 	font-size: 0.75rem;
 }
 
-@media (max-width: 767px) {
-	.evpx-flow--horizontal .evpx-flow__steps {
+@container (max-width: 47.99rem) {
+	.evpx-root.evpx-flow--horizontal .evpx-flow__steps {
 		flex-direction: column;
 		align-items: flex-start;
 	}
 
-	.evpx-flow--horizontal .evpx-flow__step:not(:last-child)::after {
+	.evpx-root.evpx-flow--horizontal .evpx-flow__step:not(:last-child)::after {
 		position: absolute;
 		left: 19px;
 		top: 44px;
@@ -839,7 +911,7 @@
 		margin: 0;
 	}
 
-	.evpx-flow__label {
+	.evpx-root .evpx-flow__label {
 		white-space: normal;
 	}
 }
@@ -848,38 +920,41 @@
    10. FAQ
    -------------------------------------------------------------------- */
 
-.evpx-faq {
-	padding-block: var(--evpx-space-24);
+.evpx-root.evpx-faq {
+	padding-block: var(--evpx-section-y);
 }
 
-.evpx-faq__container {
+.evpx-root .evpx-faq__container {
 	max-width: 46rem;
 }
 
-.evpx-faq__intro {
+.evpx-root .evpx-faq__intro {
 	margin-bottom: var(--evpx-space-8);
 }
 
-.evpx-faq__heading-main {
+.evpx-root .evpx-faq__heading-main {
 	font-size: var(--evpx-size-heading);
 	margin-top: var(--evpx-space-3);
 }
 
-.evpx-faq__list {
+.evpx-root .evpx-faq__list {
 	display: grid;
 	gap: var(--evpx-space-3);
 }
 
-.evpx-faq__item {
+.evpx-root .evpx-faq__item {
 	padding: 0;
 	overflow: hidden;
 }
 
-.evpx-faq__heading {
+/* Semantic wrapper around the question button: it carries no look of its own. */
+.evpx-root .evpx-faq__heading {
 	margin: 0;
+	font: inherit;
+	color: inherit;
 }
 
-.evpx-faq__question {
+.evpx-root .evpx-faq__question {
 	width: 100%;
 	display: flex;
 	align-items: center;
@@ -896,15 +971,15 @@
 	text-align: left;
 }
 
-.evpx-faq__icon {
+.evpx-root .evpx-faq__icon {
 	flex: none;
 	width: 20px;
 	height: 20px;
 	position: relative;
 }
 
-.evpx-faq__icon::before,
-.evpx-faq__icon::after {
+.evpx-root .evpx-faq__icon::before,
+.evpx-root .evpx-faq__icon::after {
 	content: '';
 	position: absolute;
 	background: var(--evpx-accent-text);
@@ -912,22 +987,22 @@
 	transition: transform var(--evpx-dur-micro) var(--evpx-ease-premium);
 }
 
-.evpx-faq__icon::before {
+.evpx-root .evpx-faq__icon::before {
 	inset: 9px 0;
 	height: 2px;
 }
 
-.evpx-faq__icon::after {
+.evpx-root .evpx-faq__icon::after {
 	inset: 0 9px;
 	width: 2px;
 }
 
-.evpx-faq__item--open .evpx-faq__icon::after {
+.evpx-root .evpx-faq__item--open .evpx-faq__icon::after {
 	transform: rotate(90deg);
 	opacity: 0;
 }
 
-.evpx-faq__answer {
+.evpx-root .evpx-faq__answer {
 	padding: 0 var(--evpx-space-6) var(--evpx-space-5);
 	overflow: hidden;
 	max-width: none;
@@ -937,48 +1012,48 @@
    11. CTA
    -------------------------------------------------------------------- */
 
-.evpx-cta {
+.evpx-root.evpx-cta {
 	position: relative;
-	padding-block: var(--evpx-space-24);
+	padding-block: var(--evpx-section-y);
 	text-align: center;
 	overflow: hidden;
 }
 
-.evpx-cta--accent {
+.evpx-root.evpx-cta--accent {
 	background: var(--evpx-accent);
 	color: var(--evpx-accent-ink);
 }
 
-.evpx-cta--dark {
+.evpx-root.evpx-cta--dark {
 	background: var(--evpx-ink);
 	color: #fff;
 }
 
-.evpx-cta--media {
+.evpx-root.evpx-cta--media {
 	color: #fff;
 	min-height: 26rem;
 	display: flex;
 	align-items: center;
 }
 
-.evpx-cta__media {
+.evpx-root .evpx-cta__media {
 	position: absolute;
 	inset: 0;
 }
 
-.evpx-cta__image {
+.evpx-root .evpx-cta__image {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 }
 
-.evpx-cta__scrim {
+.evpx-root .evpx-cta__scrim {
 	position: absolute;
 	inset: 0;
 	background: rgba(10, 12, 15, 0.55);
 }
 
-.evpx-cta__content {
+.evpx-root .evpx-cta__content {
 	position: relative;
 	z-index: 1;
 	max-width: 38rem;
@@ -988,43 +1063,43 @@
 	align-items: center;
 }
 
-.evpx-cta .evpx-eyebrow {
+.evpx-root.evpx-cta .evpx-eyebrow {
 	color: inherit;
 	opacity: 0.85;
 }
 
-.evpx-cta--accent .evpx-eyebrow,
-.evpx-cta--accent .evpx-cta__body {
+.evpx-root.evpx-cta--accent .evpx-eyebrow,
+.evpx-root.evpx-cta--accent .evpx-cta__body {
 	color: var(--evpx-accent-ink);
 	opacity: 1; /* dimming white on copper drops it below 4.5:1 */
 }
 
-.evpx-cta__title {
+.evpx-root .evpx-cta__title {
 	color: inherit;
 	font-size: var(--evpx-size-heading);
 	margin-top: var(--evpx-space-3);
 }
 
-.evpx-cta__body {
+.evpx-root .evpx-cta__body {
 	color: inherit;
 	opacity: 0.88;
 	margin-top: var(--evpx-space-4);
 	max-width: 34rem;
 }
 
-.evpx-cta__button {
+.evpx-root .evpx-cta__button {
 	margin-top: var(--evpx-space-8);
 }
 
-.evpx-cta--accent .evpx-button--secondary,
-.evpx-cta--dark .evpx-button--secondary,
-.evpx-cta--media .evpx-button--secondary {
+.evpx-root.evpx-cta--accent .evpx-button--secondary,
+.evpx-root.evpx-cta--dark .evpx-button--secondary,
+.evpx-root.evpx-cta--media .evpx-button--secondary {
 	color: inherit;
 	border-color: rgba(255, 255, 255, 0.4);
 }
 
-@media (max-width: 767px) {
-	.evpx-comparison--mobile-stacked .evpx-comparison__tabs {
+@container (max-width: 47.99rem) {
+	.evpx-root.evpx-comparison--mobile-stacked .evpx-comparison__tabs {
 		display: none;
 	}
 
@@ -1032,7 +1107,7 @@
 	   currently considers active. Two classes here outrank the base
 	   single-class .evpx-comparison__panel--hidden rule on specificity
 	   alone, so this wins without needing !important. */
-	.evpx-comparison--mobile-stacked .evpx-comparison__panel--hidden {
+	.evpx-root.evpx-comparison--mobile-stacked .evpx-comparison__panel--hidden {
 		display: block;
 	}
 }
@@ -1041,7 +1116,7 @@
    12. Reading progress bar (Hero's `progress_bar` toggle)
    -------------------------------------------------------------------- */
 
-.evpx-progress {
+.evpx-root.evpx-progress {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -1052,7 +1127,7 @@
 	pointer-events: none;
 }
 
-.evpx-progress__fill {
+.evpx-root .evpx-progress__fill {
 	display: block;
 	height: 100%;
 	width: 100%;
@@ -1067,46 +1142,47 @@
    page should read quietly and be easy to scan.
    -------------------------------------------------------------------- */
 
-.evpx-decision {
-	padding-block: var(--evpx-space-24);
+.evpx-root.evpx-decision {
+	padding-block: var(--evpx-section-y);
 }
 
-.evpx-decision__grid {
+.evpx-root .evpx-decision__grid {
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	gap: var(--evpx-space-12);
 	align-items: start;
 }
 
-.evpx-decision__heading {
+.evpx-root .evpx-decision__heading {
 	font-size: var(--evpx-size-heading);
 	margin-top: var(--evpx-space-3);
 }
 
-.evpx-decision__lede {
+.evpx-root .evpx-decision__lede {
 	margin-top: var(--evpx-space-4);
 }
 
-.evpx-decision__list {
+.evpx-root .evpx-decision__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	counter-reset: evpx-factor;
 }
 
-.evpx-decision__item {
+.evpx-root .evpx-decision__item {
 	counter-increment: evpx-factor;
 	display: grid;
-	grid-template-columns: 3rem 1fr;
+	grid-template-columns: 3rem minmax(0, 1fr);
 	column-gap: var(--evpx-space-4);
 	padding-block: var(--evpx-space-6);
 	border-top: 1px solid var(--evpx-border);
 }
 
-.evpx-decision__item:last-child {
+.evpx-root .evpx-decision__item:last-child {
 	border-bottom: 1px solid var(--evpx-border);
 }
 
-.evpx-decision__item::before {
+.evpx-root .evpx-decision__item::before {
 	content: counter(evpx-factor, decimal-leading-zero);
 	grid-row: 1 / span 3;
 	font-family: var(--evpx-font-display);
@@ -1117,7 +1193,7 @@
 	color: var(--evpx-accent-text);
 }
 
-.evpx-decision__title {
+.evpx-root .evpx-decision__title {
 	grid-column: 2;
 	margin: 0;
 	font-family: var(--evpx-font-display);
@@ -1127,13 +1203,13 @@
 	color: var(--evpx-ink);
 }
 
-.evpx-decision__description {
+.evpx-root .evpx-decision__description {
 	grid-column: 2;
 	margin-top: var(--evpx-space-2);
 	font-size: 0.9375rem;
 }
 
-.evpx-decision__question {
+.evpx-root .evpx-decision__question {
 	grid-column: 2;
 	margin: var(--evpx-space-3) 0 0;
 	font-size: 0.9375rem;
@@ -1141,7 +1217,7 @@
 	color: var(--evpx-ink);
 }
 
-.evpx-decision__ask {
+.evpx-root .evpx-decision__ask {
 	margin-inline-end: var(--evpx-space-2);
 	font-size: 0.75rem;
 	font-weight: 700;
@@ -1150,13 +1226,13 @@
 	color: var(--evpx-ink-faint);
 }
 
-@media (min-width: 1024px) {
-	.evpx-decision__grid {
-		grid-template-columns: 5fr 7fr;
+@container (min-width: 64rem) {
+	.evpx-root .evpx-decision__grid {
+		grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
 		gap: var(--evpx-space-16);
 	}
 
-	.evpx-decision__intro {
+	.evpx-root .evpx-decision__intro {
 		position: sticky;
 		top: var(--evpx-space-12);
 	}
@@ -1166,43 +1242,43 @@
    14. Related Articles
    -------------------------------------------------------------------- */
 
-.evpx-related {
-	padding-block: var(--evpx-space-24);
+.evpx-root.evpx-related {
+	padding-block: var(--evpx-section-y);
 }
 
-.evpx-related__intro {
+.evpx-root .evpx-related__intro {
 	max-width: 40rem;
 	margin-bottom: var(--evpx-space-12);
 }
 
-.evpx-related__heading {
+.evpx-root .evpx-related__heading {
 	font-size: var(--evpx-size-heading);
 	margin-top: var(--evpx-space-3);
 }
 
-.evpx-related__list {
+.evpx-root .evpx-related__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	display: grid;
 	gap: var(--evpx-space-12) var(--evpx-space-8);
-	grid-template-columns: 1fr;
+	grid-template-columns: minmax(0, 1fr);
 }
 
-@media (min-width: 640px) {
-	.evpx-related__list--cols-2,
-	.evpx-related__list--cols-3 {
-		grid-template-columns: repeat(2, 1fr);
+@container (min-width: 40rem) {
+	.evpx-root .evpx-related__list--cols-2,
+	.evpx-root .evpx-related__list--cols-3 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
-@media (min-width: 1024px) {
-	.evpx-related__list--cols-3 {
-		grid-template-columns: repeat(3, 1fr);
+@container (min-width: 64rem) {
+	.evpx-root .evpx-related__list--cols-3 {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 }
 
-.evpx-related__item {
+.evpx-root .evpx-related__item {
 	position: relative;
 	display: flex;
 	flex-direction: column;
@@ -1211,62 +1287,63 @@
 	border-top: 1px solid var(--evpx-border);
 }
 
-.evpx-related__media {
+.evpx-root .evpx-related__media {
 	aspect-ratio: 4 / 3;
 	overflow: hidden;
 	border-radius: var(--evpx-radius-md);
 }
 
-.evpx-related__image {
+.evpx-root .evpx-related__image {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 	transition: transform var(--evpx-dur-section) var(--evpx-ease-premium);
 }
 
-.evpx-related__item:hover .evpx-related__image {
+.evpx-root .evpx-related__item:hover .evpx-related__image {
 	transform: scale(1.04);
 }
 
-.evpx-related__category {
+.evpx-root .evpx-related__category {
 	margin: 0;
 }
 
-.evpx-related__title {
+.evpx-root .evpx-related__title {
 	margin: var(--evpx-space-2) 0 0;
 	font-family: var(--evpx-font-display);
 	font-size: 1.25rem;
 	font-weight: 600;
 	line-height: 1.25;
+	color: var(--evpx-ink);
 }
 
-.evpx-related__link {
+.evpx-root .evpx-related__link {
 	color: var(--evpx-ink);
 	text-decoration: none;
 }
 
 /* Stretched link: the whole card is clickable while the link's accessible
    name stays just the article title. */
-.evpx-related__link::after {
+.evpx-root .evpx-related__link::after {
 	content: '';
 	position: absolute;
 	inset: 0;
 }
 
-.evpx-related__excerpt {
+.evpx-root .evpx-related__excerpt {
 	margin: var(--evpx-space-3) 0 0;
 	font-size: 0.9375rem;
 	color: var(--evpx-ink-muted);
 }
 
-.evpx-related__date {
+.evpx-root .evpx-related__date {
 	display: block;
 	margin-top: var(--evpx-space-3);
 	font-size: 0.8125rem;
 	color: var(--evpx-ink-faint);
 }
 
-.evpx-related__empty {
+.evpx-root .evpx-related__empty {
 	margin: 0;
 	padding: var(--evpx-space-6);
 	font-size: 0.875rem;
@@ -1276,7 +1353,29 @@
 }
 
 /* ----------------------------------------------------------------------
-   15. Hero entrance — no flash of final state before the animation.
+   15. Narrow boxes (a phone, or a widget in a small column). Placed after every
+   base rule it adjusts so it wins on order at equal specificity: the roomy
+   desktop padding on cards would otherwise leave a 172px column ~100px of text.
+   -------------------------------------------------------------------- */
+
+@container (max-width: 30rem) {
+	.evpx-root .evpx-comparison__tab {
+		padding-inline: 1em;
+	}
+
+	.evpx-root .evpx-comparison__data {
+		padding: var(--evpx-space-4);
+	}
+
+	.evpx-root .evpx-section__text.evpx-surface--raised,
+	.evpx-root .evpx-section__text.evpx-surface--recessed,
+	.evpx-root .evpx-scenario-card {
+		padding: var(--evpx-space-6);
+	}
+}
+
+/* ----------------------------------------------------------------------
+   16. Hero entrance — no flash of final state before the animation.
    The hero's content is held invisible only until evpx.js/motion.js mark it
    ready; the keyframe is a pure-CSS failsafe so nothing stays hidden if
    neither script ever runs (JS disabled, both files blocked). Reduced-motion
@@ -1284,8 +1383,8 @@
    -------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: no-preference) {
-	.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__media,
-	.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__content > * {
+	.evpx-root.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__media,
+	.evpx-root.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__content > * {
 		opacity: 0;
 		animation: evpx-failsafe-reveal 0.01s linear 1.6s forwards;
 	}
@@ -1298,29 +1397,29 @@
 }
 
 /* ----------------------------------------------------------------------
-   16. No-JavaScript baseline. Everything that only works with a script
+   17. No-JavaScript baseline. Everything that only works with a script
    (collapsed FAQ answers, tab switching, the held-back hero entrance) falls
    back to fully visible, fully readable content instead of dead controls.
    -------------------------------------------------------------------- */
 
 @media (scripting: none) {
-	.evpx-faq__answer[hidden] {
+	.evpx-root .evpx-faq__answer[hidden] {
 		display: block;
 	}
 
-	.evpx-faq__icon,
-	.evpx-comparison__tabs {
+	.evpx-root .evpx-faq__icon,
+	.evpx-root .evpx-comparison__tabs {
 		display: none;
 	}
 
-	.evpx-faq__question {
+	.evpx-root .evpx-faq__question {
 		cursor: default;
 	}
 
 	/* Same selectors as the hold-back in section 15 (equal specificity, later
 	   in the file) so this actually wins. */
-	.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__media,
-	.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__content > * {
+	.evpx-root.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__media,
+	.evpx-root.evpx-hero[data-evpx-animate='1']:not([data-evpx-ready]) .evpx-hero__content > * {
 		opacity: 1;
 		animation: none;
 	}

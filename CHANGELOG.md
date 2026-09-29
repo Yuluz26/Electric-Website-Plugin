@@ -1,5 +1,51 @@
 # Changelog
 
+## 0.3.0
+
+First release checked against a real Breakdance (2.8.3), on the front end and in the builder. That
+turned up bugs no stub could show; details and the tests that now guard them are in
+`docs/QA-REPORT.md` (bugs 16–23).
+
+**Fixed — Breakdance integration**
+- The Element Studio save locations were never registered: Breakdance fires `breakdance_loaded` from
+  its own `plugins_loaded` callback and reads save locations at priority 10 on it, and this plugin
+  hooked in from *its* `plugins_loaded` callback — too late. The plugin now boots at include time.
+- Builder detection looked for `?breakdance=edit|run`, which Breakdance never sends. It now
+  recognises `?breakdance=builder`, the canvas iframe (`breakdance_iframe`) and Breakdance's own
+  AJAX (a POST of `breakdance_*` to a front-end URL). Builder renders switch every motion control
+  off, so the hero no longer arrives held back in the canvas.
+- Reading time (Hero and the Dynamic Data field) said "1 min read" on every page built in
+  Breakdance, and counted shortcode attribute names as words. It now reads the rendered element
+  tree, and can't recurse when a page shows its own reading time.
+- A page built in Breakdance printed its stylesheet after the content (flash of unstyled content).
+  Detected from the element tree now; new `evpx_load_assets` filter for widgets that live in a
+  Breakdance header, footer or template.
+- `Compatibility::isBreakdanceActive()` fell back to a constant Breakdance doesn't define.
+
+**Fixed — appearance inside a host**
+- Breakdance's `.breakdance h1–h6 { color; font-family; font-size }` and `.breakdance a` rules
+  (specificity 0,1,1) beat the widgets' single-class rules: hero title dark-on-dark, headings in a
+  system sans, blue button text. Every rule is now scoped under `.evpx-root`, link colours are
+  restated for `:hover`, and every heading declares its own size and colour.
+- Layout answered to the viewport, so a widget in a half-width column got its desktop layout. It
+  now answers to the widget's own box (container queries; single-column fallback where they're
+  unsupported), fluid type follows the box, grid tracks can shrink, the tab bar wraps, cards tighten
+  in narrow boxes.
+- Base `font-size` and `text-align` are set on the root instead of inherited from the host.
+
+**Added**
+- `--evpx-section-y`: the vertical rhythm of every section widget, in one token (set it to `0`
+  inside a Breakdance Section that already has padding).
+- Real-Breakdance QA: `EVPX_BREAKDANCE_ZIP` in `tests/docker/setup.sh` (you supply the licensed ZIP;
+  it is never committed), `breakdance-real-check.sh` (12 checks), `breakdance-page.sh` and
+  `tests/playwright/breakdance-qa.mjs` (16 checks incl. the builder).
+- `tests/playwright/qa.mjs` sweeps ten widths (320–1920 px) asserting no sideways overflow, and runs
+  axe-core at 1280 and 390 px. 21 checks. Shared helpers in `tests/playwright/lib.mjs`.
+
+**Changed**
+- The plugin boots when its file loads, not on `plugins_loaded`; the text domain loads on `init`.
+- The Breakdance contract stub now fires `breakdance_loaded` in the real order.
+
 ## 0.2.0
 
 **Added**

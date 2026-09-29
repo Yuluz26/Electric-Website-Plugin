@@ -53,20 +53,28 @@ hand-rolled autoloader, so a plain ZIP upload always works. CSS and JS are hand-
 
 ```
 bash tests/docker/setup.sh                      # WordPress + MySQL in Docker, plugin active, demo imported
-node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"   # 20 browser checks incl. axe-core
+node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"   # 21 browser checks: axe-core, a 10-width overflow sweep, motion, no-JS
 node tests/contrast-check.mjs                   # WCAG pairings, read from the real tokens
 composer install && composer lint               # WordPress coding standards (see phpcs.xml.dist)
 bash tests/build-zip.sh                         # dist/ev-charging-experience.zip
+
+# Against a real Breakdance (you supply the licensed ZIP; it is never committed):
+EVPX_BREAKDANCE_ZIP=/path/to/breakdance.zip bash tests/docker/setup.sh
+bash tests/docker/breakdance-real-check.sh      # integration: save locations, Dynamic Data, reading time
+bash tests/docker/breakdance-page.sh            # a page designed in Breakdance from the demo article
+node tests/playwright/breakdance-qa.mjs "$(cat tests/docker/.breakdance-url)"   # 16 checks, front end + builder
 ```
 
-`tests/playwright/qa.mjs` needs `playwright` (and optionally `axe-core`) installed in
+The browser scripts need `playwright` (and optionally `axe-core`) installed in
 `tests/playwright/`; if your network blocks cdnjs, run `setup.sh` with `EVPX_GSAP_DIR` so GSAP
 is served locally — the header of each script explains the details.
 
 ## Non-negotiables this plugin follows
 
 Namespaced everywhere (`EVPX` in PHP, `.evpx-*` in CSS, `evpx_*`/`evpx/*`
-for shortcodes/blocks). No bare-element or global CSS selectors. No
+for shortcodes/blocks). No bare-element or global CSS selectors, and every rule scoped
+under `.evpx-root` so a host's `h2`/`a` rules can't restyle a widget. Layout follows the widget's
+own box (container queries), not the viewport. No
 Breakdance core files, templates, or global styles touched. Every
 Breakdance API call guarded with `function_exists()`/`class_exists()` —
 the plugin never fatals with Breakdance absent. Assets load only on pages

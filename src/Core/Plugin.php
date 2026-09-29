@@ -39,7 +39,10 @@ final class Plugin {
 		}
 		$this->booted = true;
 
-		load_plugin_textdomain( 'ev-charging-experience', false, dirname( EVPX_BASENAME ) . '/languages' );
+		// `init`, not now: this runs at include time, before pluggable functions
+		// and the user's locale exist. Priority 1 so every later `init` callback
+		// (block and shortcode registration) already has its translations.
+		add_action( 'init', array( $this, 'loadTextdomain' ), 1 );
 
 		( new Compatibility() )->register();
 		( new ElementStudioBridge() )->register();
@@ -50,5 +53,9 @@ final class Plugin {
 		if ( is_admin() ) {
 			( new Notices() )->register();
 		}
+	}
+
+	public function loadTextdomain(): void {
+		load_plugin_textdomain( 'ev-charging-experience', false, dirname( EVPX_BASENAME ) . '/languages' );
 	}
 }

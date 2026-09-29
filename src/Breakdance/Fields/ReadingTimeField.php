@@ -34,6 +34,6 @@ final class ReadingTimeField extends \Breakdance\DynamicData\StringField {
 			return \Breakdance\DynamicData\StringData::emptyString();
 		}
 
-		return \Breakdance\DynamicData\StringData::fromString( ReadingTime::label( $post->post_content ) );
+		return \Breakdance\DynamicData\StringData::fromString( ReadingTime::labelForPost( $post ) );
 	}
 }

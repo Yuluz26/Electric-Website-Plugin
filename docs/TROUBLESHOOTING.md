@@ -6,14 +6,27 @@ The plugin isn't active, or you're looking at unsaved/preview content that
 bypassed `do_shortcode`. Confirm the plugin is active in Plugins.
 
 **Styles are missing on a page that clearly has an EV widget.**
-Assets load conditionally, detected from `post_content`/block presence. If
-a widget is inserted through a mechanism that doesn't store the shortcode
-text in `post_content` (some page builders), the plugin falls back to
-enqueuing in the footer the moment any `[evpx_*]` shortcode actually
-renders — reload the page once; if it's still missing, check your browser
-console for a failed request to the plugin's own
-`assets/css/evpx.css` (a path or permissions problem) — the plugin makes no other
-style requests.
+Assets load conditionally. The stylesheet is detected from the post's content and, for a page
+designed in Breakdance, from its element tree, and printed in `<head>`. A widget anywhere else (a
+Breakdance header, footer or template, a widget area) is caught by a fallback that enqueues the
+moment an `[evpx_*]` shortcode actually renders — reload once; if it's still missing, check your
+browser console for a failed request to the plugin's own `assets/css/evpx.css` (a path or
+permissions problem) — the plugin makes no other style requests.
+
+**The page paints unstyled for a moment, then jumps into place.**
+The widget lives somewhere detection can't see, so the stylesheet arrives from the footer
+fallback. Load it in `<head>` for those requests:
+`add_filter( 'evpx_load_assets', '__return_true' );` (the filter receives the detected boolean and
+the queried post, so you can restrict it).
+
+**A widget has huge empty space above and below it inside a Breakdance Section.**
+The Section's own padding and the widget's rhythm add up. Set the Section's vertical padding to 0, or
+`.evpx-root { --evpx-section-y: 0; }`.
+
+**A theme or plugin still overrides a widget's heading or link colour.**
+Widget rules are scoped under `.evpx-root` (specificity 0,2,0), which beats bare `h2`/`a` rules and
+the usual `.builder h2` patterns (0,1,1). A host rule with three or more selectors can still win;
+override it back with `.evpx-root .evpx-hero__title { … }` (add a class if you need to outrank it).
 
 **GSAP animations don't play, but the page looks and works fine otherwise.**
 This is by design, not a bug: if `cdnjs.cloudflare.com` is unreachable (a strict CSP, an
@@ -53,11 +66,14 @@ bridge), route its enclosed content through the same cleanup, or avoid
 blank lines between nested shortcode tags in the source.
 
 **A page built entirely in Breakdance looks off after installing.**
-It shouldn't — nothing in this plugin touches Breakdance's own CSS,
-templates, or element output; it only adds new shortcodes/blocks and,
-separately, an Element Studio save location. If you see a regression,
-please check whether it reproduces with the plugin deactivated before
-reporting it as caused by this plugin.
+It shouldn't — nothing in this plugin touches Breakdance's own CSS, templates, or element output;
+it only adds new shortcodes/blocks and, separately, an Element Studio save location. If you see a
+regression, please check whether it reproduces with the plugin deactivated before reporting it as
+caused by this plugin.
+
+**A widget inside a Breakdance column shows its phone layout on a wide screen.**
+That's intended: widgets follow the width of the box they sit in, not the viewport. A widget in a
+narrow column gets the narrow layout (single-column cards, stacked decision list, vertical flow).
 
 **PHP warnings/notices in `wp-content/debug.log` mentioning `EVPX` or
 `Breakdance\`.**

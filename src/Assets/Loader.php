@@ -26,6 +26,8 @@ final class Loader {
 
 	private static bool $active = false;
 
+	private static int $quiet = 0;
+
 	public const CSS_HANDLE     = 'evpx-styles';
 	public const JS_HANDLE      = 'evpx-script';
 	public const GSAP_HANDLE    = 'evpx-gsap';
@@ -35,7 +37,26 @@ final class Loader {
 	private const GSAP_VERSION = '3.12.5';
 
 	public static function markActive(): void {
-		self::$active = true;
+		if ( 0 === self::$quiet ) {
+			self::$active = true;
+		}
+	}
+
+	/**
+	 * Run $callback without flagging the page as using EV elements. Rendering a
+	 * widget only to measure its text (reading time) must not make a listing
+	 * page load the widgets' CSS and JavaScript.
+	 *
+	 * @return mixed Whatever $callback returns.
+	 */
+	public static function quietly( callable $callback ) {
+		++self::$quiet;
+
+		try {
+			return $callback();
+		} finally {
+			--self::$quiet;
+		}
 	}
 
 	public static function isActive(): bool {
@@ -99,7 +120,21 @@ final class Loader {
 	}
 
 	public function maybeEnqueueEarly(): void {
-		if ( is_singular() && $this->singularLikelyHasElements( get_queried_object_id() ) ) {
+		$post  = is_singular() ? get_post( get_queried_object_id() ) : null;
+		$found = $post instanceof \WP_Post && $this->postUsesElements( $post );
+
+		/**
+		 * Load the EV stylesheet and scripts in <head> for this request.
+		 *
+		 * Detected automatically for a post whose content, or Breakdance element
+		 * tree, contains an EV shortcode/block. Return true to force it where the
+		 * widgets live somewhere detection can't see (a Breakdance header, footer
+		 * or template, a widget area), so the page never paints unstyled first.
+		 *
+		 * @param bool          $load Whether the assets were detected as needed.
+		 * @param \WP_Post|null $post The queried post, or null on non-singular requests.
+		 */
+		if ( apply_filters( 'evpx_load_assets', $found, $post ) ) {
 			$this->enqueueAll();
 		}
 	}
@@ -143,13 +178,7 @@ final class Loader {
 		wp_enqueue_script( self::MOTION_HANDLE );
 	}
 
-	private function singularLikelyHasElements( int $post_id ): bool {
-		$post = get_post( $post_id );
-
-		if ( ! $post ) {
-			return false;
-		}
-
+	private function postUsesElements( \WP_Post $post ): bool {
 		foreach ( ( new \EVPX\Elements\Registry() )->all() as $element ) {
 			if ( has_shortcode( (string) $post->post_content, $element->shortcodeTag() ) ) {
 				return true;
@@ -160,6 +189,22 @@ final class Loader {
 			}
 		}
 
-		return false;
+		return $this->breakdanceTreeUsesElements( $post->ID );
+	}
+
+	/**
+	 * A page designed in Breakdance has an empty post_content: the widgets sit
+	 * in Shortcode elements inside its element tree. Without this the stylesheet
+	 * would only be printed by the footer fallback, after all the content, and
+	 * the whole article would flash unstyled first.
+	 */
+	private function breakdanceTreeUsesElements( int $post_id ): bool {
+		if ( ! function_exists( '\Breakdance\Data\get_tree' ) ) {
+			return false;
+		}
+
+		$tree = \Breakdance\Data\get_tree( $post_id );
+
+		return is_array( $tree ) && false !== strpos( (string) wp_json_encode( $tree ), '[evpx_' );
 	}
 }

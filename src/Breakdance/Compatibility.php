@@ -11,6 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * never touches `.bde-*` styles, and never modifies Breakdance templates —
  * it just answers "is Breakdance here" and "are we inside its builder"
  * so the rest of the plugin can behave conservatively.
+ *
+ * Every signal below was read out of Breakdance 2.8.3's own source
+ * (plugin.php, util/is-request-from-builder-iframe.php,
+ * actions_filters/template_include.php), not guessed.
  */
 final class Compatibility {
 
@@ -21,33 +25,39 @@ final class Compatibility {
 	}
 
 	/**
-	 * True once Breakdance's own bootstrap has actually run. Verified
-	 * against Breakdance's official boilerplate, which fires
-	 * `breakdance_loaded` before registering Element Studio save locations.
+	 * True when Breakdance is running for this request. Its plugin file
+	 * declares `__BREAKDANCE_VERSION` on load (and not at all when Breakdance
+	 * is switched off for the request); `breakdance_loaded` is its own
+	 * "bootstrap finished" action.
 	 */
 	public function isBreakdanceActive(): bool {
-		if ( did_action( 'breakdance_loaded' ) > 0 ) {
-			return true;
-		}
-
-		// Fallback for very early hooks (before breakdance_loaded has run
-		// this request) — Breakdance defines this constant on load.
-		return defined( 'BREAKDANCE_VERSION' );
+		return defined( '__BREAKDANCE_VERSION' ) || did_action( 'breakdance_loaded' ) > 0;
 	}
 
 	/**
-	 * True when the current request is rendering inside a page-builder
-	 * editor context (Breakdance's canvas, or any other builder's), where
-	 * autoplay/ScrollTrigger/observers must stay off. This is deliberately
-	 * conservative: it is safe to under-animate in an edge case, never safe
-	 * to animate inside a live builder canvas.
+	 * True when the current request renders content for a page-builder editor
+	 * (Breakdance's canvas, its server-side element renders, or a WordPress
+	 * admin/REST context such as the block editor), where entrance animation
+	 * and scroll observers must stay off. Deliberately conservative: safe to
+	 * under-animate in an edge case, never safe to animate inside a live
+	 * builder canvas.
 	 */
 	public function isBuilderContext(): bool {
-		if ( isset( $_GET['breakdance'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$mode = sanitize_key( wp_unslash( $_GET['breakdance'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( in_array( $mode, array( 'builder', 'edit', 'run' ), true ) ) {
-				return true;
-			}
+		// The builder shell: /?breakdance=builder&id=123
+		if ( isset( $_GET['breakdance'] ) && 'builder' === sanitize_key( wp_unslash( $_GET['breakdance'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		// The canvas iframe. "Always added as a GET parameter to the iframe URL by builder."
+		if ( ! empty( $_GET['breakdance_iframe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		// Breakdance answers its own AJAX at *any* front-end URL (not admin-ajax.php),
+		// so is_admin()/wp_doing_ajax() are false for element renders in the builder:
+		// action=breakdance_server_side_render, breakdance_dynamic_data_get, …
+		if ( isset( $_POST['action'] ) && 0 === strpos( sanitize_key( wp_unslash( $_POST['action'] ) ), 'breakdance_' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return true;
 		}
 
 		if ( defined( 'REST_REQUEST' ) && REST_REQUEST && isset( $_SERVER['REQUEST_URI'] )

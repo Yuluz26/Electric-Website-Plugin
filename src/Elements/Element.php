@@ -3,6 +3,7 @@
 namespace EVPX\Elements;
 
 use EVPX\Assets\Loader;
+use EVPX\Breakdance\Compatibility;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -76,12 +77,43 @@ abstract class Element {
 	 */
 	public function renderShortcode( $atts, $content = null ): string {
 		$atts    = shortcode_atts( $this->defaultAttributes(), (array) $atts, $this->shortcodeTag() );
-		$atts    = $this->sanitizeAttributes( $atts );
+		$atts    = $this->withBuilderContext( $this->sanitizeAttributes( $atts ) );
 		$content = null === $content ? '' : do_shortcode( $this->stripAutopArtifacts( $content ) );
 
 		Loader::markActive();
 
 		return $this->render( $atts, $content );
+	}
+
+	/**
+	 * Inside a page builder (Breakdance's canvas and server-side renders, the
+	 * block editor) nothing may be held back for an entrance animation, and
+	 * markup injected after page load never gets the JS that would release it.
+	 * So every control in the `motion` group is switched off. Driven by the
+	 * control schema: a new widget with a motion toggle is covered without
+	 * touching this.
+	 *
+	 * @param array<string, mixed> $atts Already sanitized.
+	 * @return array<string, mixed>
+	 */
+	protected function withBuilderContext( array $atts ): array {
+		if ( ! ( new Compatibility() )->isBuilderContext() ) {
+			return $atts;
+		}
+
+		foreach ( $this->controls() as $control ) {
+			if ( 'motion' !== ( $control['group'] ?? '' ) ) {
+				continue;
+			}
+
+			if ( 'toggle' === $control['type'] ) {
+				$atts[ $control['key'] ] = false;
+			} elseif ( 'select' === $control['type'] && isset( $control['options']['off'] ) ) {
+				$atts[ $control['key'] ] = 'off';
+			}
+		}
+
+		return $atts;
 	}
 
 	/**
@@ -132,7 +164,7 @@ abstract class Element {
 	 * @param string                $content Server-rendered inner blocks HTML.
 	 */
 	public function renderBlock( array $atts, string $content = '' ): string {
-		$atts = $this->sanitizeAttributes( array_merge( $this->defaultAttributes(), $atts ) );
+		$atts = $this->withBuilderContext( $this->sanitizeAttributes( array_merge( $this->defaultAttributes(), $atts ) ) );
 
 		Loader::markActive();
 

@@ -12,15 +12,16 @@ repositories — the only documented extension points are Element Studio
 itself, plus narrow APIs for Dynamic Data, Conditions, Animations, Hooks,
 Form Actions and Reusable Dependencies).
 
-This plugin was built without a licensed Breakdance instance available, so
-Element Studio couldn't be operated to generate native elements directly.
-Instead, every component ships as a **shortcode + Gutenberg block**, which
-Breakdance embeds natively and safely via its built-in Shortcode element —
-zero risk, zero guessing at an undocumented format.
+Element Studio is a GUI and couldn't be operated from a headless build
+environment, so this plugin doesn't ship elements it generated. Instead,
+every component is a **shortcode + Gutenberg block**, which Breakdance
+embeds natively via its built-in Shortcode element — run against a real
+Breakdance 2.8.3 on the front end and in the builder (`docs/QA-REPORT.md`).
 
 The plugin *also* registers a real Element Studio save location (see
-`src/Breakdance/ElementStudioBridge.php` — this part is 100% verified against
-Breakdance's own boilerplate, not guessed). That means on your real
+`src/Breakdance/ElementStudioBridge.php` — checked against Breakdance's own
+boilerplate *and* against a real Breakdance 2.8.3: both locations reach
+Breakdance, and an element file saved in the folder is loaded by it). That means on your real
 Breakdance site, "EV Charging Elements" already shows up as a place to save
 new elements. Turning any of the 9 shortcodes into a fully native,
 visually-controlled Breakdance element is then a short, mechanical task:
@@ -70,9 +71,9 @@ Root CSS class per widget (apply to Element Studio's root element):
 | FAQ Item | `evpx-faq__item evpx-surface--raised-sm` |
 | CTA | `evpx-root evpx-cta evpx-cta--{variant}` |
 
-Copy the exact inner markup structure from the matching file in
-`templates/*.php` — it's plain HTML with `<?php ... ?>` swapped for Twig
-`{{ }}` — and you have a pixel-identical native element.
+The markup to reproduce is in the matching file in `templates/*.php` — plain
+HTML with `<?php ... ?>` where Twig `{{ }}` would go. (Untested: turning one
+into an Element Studio element by hand has not been done here.)
 
 ## Why not ship guessed Element Studio files instead?
 

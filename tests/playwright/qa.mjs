@@ -14,9 +14,10 @@
  * Motion checks need GSAP to load. If cdnjs is unreachable from your network,
  * run setup.sh with EVPX_GSAP_DIR set (see its header); without GSAP those
  * checks report SKIP rather than fail.
+ *
+ * For the same widgets inside a real Breakdance install, see breakdance-qa.mjs.
  */
-import { chromium } from 'playwright';
-import { createRequire } from 'node:module';
+import { launch, reporter, scrollThrough, notFullyVisible, overflowProbe, axeViolations } from './lib.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -28,40 +29,28 @@ if (!url) {
 const outDir = process.argv[3] || './qa-output';
 fs.mkdirSync(outDir, { recursive: true });
 
-const launchOpts = process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {};
-const browser = await chromium.launch(launchOpts);
-
-let failures = 0;
-const check = (label, ok, detail = '') => {
-	console.log(`${ok ? 'PASS' : 'FAIL'} — ${label}${!ok && detail ? ` (${detail})` : ''}`);
-	if (!ok) failures++;
-};
-const skip = (label, why) => console.log(`SKIP — ${label} (${why})`);
-
-/** Scroll the whole page slowly so every scroll-triggered reveal fires. */
-const scrollThrough = (page) =>
-	page.evaluate(async () => {
-		for (let y = 0; y < document.body.scrollHeight; y += 400) {
-			window.scrollTo(0, y);
-			await new Promise((r) => setTimeout(r, 120));
-		}
-	});
-
-const notFullyVisible = (page) =>
-	page.$$eval('[data-evpx-reveal]', (els) =>
-		els.filter((e) => getComputedStyle(e).opacity !== '1' || getComputedStyle(e).visibility === 'hidden').length
-	);
+const browser = await launch();
+const { check, skip, finish } = reporter();
 
 // ---------------------------------------------------------------- screenshots
 const consoleErrors = [];
 const pageErrors = [];
 const requestedHosts = new Set();
+// Every width the docs claim is tested. Each one is loaded, scrolled through so the
+// reveals settle, screenshotted, and probed for horizontal overflow.
 const viewports = {
-	'desktop-1440': { width: 1440, height: 900 },
-	'laptop-1366': { width: 1366, height: 768 },
-	'tablet-768': { width: 768, height: 1024 },
+	'mobile-320': { width: 320, height: 640 },
+	'mobile-375': { width: 375, height: 812 },
 	'mobile-390': { width: 390, height: 844 },
+	'mobile-430': { width: 430, height: 932 },
+	'tablet-768': { width: 768, height: 1024 },
+	'laptop-1024': { width: 1024, height: 768 },
+	'desktop-1280': { width: 1280, height: 800 },
+	'laptop-1366': { width: 1366, height: 768 },
+	'desktop-1440': { width: 1440, height: 900 },
+	'desktop-1920': { width: 1920, height: 1080 },
 };
+const overflows = {};
 for (const [name, viewport] of Object.entries(viewports)) {
 	const page = await browser.newPage({ viewport });
 	page.on('console', (m) => m.type() === 'error' && consoleErrors.push(`[${name}] ${m.text()}`));
@@ -75,6 +64,8 @@ for (const [name, viewport] of Object.entries(viewports)) {
 	await scrollThrough(page);
 	await page.evaluate(() => window.scrollTo(0, 0));
 	await page.waitForTimeout(1000);
+	const bad = await overflowProbe(page);
+	if (bad.length) overflows[name] = bad;
 	await page.screenshot({ path: path.join(outDir, `${name}.png`), fullPage: true });
 	await page.close();
 }
@@ -82,6 +73,11 @@ check('no uncaught JavaScript exceptions', pageErrors.length === 0, pageErrors[0
 check(
 	'no third-party font requests (fonts are self-hosted)',
 	![...requestedHosts].some((h) => /fonts\.(googleapis|gstatic)\.com/.test(h))
+);
+check(
+	`no horizontal overflow at any of ${Object.keys(viewports).length} widths (${Object.values(viewports).map((v) => v.width).join(', ')})`,
+	Object.keys(overflows).length === 0,
+	Object.entries(overflows).map(([n, b]) => `${n}: ${b[0]}`).join(' | ')
 );
 fs.writeFileSync(
 	path.join(outDir, 'console-report.txt'),
@@ -265,33 +261,24 @@ if (hasGsap) {
 }
 
 // --------------------------------------------------------------------- axe
+// Desktop and phone width: the layouts differ, so their contrast and target sizes can too.
 {
-	let axePath = process.env.EVPX_AXE_PATH;
-	try {
-		axePath ||= createRequire(import.meta.url).resolve('axe-core/axe.min.js');
-	} catch {}
-	if (!axePath) {
-		skip('axe-core accessibility audit of EV widgets', 'axe-core not installed');
-	} else {
-		const p = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+	const found = [];
+	let axeAvailable = true;
+	for (const width of [1280, 390]) {
+		const p = await browser.newPage({ viewport: { width, height: 900 } });
 		await p.goto(url, { waitUntil: 'networkidle' });
 		await scrollThrough(p);
 		await p.waitForTimeout(1500);
 		await p.evaluate(() => window.scrollTo(0, 0));
-		await p.addScriptTag({ path: axePath });
-		const results = await p.evaluate(() =>
-			window.axe.run(
-				{ include: [['.evpx-root']] },
-				{ runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] } }
-			)
-		);
-		fs.writeFileSync(path.join(outDir, 'axe.json'), JSON.stringify(results.violations, null, 2));
-		const summary = results.violations.map((v) => `${v.id}×${v.nodes.length}`).join(', ');
-		check('axe-core: zero WCAG A/AA + best-practice violations inside EV widgets', results.violations.length === 0, summary);
+		const violations = await axeViolations(p, path.join(outDir, `axe-${width}.json`));
+		if (violations === null) axeAvailable = false;
+		else found.push(...violations.map((v) => `${v} @${width}px`));
 		await p.close();
 	}
+	if (!axeAvailable) skip('axe-core accessibility audit of EV widgets', 'axe-core not installed');
+	else check('axe-core: zero WCAG A/AA + best-practice violations inside EV widgets at 1280px and 390px', found.length === 0, found.join(', '));
 }
 
 await browser.close();
-console.log(`\n${failures === 0 ? 'All checks passed.' : failures + ' check(s) failed.'} Artifacts in ${outDir}/`);
-process.exit(failures === 0 ? 0 : 1);
+finish(outDir);

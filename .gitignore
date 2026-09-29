@@ -4,4 +4,5 @@ node_modules/
 .DS_Store
 *.log
 /tests/docker/.demo-url
+/tests/docker/.breakdance-url
 composer.lock

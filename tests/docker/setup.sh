@@ -6,8 +6,13 @@
 #   bash tests/docker/setup.sh
 #   node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"
 #
+# Optional: EVPX_BREAKDANCE_ZIP=/path/to/breakdance-x.y.z.zip installs the real
+# Breakdance plugin (you supply the licensed ZIP; it is never committed) and
+# activates it next to this plugin. Then run tests/docker/breakdance-real-check.sh.
+#
 # Optional: EVPX_BREAKDANCE_STUB=1 installs tests/docker/breakdance-stub.php as a
 # mu-plugin and runs tests/docker/breakdance-contract-check.php against it.
+# (Use one or the other, not both.)
 #
 # Optional: EVPX_GSAP_DIR=/path/with/gsap.min.js+ScrollTrigger.min.js serves
 # GSAP from inside the container via the evpx_gsap_src filters — for networks
@@ -49,6 +54,19 @@ if ! wp core is-installed 2>/dev/null; then
 fi
 wp config set WP_DEBUG_LOG true --raw
 wp config set WP_DEBUG_DISPLAY true --raw
+
+# A real, licensed Breakdance ZIP (never committed here). Extracted on the host
+# because the WordPress image has no unzip, then copied in and activated.
+if [ -n "${EVPX_BREAKDANCE_ZIP:-}" ]; then
+	BD_TMP="$(mktemp -d)"
+	unzip -q "$EVPX_BREAKDANCE_ZIP" -d "$BD_TMP"
+	"${COMPOSE[@]}" exec -T wordpress rm -rf /var/www/html/wp-content/plugins/breakdance
+	docker cp "$BD_TMP/breakdance" "${WP_CID}:/var/www/html/wp-content/plugins/breakdance"
+	"${COMPOSE[@]}" exec -T wordpress chown -R www-data:www-data /var/www/html/wp-content/plugins/breakdance
+	rm -rf "$BD_TMP"
+	wp plugin activate breakdance
+fi
+
 wp plugin activate ev-charging-experience
 
 if [ -n "${EVPX_GSAP_DIR:-}" ]; then

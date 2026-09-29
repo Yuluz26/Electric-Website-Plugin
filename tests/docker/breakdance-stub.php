@@ -68,12 +68,18 @@ namespace {
 		'fields'         => array(),
 	);
 
-	// Breakdance fires this once its own bootstrap is done; the plugin registers at priority 9.
+	// What the real plugin's file declares as it loads.
+	define( '__BREAKDANCE_VERSION', 'stub' );
+
+	// Real order, as read from Breakdance 2.8.3's plugin.php: it fires `breakdance_loaded` from
+	// its own `plugins_loaded` callback at the default priority, registered while its file loads —
+	// before any plugin that sorts after "breakdance" has been included. This stub is an
+	// mu-plugin, so it registers first too. (An earlier version fired the action at priority 20,
+	// after this plugin booted, and so hid a bug where the plugin's hook came too late.)
 	add_action(
 		'plugins_loaded',
 		static function () {
 			do_action( 'breakdance_loaded' );
-		},
-		20
+		}
 	);
 }

@@ -3,7 +3,7 @@
  * Plugin Name:       EV Charging Experience
  * Plugin URI:        https://marcopolosupplies.com/
  * Description:       Premium, neumorphic, editorial EV-charging article components for WordPress + Breakdance. Adds capabilities to Breakdance; never overrides it.
- * Version:           0.2.0
+ * Version:           0.3.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Marco Polo Supplies
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Constants
 // --------------------------------------------------------------------
 
-define( 'EVPX_VERSION', '0.2.0' );
+define( 'EVPX_VERSION', '0.3.0' );
 define( 'EVPX_FILE', __FILE__ );
 define( 'EVPX_PATH', plugin_dir_path( __FILE__ ) );
 define( 'EVPX_URL', plugin_dir_url( __FILE__ ) );
@@ -95,12 +95,15 @@ register_activation_hook( EVPX_FILE, array( Core\Activation::class, 'run' ) );
 register_deactivation_hook( EVPX_FILE, array( Core\Deactivation::class, 'run' ) );
 
 // --------------------------------------------------------------------
-// Boot.
+// Boot — at include time, deliberately not on `plugins_loaded`.
+//
+// Breakdance fires `breakdance_loaded` from its own `plugins_loaded`
+// callback and reads its Element Studio save locations at priority 10 on
+// that action. WordPress loads plugins alphabetically and "breakdance"
+// sorts before this plugin, so a hook added from a `plugins_loaded`
+// callback here would be registered after `breakdance_loaded` has already
+// fired and would never run. boot() only adds hooks and calls no other
+// plugin's code, so doing it at include time is safe.
 // --------------------------------------------------------------------
 
-add_action(
-	'plugins_loaded',
-	static function () {
-		Core\Plugin::instance()->boot();
-	}
-);
+Core\Plugin::instance()->boot();

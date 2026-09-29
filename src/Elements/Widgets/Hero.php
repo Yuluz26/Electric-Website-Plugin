@@ -64,7 +64,7 @@ final class Hero extends Element {
 
 		if ( '' === $reading_time ) {
 			$post         = get_post();
-			$reading_time = ReadingTime::label( $post ? $post->post_content : $atts['excerpt'] );
+			$reading_time = $post ? ReadingTime::labelForPost( $post ) : ReadingTime::label( $atts['excerpt'] );
 		}
 
 		$media_html = '';

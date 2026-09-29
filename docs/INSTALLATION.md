@@ -36,11 +36,24 @@ panels) and a live preview.
 ## Using it with Breakdance
 
 Drag a **Shortcode** element into the canvas, paste e.g. `[evpx_comparison
-ac_power_range="7–22 kW" ...]`, done — this is fully supported and is the
-path this plugin was QA'd against (Breakdance itself is a paid/licensed
-product not available in this build's test environment; see
-`docs/QA-REPORT.md` for exactly what was and wasn't verified against a
-real Breakdance install).
+ac_power_range="7–22 kW" ...]`, done. This path has been run against a real Breakdance 2.8.3 on
+the front end and inside the builder (canvas, server-side renders, console) — see
+`docs/QA-REPORT.md` for what that covered and what it didn't.
+
+Tips for a Breakdance Section that holds a widget:
+
+- **Spacing.** Every section widget brings its own vertical rhythm (`padding-block`), on top of the
+  Section's padding. Set the Section's vertical padding to 0, or set the widget's rhythm to match:
+  in the Shortcode element's *Advanced → Custom CSS*, or your stylesheet,
+  `.evpx-root { --evpx-section-y: 0; }` (default `6rem`).
+- **Width.** Widgets fill the box they're in and adapt to it: a widget in a half-width column
+  switches to its narrow layout on its own. There's nothing to configure.
+- **Styles in `<head>`.** The stylesheet is detected from the page's element tree and printed in
+  `<head>`. If the shortcode lives in a Breakdance *header, footer or template* (where detection
+  can't see it), the page can paint unstyled for a moment; force `<head>` loading with
+  `add_filter( 'evpx_load_assets', '__return_true' );` or a condition of your own.
+- **Builder.** Renders for the builder are static on purpose (no entrance animation, no scroll
+  triggers, no progress bar); the front end animates as configured.
 
 For fully native, visually-controlled elements inside Element Studio, see
 `docs/BREAKDANCE-ELEMENT-STUDIO-BRIDGE.md`.
@@ -70,7 +83,9 @@ For fully native, visually-controlled elements inside Element Studio, see
   animation is absent.
 - **Other plugins/builders**: nothing is hooked into anything global —
   no `.bde-*` selectors, no bare element selectors (`h1`, `img`,
-  `.container`…), no core file overrides. Deactivating the plugin leaves
+  `.container`…), no core file overrides. The other direction is defended too: every rule is
+  scoped under `.evpx-root` so a host's `h2 { … }` or `a { … }` rules can't restyle a widget. To
+  override a widget's look, use the same two-class selector (`.evpx-root .evpx-hero__title`). Deactivating the plugin leaves
   existing content untouched (shortcodes simply stop expanding; the raw
   `[evpx_...]` text is not deleted from the database).
 
