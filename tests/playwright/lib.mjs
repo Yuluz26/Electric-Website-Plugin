@@ -55,6 +55,11 @@ export const overflowProbe = (page) =>
 			const box = root.getBoundingClientRect();
 			for (const el of root.querySelectorAll('*')) {
 				if (el.closest('[hidden]')) continue;
+				// A drawing's shapes may run past its viewBox (a floor that goes on, a glow); the widget or panel
+				// clips them, and the drawing's own box, the <svg>, is still held to the widget's.
+				if (el.ownerSVGElement) continue;
+				// The hero's drawing bleeds off the right edge on purpose; the hero clips it.
+				if (el.closest('.evpx-hero__visual')) continue;
 				const cs = getComputedStyle(el);
 				if (cs.display === 'none' || cs.visibility === 'hidden') continue;
 				const r = el.getBoundingClientRect();

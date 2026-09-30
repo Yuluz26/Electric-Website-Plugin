@@ -15,3 +15,4 @@ composer.lock
 # Screenshots and reports the browser suites write when run from the repository root
 /qa-output/
 /qa-*-output/
+__pycache__/

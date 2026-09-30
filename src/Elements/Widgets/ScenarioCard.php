@@ -3,6 +3,7 @@
 namespace EVPX\Elements\Widgets;
 
 use EVPX\Elements\Element;
+use EVPX\Support\Icons;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,7 +25,8 @@ final class ScenarioCard extends Element {
 			array( 'key' => 'scenario', 'label' => __( 'Scenario label', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'title', 'label' => __( 'Title', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'description', 'label' => __( 'Description', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
-			array( 'key' => 'icon', 'label' => __( 'Icon / media', 'ev-charging-experience' ), 'type' => 'image', 'group' => 'media', 'default' => 0 ),
+			array( 'key' => 'symbol', 'label' => __( 'Icon', 'ev-charging-experience' ), 'type' => 'select', 'group' => 'visual', 'default' => 'auto', 'options' => Icons::options() ),
+			array( 'key' => 'icon', 'label' => __( 'Own icon image (replaces the icon)', 'ev-charging-experience' ), 'type' => 'image', 'group' => 'media', 'default' => 0 ),
 			array( 'key' => 'requirement', 'label' => __( 'Key requirement', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'recommendation', 'label' => __( 'Recommended charging approach', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'cta_label', 'label' => __( 'CTA label', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
@@ -66,6 +68,7 @@ final class ScenarioCard extends Element {
 				'title'          => $atts['title'],
 				'description'    => $this->autop( $atts['description'] ),
 				'icon_html'      => $atts['icon'] ? $this->image( (int) $atts['icon'], 'thumbnail', array( 'class' => 'evpx-scenario-card__icon-image' ) ) : '',
+				'symbol'         => Icons::resolve( (string) $atts['symbol'], $atts['scenario'] . ' ' . $atts['title'], 'charging-station' ),
 				'requirement'    => $atts['requirement'],
 				'recommendation' => $atts['recommendation'],
 				'cta_label'      => $atts['cta_label'],

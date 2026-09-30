@@ -3,6 +3,7 @@
  * @var string $spacing Vertical rhythm: default | compact | none.
  * @var string   $heading
  * @var string[] $steps
+ * @var string[] $symbols One icon name per step, or all ''.
  * @var string   $direction
  * @var bool     $compact
  * @var bool     $animate
@@ -27,8 +28,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<ol class="evpx-flow__steps">
 			<?php foreach ( $steps as $index => $label ) : ?>
 				<li class="evpx-flow__step" style="--evpx-step:<?php echo (int) $index; ?>">
-					<span class="evpx-flow__node" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $index + 1 ) ); ?></span>
-					<span class="evpx-flow__label"><?php echo esc_html( $label ); ?></span>
+					<span class="evpx-flow__node" aria-hidden="true"><?php echo $symbols[ $index ] ? \EVPX\Support\Icons::svg( $symbols[ $index ] ) : esc_html( sprintf( '%02d', $index + 1 ) ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?></span>
+					<span class="evpx-flow__text">
+						<?php if ( $symbols[ $index ] ) : ?><span class="evpx-flow__num" aria-hidden="true"><?php echo esc_html( sprintf( '%02d', $index + 1 ) ); ?></span><?php endif; ?>
+						<span class="evpx-flow__label"><?php echo esc_html( $label ); ?></span>
+					</span>
 				</li>
 			<?php endforeach; ?>
 		</ol>

@@ -57,6 +57,25 @@ const IDENTITY = /^(none|matrix\(1, 0, 0, 1, 0, 0\))$/;
 
 	check('hero: the line at its foot charges in (an animation, not a static rule)', (await style(page, '.evpx-hero__line', 'animationName', '::after')) === 'evpx-charge');
 
+	// The drawing: its outlines draw themselves in, a band of light crosses the car, a pulse runs the cable.
+	const drawing = await page.evaluate(() => {
+		const name = (sel) => {
+			const el = document.querySelector(sel);
+			return el ? getComputedStyle(el).animationName : 'missing';
+		};
+		const scan = document.querySelector('.evpx-hero .evpx-art__scan');
+		return {
+			draw: name('.evpx-hero .evpx-art__draw'),
+			arc: name('.evpx-hero .evpx-art__arc'),
+			scan: name('.evpx-hero .evpx-art__scan'),
+			scanFill: scan ? getComputedStyle(scan).fill : 'missing',
+			pulse: name('.evpx-hero .evpx-art__pulse'),
+			pulseOpacity: getComputedStyle(document.querySelector('.evpx-hero .evpx-art__pulse')).opacity,
+		};
+	});
+	check('hero drawing: the outlines draw in, the ring fills, a band of light crosses the car, a pulse runs the cable', drawing.draw === 'evpx-draw' && drawing.arc === 'evpx-arc' && drawing.scan === 'evpx-scan' && drawing.pulse === 'evpx-pulse' && drawing.pulseOpacity === '1', JSON.stringify(drawing));
+	check('hero drawing: the band of light paints (its fill is the gradient: a class that says fill:none would hide it)', /^url\(/.test(drawing.scanFill), drawing.scanFill);
+
 	// Scroll like a reader, then let every entrance finish.
 	await scrollThrough(page);
 	await page.waitForTimeout(3500);
@@ -188,9 +207,9 @@ const IDENTITY = /^(none|matrix\(1, 0, 0, 1, 0, 0\))$/;
 	const open1 = await page.evaluate(() => {
 		const item = document.querySelector('.evpx-faq__item');
 		const button = item.querySelector('.evpx-faq__question');
-		return { expanded: button.getAttribute('aria-expanded'), panelHidden: item.querySelector('.evpx-faq__answer').hidden, bar: getComputedStyle(item.querySelector('.evpx-faq__icon'), '::after').opacity, outline: getComputedStyle(button).outlineStyle };
+		return { expanded: button.getAttribute('aria-expanded'), panelHidden: item.querySelector('.evpx-faq__answer').hidden, plus: getComputedStyle(item.querySelector('.evpx-faq__icon .evpx-icon--plus')).opacity, minus: getComputedStyle(item.querySelector('.evpx-faq__icon .evpx-icon--minus')).opacity, outline: getComputedStyle(button).outlineStyle };
 	});
-	check('FAQ: opening a question expands it and turns its plus into a minus', open1.expanded === 'true' && open1.panelHidden === false && open1.bar === '0', JSON.stringify(open1));
+	check('FAQ: opening a question expands it and turns its plus into a minus', open1.expanded === 'true' && open1.panelHidden === false && open1.plus === '0' && open1.minus === '1', JSON.stringify(open1));
 	check('FAQ: a mouse click leaves no focus outline (a keyboard still gets one)', open1.outline === 'none', JSON.stringify(open1));
 
 	// A row opens from its own height. The answer's bottom padding has to travel with its height; when it does not, the
@@ -240,6 +259,20 @@ const IDENTITY = /^(none|matrix\(1, 0, 0, 1, 0, 0\))$/;
 	check('reduced motion: nothing is marked for motion, nothing is held back, no animation runs', still.marked === 0 && still.heroHidden === 0 && still.line === 'none' && still.flowHidden === 0, JSON.stringify(still));
 	check('reduced motion: the finished state is already there (connectors drawn, range bars grown)', still.connectors.every((t) => IDENTITY.test(t)) && still.ruler.every((t) => IDENTITY.test(t)), JSON.stringify(still));
 	check('reduced motion: the comparison switch still works, its thumb just does not travel', still.thumbMarked === true);
+	const stillArt = await page.evaluate(() => {
+		const cs = (sel) => {
+			const el = document.querySelector(sel);
+			return el ? getComputedStyle(el) : null;
+		};
+		return {
+			draw: cs('.evpx-hero .evpx-art__draw')?.animationName,
+			dash: cs('.evpx-hero .evpx-art__draw')?.strokeDasharray,
+			pulse: cs('.evpx-hero .evpx-art__pulse')?.opacity,
+			scan: cs('.evpx-hero .evpx-art__scan')?.opacity,
+			arc: cs('.evpx-hero .evpx-art__arc')?.animationName,
+		};
+	});
+	check('reduced motion: the hero drawing is finished and still (nothing draws in, no pulse, no scan, the ring is full)', stillArt.draw === 'none' && stillArt.dash === 'none' && stillArt.pulse === '0' && stillArt.scan === '0' && stillArt.arc === 'none', JSON.stringify(stillArt));
 	check('reduced motion: no console errors', problems.length === 0, problems.join(' | '));
 	await context.close();
 }
@@ -263,6 +296,34 @@ const IDENTITY = /^(none|matrix\(1, 0, 0, 1, 0, 0\))$/;
 	check('touch: no hover-only decoration (the arrow knob is not drawn) and no pointer highlight is bound', touch.hover === false && touch.go === 'none' && touch.spotBound === false, JSON.stringify(touch));
 	check('touch: the page does not scroll sideways and every reveal has arrived', touch.overflow <= 1 && touch.reveals === 0, JSON.stringify(touch));
 	check('touch: no console errors', problems.length === 0, problems.join(' | '));
+	await context.close();
+}
+
+/* ---------------------------------------------------------------- 3b. the hero's drawing keeps clear of the copy */
+for (const [w, h] of [[1920, 1080], [1440, 900], [1366, 768], [1280, 720], [1024, 768], [768, 1024], [390, 844]]) {
+	const context = await browser.newContext({ viewport: { width: w, height: h } });
+	const page = await context.newPage();
+	await page.goto(url, { waitUntil: 'networkidle' });
+	await page.waitForTimeout(600);
+	const clash = await page.evaluate(() => {
+		const visible = (el) => {
+			const cs = getComputedStyle(el);
+			const r = el.getBoundingClientRect();
+			return cs.display !== 'none' && cs.visibility !== 'hidden' && r.width > 0 && r.height > 0;
+		};
+		const copy = [...document.querySelectorAll('.evpx-hero__content > *')].filter(visible).map((e) => e.getBoundingClientRect());
+		// What counts as the drawing's own ink: its labels, the charger, the car, the gauge (not the floor, which fades under everything).
+		const ink = [...document.querySelectorAll('.evpx-hero__visual .evpx-art__label, .evpx-hero__visual .evpx-art__charger, .evpx-hero__visual .evpx-art__soc, .evpx-hero__visual .evpx-art__notes path')].filter(visible);
+		const hits = [];
+		for (const el of ink) {
+			const r = el.getBoundingClientRect();
+			for (const c of copy) {
+				if (r.left < c.right - 1 && r.right > c.left + 1 && r.top < c.bottom - 1 && r.bottom > c.top + 1) hits.push(`${el.getAttribute('class') || el.tagName} ${Math.round(r.left)}–${Math.round(r.right)}×${Math.round(r.top)}–${Math.round(r.bottom)} over copy ${Math.round(c.left)}–${Math.round(c.right)}×${Math.round(c.top)}–${Math.round(c.bottom)}`);
+			}
+		}
+		return { ink: ink.length, hits: hits.slice(0, 3), art: !!document.querySelector('.evpx-hero__visual .evpx-art') };
+	});
+	check(`${w}px: the hero's drawing (labels, charger, gauge) lies clear of its copy`, clash.art && clash.hits.length === 0, JSON.stringify(clash));
 	await context.close();
 }
 

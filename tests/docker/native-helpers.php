@@ -16,7 +16,7 @@ if ( ! function_exists( 'evpx_test_native_nodes' ) ) {
 	/** @return array<int, array{shortcode: string, widget: object, class: string, properties: array<string, mixed>}> */
 	function evpx_test_native_nodes( string $article ): array {
 		$by_tag = array();
-		foreach ( array( 'Hero', 'Section', 'Comparison', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' ) as $name ) {
+		foreach ( array( 'Hero', 'Section', 'Comparison', 'Explorer', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' ) as $name ) {
 			$class  = 'EVPX\\' . $name;
 			$method = new ReflectionMethod( $class, 'widget' );
 			$method->setAccessible( true );

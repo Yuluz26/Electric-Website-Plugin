@@ -14,6 +14,7 @@ final class Registry {
 			new Widgets\Hero(),
 			new Widgets\Section(),
 			new Widgets\Comparison(),
+			new Widgets\Explorer(),
 			new Widgets\ScenarioCards(),
 			new Widgets\ScenarioCard(),
 			new Widgets\TechnicalFlow(),
@@ -53,7 +54,7 @@ final class Registry {
 	/**
 	 * Data the generic block-editor JS needs to render every EV block's
 	 * Inspector controls from one shared component, instead of hand-writing
-	 * a bespoke edit() for each of the 9 elements.
+	 * a bespoke edit() for each of the elements.
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */

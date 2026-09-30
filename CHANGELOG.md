@@ -1,5 +1,75 @@
 # Changelog
 
+## 0.6.0
+
+A second design pass. Yul's brief: fitting pictures, icons used consistently, neon with neumorphism but minimal,
+heroes that stop a visitor, futuristic, and a finish worth what a site of this kind costs to have made. The design
+language changed (copper became light as well as colour; one icon family; drawings where there were no pictures),
+one widget was added, and the audit that came with it (contrast, focus, targets, measure, type scale, forced
+colours) was applied to what already existed. Seven defects in the new work were found and fixed
+(`docs/QA-REPORT.md`, bugs 45-51).
+
+**Added**
+- **EV Charging Explorer** (`[evpx_explorer]`, `evpx/explorer`, a native Breakdance element): how long a car stays,
+  which charger, what reaches the battery. A dwell-time slider (15 minutes to 12 hours, bent toward the short stays)
+  with presets, five chargers (AC 7 and 22 kW, DC 50, 150 and 350 kW), energy and range added, a battery bar, a chart of
+  power against time with the charger's rating drawn as a line the car never reaches, the same dwell time on every
+  charger, and a sentence that says what it means. The page arrives with its default answer worked out on the server
+  (`EVPX\Support\ChargingModel`), so it reads with no script; the script makes it live, with the same model. The battery,
+  the car's AC and DC limits and its consumption are controls, and the panel says under itself that it is illustrative.
+- **One icon family**, Phosphor Regular (MIT), 53 outlines drawn inline (`EVPX\Support\Icons`), placed the same way
+  everywhere: a socket for an icon that labels a block (a scenario card, a flow step), bare beside text (tabs, a decision
+  factor, the byline, buttons, the FAQ knob, the explorer's charger choices). Scenario cards, decision factors and flow steps
+  choose theirs from their words and offer a control to pick another (`symbol`); a flow has an icon on every step or none.
+  The CSS-drawn arrow and FAQ plus are gone; every glyph is the same family.
+- **Built-in drawings** (`EVPX\Support\Art`, `templates/art/`): the hero's schematic (a car on a charger, a
+  state-of-charge gauge, a floor that recedes) and six panels (`charge-curve`, `wallbox`, `dc-cabinet`, `grid-path`,
+  `wave-ac`, `wave-dc`), inline SVG on their own dark ground. They stand in for photographs, which this build
+  environment could not fetch: a Section takes one when it has no picture (`artwork`), the Comparison shows a wave or a
+  level with each panel (`art`), and a Related article with no featured image is given one (`art`). Their outlines
+  draw themselves in with motion, once; a pulse runs the cable; a band of light crosses the car; without motion they
+  are finished and still, and off screen nothing animates.
+- **Neon as a role of the copper** (`--evpx-neon`, `--evpx-neon-line`, `--evpx-glow`): a thin line and a soft halo,
+  never a fill, used where something is live or chosen. Depth stays neumorphic; the two meet in a recessed socket that
+  holds a lit icon.
+- **Hero v2.** A dark instrument panel: blueprint grid, corner marks, a light that follows a fine pointer, the byline
+  as a readout (icon, caption, value), the drawing at the right, and the copper line along the foot with a glow.
+  Below 64rem the drawing is a band under the copy; on a phone it is the car and the charger alone. `artwork`
+  (schematic or none) is a new control.
+- **The dark CTA is the default**, and closes the article the way the hero opens it: the grid, a copper glow and a neon
+  rule along its top edge. `accent` (the flat copper slab) and `media` remain.
+
+**Changed**
+- The accent focus ring is now one token, `--evpx-focus-ring`, and a surface where copper would vanish says so (white on
+  the copper CTA, neon on the hero, the dark CTA and the explorer).
+- The comparison's tabs are 44px tall, carry an icon, and the selected one has a copper rule along its foot as well as
+  its depth; the range bar has a key saying which bar is this panel and which outline is the other.
+- Every font size is a token on the nine-step scale (the rules that set a literal size were moved onto it), and nothing
+  meant to be read is smaller than 12px (three rules were 11px). The FAQ answer keeps to the reading measure plus its
+  padding (it ran to about 80 characters). Scroll reveals travel 18px, one after another 60ms apart (they travelled
+  28px, 90ms apart).
+- Related articles: an article without a picture is shown a drawing instead of switching the whole row to text.
+- A **forced-colours** block: an edge where the design used a shadow, system colours for the fills that carry meaning,
+  the hero's decoration taken away.
+- The explorer's sentences keep a figure and its unit on one line.
+
+**Fixed** (in the new work; bugs 45-51 in `docs/QA-REPORT.md`)
+- The hero drawing's horizon painted nothing (a gradient in object-bounding-box units on a line with no height).
+- The band of light crossing the car was invisible (a class that said `fill: none` beat the shape's `fill` attribute).
+- A label in the hero's drawing ran under the copy at every desktop width.
+- In the tablet band the drawing's floor, horizon and glow ended in vertical edges.
+- The explorer's chart labels scaled down with the chart to 9px.
+- The explorer overflowed a 220px box (a phone in a builder Section with its own padding), found by the 320px sweep.
+- The explorer's sentence could break between "122" and "km".
+
+**Added - tests**
+- `tests/playwright/explorer-qa.mjs`: the page before the script and after it; the script's model against the PHP one
+  over 200 cases (`tests/php/model-matrix.php`); the controls; six widths.
+- `tests/playwright/a11y-qa.mjs`: a focus ring at 3:1 on every control it reaches, in both colour schemes; targets;
+  12px; measure; icons; forced colours.
+- Render checks for icons, drawings, the explorer and the CTA's default; the interaction suite gains the hero drawing's
+  motion and its stillness, and a check that its labels and charger lie clear of the copy at seven widths.
+
 ## 0.5.0
 
 A design release. Yul's brief was that the article should look better than the reference it was benchmarked

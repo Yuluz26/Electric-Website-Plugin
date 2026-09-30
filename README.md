@@ -11,12 +11,20 @@ element inventory: `docs/ARCHITECTURE.md`.
 
 ## What's in the box
 
-Nine widgets — **EV Article Hero**, **EV Section**, **EV AC/DC Comparison**
-(signature component), **EV Scenario Cards**, **EV Technical Flow**, **EV Decision
+Ten widgets — **EV Article Hero**, **EV Section**, **EV AC/DC Comparison**
+(signature component), **EV Charging Explorer** (the one interactive: how long a car stays, which charger,
+what reaches the battery), **EV Scenario Cards**, **EV Technical Flow**, **EV Decision
 Factors**, **EV FAQ**, **EV Related Articles**, **EV CTA** — plus the three item elements
 that nest inside the container widgets. Each is a shortcode, a Gutenberg block *and* a native
 Breakdance element (category **EV Charging**), same renderer, same output. Full control
 reference: `docs/WIDGETS.md`.
+
+The look is dark instrument panels and light editorial pages, with copper drawn as light (a thin line and a
+soft halo, never a fill) and neumorphic depth used where something is pressed or raised. Two things carry it:
+one icon family (Phosphor Regular, MIT, inline SVG) and a small set of built-in drawings (a car on a charger,
+a charge curve, an AC wall box, a DC cabinet, the path from grid to charger, a wave and a level) that stand in
+for photographs until you have them. Both are drawn in the page, need no upload, and follow the design tokens.
+`docs/ARCHITECTURE.md` §5 has the design language; `docs/MEDIA-BRIEF.md` is what to shoot when you do want photographs.
 
 A complete demo article — "Choosing AC or DC Charging for Your Site," original copy
 grounded in independently-verified AC/DC charging facts, not copied from any reference — is
@@ -56,7 +64,9 @@ hand-rolled autoloader, so a plain ZIP upload always works. CSS and JS are hand-
 bash tests/docker/setup.sh                      # WordPress + MySQL in Docker, plugin active, demo imported
 node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"   # browser checks: axe-core, a 10-width overflow sweep, motion, no-JS
 node tests/playwright/interaction-qa.mjs "$(cat tests/docker/.demo-url)"   # hover, focus, motion on/off, the comparison thumb and range bar
-bash tests/docker/widget-render-check.sh        # what the widgets print (the power scale, the key figure, captions, escaping)
+node tests/playwright/explorer-qa.mjs "$(cat tests/docker/.demo-url)"      # the explorer: page before/after the script, the model against the PHP one, controls, six widths
+node tests/playwright/a11y-qa.mjs "$(cat tests/docker/.demo-url)"          # focus rings on every surface in both schemes, targets, type size, measure, icons, forced colours
+bash tests/docker/widget-render-check.sh        # what the widgets print (the power scale, the key figure, captions, icons, drawings, the explorer, escaping)
 node tests/contrast-check.mjs                   # WCAG pairings, read from the real tokens
 node tests/css-check.mjs                        # undefined tokens, selector scope, !important, ungated animation
 composer install && composer lint               # WordPress coding standards (see phpcs.xml.dist)
@@ -79,6 +89,8 @@ is served locally — the header of each script explains the details.
 
 ## Non-negotiables this plugin follows
 
+Icons and drawings are inline SVG in the page: no icon font, no sprite, no request, nothing to fail to load
+(the icon outlines are Phosphor's, MIT, in `assets/icons/LICENSE.txt`).
 Namespaced everywhere (`EVPX` in PHP, `.evpx-*` in CSS, `evpx_*`/`evpx/*`
 for shortcodes/blocks, `EVPXStudio` for Element Studio). No bare-element or global CSS selectors (one
 zero-specificity rule asks the box that holds a widget to fill its container; see the stylesheet header),

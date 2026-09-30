@@ -32,10 +32,10 @@ final class Cta extends Element {
 				'label'   => __( 'Visual variant', 'ev-charging-experience' ),
 				'type'    => 'select',
 				'group'   => 'visual',
-				'default' => 'accent',
+				'default' => 'dark',
 				'options' => array(
-					'accent' => __( 'Accent (copper)', 'ev-charging-experience' ),
 					'dark'   => __( 'Dark', 'ev-charging-experience' ),
+					'accent' => __( 'Accent (copper)', 'ev-charging-experience' ),
 					'media'  => __( 'Media background', 'ev-charging-experience' ),
 				),
 			),

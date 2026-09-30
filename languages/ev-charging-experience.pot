@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: EV Charging Experience 0.5.0\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: EV Charging Experience 0.6.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ev-charging-experience\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: \n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-29T11:54:41+00:00\n"
+"POT-Creation-Date: 2026-09-30T02:27:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ev-charging-experience\n"
@@ -18,7 +18,7 @@ msgstr ""
 #: ev-charging-experience.php
 #: src/Admin/Notices.php:39
 #: src/Breakdance/Fields/ReadingTimeField.php:23
-#: src/Elements/Registry.php:46
+#: src/Elements/Registry.php:47
 msgid "EV Charging Experience"
 msgstr ""
 
@@ -69,13 +69,13 @@ msgid "Content"
 msgstr ""
 
 #: src/Breakdance/Native/Controls.php:418
-#: src/Elements/Widgets/Section.php:29
+#: src/Elements/Widgets/Section.php:30
 #: assets/js/block-editor.js:38
 msgid "Media"
 msgstr ""
 
 #: src/Breakdance/Native/Controls.php:419
-#: src/Elements/Widgets/Section.php:33
+#: src/Elements/Widgets/Section.php:35
 #: assets/js/block-editor.js:39
 msgid "Layout"
 msgstr ""
@@ -120,136 +120,140 @@ msgstr ""
 msgid "None (the container already has padding)"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:19
+#: src/Elements/Widgets/Comparison.php:20
 msgid "EV AC/DC Comparison"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:25
+#: src/Elements/Widgets/Comparison.php:26
 msgid "AC title"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:25
+#: src/Elements/Widgets/Comparison.php:26
 msgid "AC Charging"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:26
+#: src/Elements/Widgets/Comparison.php:27
 msgid "AC description"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:27
+#: src/Elements/Widgets/Comparison.php:28
 msgid "AC power range"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:28
+#: src/Elements/Widgets/Comparison.php:29
 msgid "AC dwell-time label"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:28
+#: src/Elements/Widgets/Comparison.php:29
 msgid "Best for 2+ hour stays"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:29
+#: src/Elements/Widgets/Comparison.php:30
 msgid "AC best-for"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:29
+#: src/Elements/Widgets/Comparison.php:30
 msgid "Workplaces, hotels, residential"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:31
+#: src/Elements/Widgets/Comparison.php:32
 msgid "DC title"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:31
+#: src/Elements/Widgets/Comparison.php:32
 msgid "DC Fast Charging"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:32
+#: src/Elements/Widgets/Comparison.php:33
 msgid "DC description"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:33
+#: src/Elements/Widgets/Comparison.php:34
 msgid "DC power range"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:34
+#: src/Elements/Widgets/Comparison.php:35
 msgid "DC dwell-time label"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:34
+#: src/Elements/Widgets/Comparison.php:35
 msgid "Best for under 45 minutes"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:35
+#: src/Elements/Widgets/Comparison.php:36
 msgid "DC best-for"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:35
+#: src/Elements/Widgets/Comparison.php:36
 msgid "Highway corridors, fleet depots, retail"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:39
+#: src/Elements/Widgets/Comparison.php:40
 msgid "Interaction mode"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:44
+#: src/Elements/Widgets/Comparison.php:45
 msgid "Toggle (tabs)"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:45
+#: src/Elements/Widgets/Comparison.php:46
 msgid "Side-by-side"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:50
+#: src/Elements/Widgets/Comparison.php:51
 msgid "Accent treatment"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:55
+#: src/Elements/Widgets/Comparison.php:56
 msgid "Split accent (AC blue / DC copper)"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:56
+#: src/Elements/Widgets/Comparison.php:57
 msgid "Neutral"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:59
-msgid "Animation intensity"
-msgstr ""
-
 #: src/Elements/Widgets/Comparison.php:60
-msgid "Standard"
+msgid "Draw the current with each panel (a wave, a level)"
 msgstr ""
 
 #: src/Elements/Widgets/Comparison.php:61
-msgid "Subtle"
+msgid "Animation intensity"
 msgstr ""
 
 #: src/Elements/Widgets/Comparison.php:62
-msgid "Off"
+msgid "Standard"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:63
+msgid "Subtle"
 msgstr ""
 
 #: src/Elements/Widgets/Comparison.php:64
-msgid "Mobile layout"
-msgstr ""
-
-#: src/Elements/Widgets/Comparison.php:65
-msgid "Tabs"
+msgid "Off"
 msgstr ""
 
 #: src/Elements/Widgets/Comparison.php:66
+msgid "Mobile layout"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:67
+msgid "Tabs"
+msgstr ""
+
+#: src/Elements/Widgets/Comparison.php:68
 msgid "Stacked cards"
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:73
+#: src/Elements/Widgets/Comparison.php:75
 msgid "Grid power passes to the vehicle, whose onboard charger converts it to DC. Slower, simpler and cheaper to install."
 msgstr ""
 
-#: src/Elements/Widgets/Comparison.php:74
+#: src/Elements/Widgets/Comparison.php:76
 msgid "The charger converts to DC itself and feeds the battery directly. Much faster, with heavier equipment and a bigger grid connection."
 msgstr ""
 
 #. translators: %s: the top of the power scale, a number of kilowatts.
-#: src/Elements/Widgets/Comparison.php:138
+#: src/Elements/Widgets/Comparison.php:142
 #, php-format
 msgid "%s kW"
 msgstr ""
@@ -260,17 +264,18 @@ msgstr ""
 
 #: src/Elements/Widgets/Cta.php:24
 #: src/Elements/Widgets/DecisionFactors.php:25
+#: src/Elements/Widgets/Explorer.php:38
 #: src/Elements/Widgets/Faq.php:25
-#: src/Elements/Widgets/RelatedArticles.php:28
+#: src/Elements/Widgets/RelatedArticles.php:29
 #: src/Elements/Widgets/ScenarioCards.php:25
-#: src/Elements/Widgets/Section.php:24
-#: src/Elements/Widgets/Section.php:62
+#: src/Elements/Widgets/Section.php:25
+#: src/Elements/Widgets/Section.php:64
 msgid "Eyebrow"
 msgstr ""
 
 #: src/Elements/Widgets/Cta.php:25
-#: src/Elements/Widgets/Hero.php:25
-#: src/Elements/Widgets/ScenarioCard.php:25
+#: src/Elements/Widgets/Hero.php:26
+#: src/Elements/Widgets/ScenarioCard.php:26
 msgid "Title"
 msgstr ""
 
@@ -303,68 +308,73 @@ msgid "Visual variant"
 msgstr ""
 
 #: src/Elements/Widgets/Cta.php:37
-msgid "Accent (copper)"
+msgid "Dark"
 msgstr ""
 
 #: src/Elements/Widgets/Cta.php:38
-msgid "Dark"
+msgid "Accent (copper)"
 msgstr ""
 
 #: src/Elements/Widgets/Cta.php:39
 msgid "Media background"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:19
+#: src/Elements/Widgets/DecisionFactor.php:20
 msgid "EV Decision Factor"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:24
+#: src/Elements/Widgets/DecisionFactor.php:25
 msgid "Factor"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:25
-#: src/Elements/Widgets/ScenarioCard.php:26
+#: src/Elements/Widgets/DecisionFactor.php:26
+#: src/Elements/Widgets/ScenarioCard.php:27
 msgid "Description"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:26
+#: src/Elements/Widgets/DecisionFactor.php:27
 msgid "Question to ask"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:33
-#: templates/comparison.php:90
-msgid "Dwell time"
-msgstr ""
-
-#: src/Elements/Widgets/DecisionFactor.php:34
-msgid "How long a vehicle realistically stays on site. It caps how much energy a session can deliver."
+#: src/Elements/Widgets/DecisionFactor.php:28
+#: src/Elements/Widgets/ScenarioCard.php:28
+msgid "Icon"
 msgstr ""
 
 #: src/Elements/Widgets/DecisionFactor.php:35
+#: templates/comparison.php:100
+msgid "Dwell time"
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactor.php:36
+msgid "How long a vehicle realistically stays on site. It caps how much energy a session can deliver."
+msgstr ""
+
+#: src/Elements/Widgets/DecisionFactor.php:37
 msgid "How long does a typical vehicle stay, and does that change by time of day?"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:38
+#: src/Elements/Widgets/DecisionFactor.php:40
 msgid "Site capacity"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:39
+#: src/Elements/Widgets/DecisionFactor.php:41
 msgid "The electrical supply available at the site, and what it would take to increase it."
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:40
+#: src/Elements/Widgets/DecisionFactor.php:42
 msgid "What spare capacity does the site connection have today?"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:43
+#: src/Elements/Widgets/DecisionFactor.php:45
 msgid "Future growth"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:44
+#: src/Elements/Widgets/DecisionFactor.php:46
 msgid "Reserving capacity and running conduit now is usually cheaper than reopening the ground later."
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactor.php:45
+#: src/Elements/Widgets/DecisionFactor.php:47
 msgid "What would we need if the number of EV drivers on site doubled?"
 msgstr ""
 
@@ -373,11 +383,12 @@ msgid "EV Decision Factors"
 msgstr ""
 
 #: src/Elements/Widgets/DecisionFactors.php:26
+#: src/Elements/Widgets/Explorer.php:39
 #: src/Elements/Widgets/Faq.php:26
-#: src/Elements/Widgets/RelatedArticles.php:29
+#: src/Elements/Widgets/RelatedArticles.php:30
 #: src/Elements/Widgets/ScenarioCards.php:26
-#: src/Elements/Widgets/Section.php:25
-#: src/Elements/Widgets/TechnicalFlow.php:32
+#: src/Elements/Widgets/Section.php:26
+#: src/Elements/Widgets/TechnicalFlow.php:33
 msgid "Heading"
 msgstr ""
 
@@ -386,9 +397,10 @@ msgid "Intro"
 msgstr ""
 
 #: src/Elements/Widgets/DecisionFactors.php:28
-#: src/Elements/Widgets/RelatedArticles.php:55
+#: src/Elements/Widgets/Explorer.php:58
+#: src/Elements/Widgets/RelatedArticles.php:57
 #: src/Elements/Widgets/ScenarioCards.php:31
-#: src/Elements/Widgets/Section.php:56
+#: src/Elements/Widgets/Section.php:58
 msgid "Enable scroll reveal"
 msgstr ""
 
@@ -402,6 +414,119 @@ msgstr ""
 
 #: src/Elements/Widgets/DecisionFactors.php:40
 msgid "A short lead-in to the factors below."
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:27
+msgid "EV Charging Explorer"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:38
+msgid "Try it"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:39
+msgid "What does your dwell time buy?"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:40
+msgid "Introduction"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:40
+msgid "Set how long a car stays, then try each charger. Watch where more power stops helping."
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:41
+msgid "Starting dwell time"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:42
+msgid "Starting charger"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:43
+msgid "AC 7 kW"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:44
+msgid "AC 22 kW"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:45
+msgid "DC 50 kW"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:46
+msgid "DC 150 kW"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:47
+msgid "DC 350 kW"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:49
+msgid "Usable battery, kWh (20 to 150)"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:50
+msgid "Charge on arrival, % (0 to 90)"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:51
+msgid "Car's onboard AC charger, kW (3 to 22)"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:52
+msgid "Car's peak DC power, kW (20 to 400)"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:53
+msgid "Car's consumption, kWh per 100 km (10 to 40)"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:54
+msgid "Distance unit"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:55
+msgid "Kilometres"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:56
+msgid "Miles"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:95
+#: src/Elements/Widgets/Explorer.php:194
+msgctxt "unit: hours"
+msgid "h"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:96
+#: src/Elements/Widgets/Explorer.php:195
+msgctxt "unit: minutes"
+msgid "min"
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:97
+msgid "In {time}, a {kw} charger adds about {energy}: {range} of range."
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:98
+msgid "The car takes at most {limit}, so any power above that goes unused."
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:99
+msgid "The battery is full after {full}; time beyond that adds nothing."
+msgstr ""
+
+#: src/Elements/Widgets/Explorer.php:100
+msgid "{kw} charger"
+msgstr ""
+
+#. translators: the numbers are the widget's settings: battery kWh, arrival charge %, onboard AC kW, peak DC kW, consumption kWh per 100 km.
+#: src/Elements/Widgets/Explorer.php:121
+msgid "Illustrative: a {battery} kWh battery arriving at {start}%, an onboard AC charger of {ac} kW, DC accepted up to {dc} kW and tapering above half full, {use} kWh per 100 km. Real cars vary."
 msgstr ""
 
 #: src/Elements/Widgets/Faq.php:19
@@ -456,218 +581,236 @@ msgstr ""
 msgid "In the Content tab, under the items list: add, reorder or delete rows. Replace this copy with your own."
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:19
+#: src/Elements/Widgets/Hero.php:20
 msgid "EV Article Hero"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:24
+#: src/Elements/Widgets/Hero.php:25
 msgid "Category label"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:24
+#: src/Elements/Widgets/Hero.php:25
 msgid "EV Infrastructure"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:25
+#: src/Elements/Widgets/Hero.php:26
 msgid "Choosing AC or DC Charging for Your Site"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:26
+#: src/Elements/Widgets/Hero.php:27
 msgid "Dek / summary"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:27
+#: src/Elements/Widgets/Hero.php:28
 msgid "Author"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:28
+#: src/Elements/Widgets/Hero.php:29
 msgid "Published date"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:29
+#: src/Elements/Widgets/Hero.php:30
 msgid "Reading time (blank = auto)"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:30
+#: src/Elements/Widgets/Hero.php:31
 msgid "Hero media"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:31
-#: src/Elements/Widgets/Section.php:30
+#: src/Elements/Widgets/Hero.php:32
+#: src/Elements/Widgets/Section.php:31
 msgid "Media alt text override"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:32
-#: src/Elements/Widgets/ScenarioCard.php:30
+#: src/Elements/Widgets/Hero.php:33
+#: src/Elements/Widgets/ScenarioCard.php:32
 msgid "CTA label"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:33
-#: src/Elements/Widgets/ScenarioCard.php:31
+#: src/Elements/Widgets/Hero.php:34
+#: src/Elements/Widgets/ScenarioCard.php:33
 msgid "CTA URL"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:36
+#: src/Elements/Widgets/Hero.php:37
 msgid "Visual mode"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:41
+#: src/Elements/Widgets/Hero.php:42
 msgid "Dark (cinematic)"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:42
+#: src/Elements/Widgets/Hero.php:43
 msgid "Light"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:43
+#: src/Elements/Widgets/Hero.php:44
 msgid "Follow system"
 msgstr ""
 
-#: src/Elements/Widgets/Hero.php:46
-msgid "Enable entrance animation"
-msgstr ""
-
 #: src/Elements/Widgets/Hero.php:49
-msgid "Title heading level (use h2 if your theme already prints the page title as h1)"
+msgid "Artwork (shown when there is no picture)"
 msgstr ""
 
 #: src/Elements/Widgets/Hero.php:54
-msgid "h1"
+msgid "Charging schematic"
 msgstr ""
 
 #: src/Elements/Widgets/Hero.php:55
-msgid "h2"
+msgid "None, the grid only"
 msgstr ""
 
 #: src/Elements/Widgets/Hero.php:58
+msgid "Enable entrance animation"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:61
+msgid "Title heading level (use h2 if your theme already prints the page title as h1)"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:66
+msgid "h1"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:67
+msgid "h2"
+msgstr ""
+
+#: src/Elements/Widgets/Hero.php:70
 msgid "Show reading progress bar"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:22
+#: src/Elements/Widgets/RelatedArticles.php:23
 msgid "EV Related Articles"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:28
+#: src/Elements/Widgets/RelatedArticles.php:29
 msgid "Keep reading"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:29
+#: src/Elements/Widgets/RelatedArticles.php:30
 msgid "Related articles"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:32
+#: src/Elements/Widgets/RelatedArticles.php:33
 msgid "Which articles"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:37
+#: src/Elements/Widgets/RelatedArticles.php:38
 msgid "Same category as this page (falls back to latest)"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:38
+#: src/Elements/Widgets/RelatedArticles.php:39
 msgid "Latest published"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:39
+#: src/Elements/Widgets/RelatedArticles.php:40
 msgid "Hand-picked by ID"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:42
+#: src/Elements/Widgets/RelatedArticles.php:43
 msgid "Post IDs, comma-separated (hand-picked only)"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:43
+#: src/Elements/Widgets/RelatedArticles.php:44
 msgid "Post type"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:46
+#: src/Elements/Widgets/RelatedArticles.php:47
 msgid "How many"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:51
+#: src/Elements/Widgets/RelatedArticles.php:52
 #: src/Elements/Widgets/ScenarioCards.php:28
 msgid "2"
 msgstr ""
 
-#: src/Elements/Widgets/RelatedArticles.php:52
+#: src/Elements/Widgets/RelatedArticles.php:53
 #: src/Elements/Widgets/ScenarioCards.php:29
 msgid "3"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:19
+#: src/Elements/Widgets/RelatedArticles.php:56
+msgid "Draw a picture for articles that have none"
+msgstr ""
+
+#: src/Elements/Widgets/ScenarioCard.php:20
 msgid "EV Scenario Card"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:24
+#: src/Elements/Widgets/ScenarioCard.php:25
 msgid "Scenario label"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:27
-msgid "Icon / media"
+#: src/Elements/Widgets/ScenarioCard.php:29
+msgid "Own icon image (replaces the icon)"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:28
-#: templates/scenario-card.php:35
+#: src/Elements/Widgets/ScenarioCard.php:30
+#: templates/scenario-card.php:41
 msgid "Key requirement"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:29
+#: src/Elements/Widgets/ScenarioCard.php:31
 msgid "Recommended charging approach"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:38
+#: src/Elements/Widgets/ScenarioCard.php:40
+#: src/Support/Icons.php:62
 msgid "Workplace"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:39
+#: src/Elements/Widgets/ScenarioCard.php:41
 msgid "Employees, all day"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:40
+#: src/Elements/Widgets/ScenarioCard.php:42
 msgid "Cars sit for 6–9 hours, so AC charging fills most batteries at a fraction of the cost of DC."
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:41
+#: src/Elements/Widgets/ScenarioCard.php:43
 msgid "Enough AC ports for shift overlap"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:42
+#: src/Elements/Widgets/ScenarioCard.php:44
 msgid "AC across the lot"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:45
+#: src/Elements/Widgets/ScenarioCard.php:47
+#: src/Support/Icons.php:65
 msgid "Retail"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:46
+#: src/Elements/Widgets/ScenarioCard.php:48
 msgid "Shoppers, under an hour"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:47
+#: src/Elements/Widgets/ScenarioCard.php:49
 msgid "Short, unpredictable dwell time: AC cannot add meaningful range in the time available."
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:48
+#: src/Elements/Widgets/ScenarioCard.php:50
 msgid "Fast, unattended charging"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:49
-#: src/Elements/Widgets/ScenarioCard.php:56
+#: src/Elements/Widgets/ScenarioCard.php:51
+#: src/Elements/Widgets/ScenarioCard.php:58
 msgid "DC fast charging"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:52
+#: src/Elements/Widgets/ScenarioCard.php:54
 msgid "Highway corridor"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:53
+#: src/Elements/Widgets/ScenarioCard.php:55
 msgid "Trip charging"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:54
+#: src/Elements/Widgets/ScenarioCard.php:56
 msgid "Drivers are travelling, not staying. Speed is the whole value of the stop."
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:55
+#: src/Elements/Widgets/ScenarioCard.php:57
 msgid "High uptime, high power"
 msgstr ""
 
@@ -687,114 +830,277 @@ msgstr ""
 msgid "How this plays out by site type"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:18
+#: src/Elements/Widgets/Section.php:19
 msgid "EV Section"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:26
+#: src/Elements/Widgets/Section.php:27
 msgid "Body copy"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:27
+#: src/Elements/Widgets/Section.php:28
 msgid "Key figure (a number or range, optional)"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:28
+#: src/Elements/Widgets/Section.php:29
 msgid "Key figure caption"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:38
-msgid "Text left, media right"
-msgstr ""
-
-#: src/Elements/Widgets/Section.php:39
-msgid "Media left, text right"
+#: src/Elements/Widgets/Section.php:32
+msgid "Drawing (used when there is no media)"
 msgstr ""
 
 #: src/Elements/Widgets/Section.php:40
-msgid "Media above text"
+msgid "Text left, media right"
 msgstr ""
 
 #: src/Elements/Widgets/Section.php:41
+msgid "Media left, text right"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:42
+msgid "Media above text"
+msgstr ""
+
+#: src/Elements/Widgets/Section.php:43
 msgid "Text only"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:46
+#: src/Elements/Widgets/Section.php:48
 msgid "Surface treatment"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:51
+#: src/Elements/Widgets/Section.php:53
 msgid "Flat (editorial)"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:52
+#: src/Elements/Widgets/Section.php:54
 msgid "Raised (neumorphic)"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:53
+#: src/Elements/Widgets/Section.php:55
 msgid "Recessed (neumorphic)"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:63
+#: src/Elements/Widgets/Section.php:65
 msgid "A clear heading for this section"
 msgstr ""
 
-#: src/Elements/Widgets/Section.php:64
+#: src/Elements/Widgets/Section.php:66
 msgid "Say the point in a sentence or two. Replace this copy in the Content tab."
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:19
+#: src/Elements/Widgets/TechnicalFlow.php:20
 msgid "EV Technical Flow"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:24
+#: src/Elements/Widgets/TechnicalFlow.php:25
+#: templates/art/grid-path.php:105
 msgid "Grid"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:25
+#: src/Elements/Widgets/TechnicalFlow.php:26
 msgid "Site Infrastructure"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:26
+#: src/Elements/Widgets/TechnicalFlow.php:27
+#: templates/art/grid-path.php:108
+#: templates/explorer.php:63
 msgid "Charger"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:27
+#: src/Elements/Widgets/TechnicalFlow.php:28
 msgid "Vehicle"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:28
+#: src/Elements/Widgets/TechnicalFlow.php:29
+#: src/Support/Icons.php:44
+#: templates/art/hero-schematic.php:140
+#: templates/explorer.php:101
 msgid "Battery"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:32
+#: src/Elements/Widgets/TechnicalFlow.php:33
 msgid "How Charging Reaches the Vehicle"
 msgstr ""
 
 #. translators: %d: step number
-#: src/Elements/Widgets/TechnicalFlow.php:39
+#: src/Elements/Widgets/TechnicalFlow.php:40
 #, php-format
 msgid "Step %d label"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:48
+#: src/Elements/Widgets/TechnicalFlow.php:49
 msgid "Direction"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:53
+#: src/Elements/Widgets/TechnicalFlow.php:54
 msgid "Horizontal"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:54
+#: src/Elements/Widgets/TechnicalFlow.php:55
 msgid "Vertical"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:57
+#: src/Elements/Widgets/TechnicalFlow.php:58
 msgid "Compact mode"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:58
+#: src/Elements/Widgets/TechnicalFlow.php:59
+msgid "Show icons (otherwise step numbers)"
+msgstr ""
+
+#: src/Elements/Widgets/TechnicalFlow.php:60
 msgid "Enable sequence animation"
+msgstr ""
+
+#: src/Support/Art.php:29
+#: src/Support/Icons.php:83
+msgid "None"
+msgstr ""
+
+#: src/Support/Art.php:30
+msgid "Charge curve: AC against DC"
+msgstr ""
+
+#: src/Support/Art.php:31
+msgid "AC wall box"
+msgstr ""
+
+#: src/Support/Art.php:32
+msgid "DC fast charger"
+msgstr ""
+
+#: src/Support/Art.php:33
+msgid "Grid to charger"
+msgstr ""
+
+#: src/Support/Art.php:34
+msgid "Alternating current (a wave)"
+msgstr ""
+
+#: src/Support/Art.php:35
+msgid "Direct current (a level)"
+msgstr ""
+
+#: src/Support/Icons.php:39
+msgid "Lightning"
+msgstr ""
+
+#: src/Support/Icons.php:40
+msgid "Plug"
+msgstr ""
+
+#: src/Support/Icons.php:41
+msgid "Charging station"
+msgstr ""
+
+#: src/Support/Icons.php:42
+msgid "Car"
+msgstr ""
+
+#: src/Support/Icons.php:43
+msgid "Battery charging"
+msgstr ""
+
+#: src/Support/Icons.php:45
+msgid "Gauge"
+msgstr ""
+
+#: src/Support/Icons.php:46
+msgid "Clock"
+msgstr ""
+
+#: src/Support/Icons.php:47
+msgid "Timer"
+msgstr ""
+
+#: src/Support/Icons.php:48
+msgid "Turnover"
+msgstr ""
+
+#: src/Support/Icons.php:49
+msgid "Alternating current"
+msgstr ""
+
+#: src/Support/Icons.php:50
+msgid "Circuitry"
+msgstr ""
+
+#: src/Support/Icons.php:51
+msgid "Electronics"
+msgstr ""
+
+#: src/Support/Icons.php:52
+msgid "Network"
+msgstr ""
+
+#: src/Support/Icons.php:53
+msgid "Flow"
+msgstr ""
+
+#: src/Support/Icons.php:54
+msgid "Installation"
+msgstr ""
+
+#: src/Support/Icons.php:55
+msgid "Cost"
+msgstr ""
+
+#: src/Support/Icons.php:56
+msgid "Growth"
+msgstr ""
+
+#: src/Support/Icons.php:57
+msgid "Settings"
+msgstr ""
+
+#: src/Support/Icons.php:58
+msgid "Assurance"
+msgstr ""
+
+#: src/Support/Icons.php:59
+msgid "Sustainability"
+msgstr ""
+
+#: src/Support/Icons.php:60
+msgid "Solar"
+msgstr ""
+
+#: src/Support/Icons.php:61
+msgid "Overnight"
+msgstr ""
+
+#: src/Support/Icons.php:63
+msgid "Hotel"
+msgstr ""
+
+#: src/Support/Icons.php:64
+msgid "Home"
+msgstr ""
+
+#: src/Support/Icons.php:66
+msgid "Fleet"
+msgstr ""
+
+#: src/Support/Icons.php:67
+msgid "Highway"
+msgstr ""
+
+#: src/Support/Icons.php:68
+msgid "Garage"
+msgstr ""
+
+#: src/Support/Icons.php:69
+msgid "Location"
+msgstr ""
+
+#: src/Support/Icons.php:70
+msgid "Industry"
+msgstr ""
+
+#: src/Support/Icons.php:82
+msgid "Automatic"
 msgstr ""
 
 #. translators: %d: number of minutes
@@ -805,33 +1111,61 @@ msgid_plural "%d min read"
 msgstr[0] ""
 msgstr[1] ""
 
+#: templates/art/grid-path.php:106
+msgid "Transformer"
+msgstr ""
+
+#: templates/art/grid-path.php:107
+msgid "Panel"
+msgstr ""
+
+#: templates/art/hero-schematic.php:148
+msgid "State of charge"
+msgstr ""
+
 #: templates/comparison.php:34
 msgid "Charging type"
 msgstr ""
 
-#: templates/comparison.php:72
+#: templates/comparison.php:77
 msgid "Power range"
 msgstr ""
 
-#: templates/comparison.php:94
+#: templates/comparison.php:104
 msgid "Best for"
 msgstr ""
 
-#: templates/decision-factor.php:20
+#: templates/decision-factor.php:24
 msgid "Ask"
 msgstr ""
 
-#: templates/hero.php:55
+#: templates/explorer.php:51
+msgid "How long the car stays"
+msgstr ""
+
+#: templates/explorer.php:77
+msgid "Energy added in this time, by charger"
+msgstr ""
+
+#: templates/explorer.php:91
+msgid "Energy"
+msgstr ""
+
+#: templates/explorer.php:95
+msgid "Range"
+msgstr ""
+
+#: templates/hero.php:63
 msgctxt "article byline caption"
 msgid "Author"
 msgstr ""
 
-#: templates/hero.php:56
+#: templates/hero.php:64
 msgctxt "article date caption"
 msgid "Published"
 msgstr ""
 
-#: templates/hero.php:57
+#: templates/hero.php:65
 msgctxt "article length caption"
 msgid "Reading time"
 msgstr ""
@@ -840,7 +1174,7 @@ msgstr ""
 msgid "Related articles will appear here once other published posts match. Visitors see nothing until then."
 msgstr ""
 
-#: templates/scenario-card.php:38
+#: templates/scenario-card.php:44
 msgid "Recommended approach"
 msgstr ""
 

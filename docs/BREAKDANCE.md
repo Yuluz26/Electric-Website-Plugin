@@ -7,7 +7,7 @@ says what that covered and what it didn't). Other versions are untested.
 
 | | What you get | Use it when |
 |---|---|---|
-| **Native elements** | Nine EV elements in the builder's Add panel, under **EV Charging**, with real controls, a repeater for items, Dynamic Data on text fields and live canvas rendering | You build pages in Breakdance. This is the default. |
+| **Native elements** | Ten EV elements in the builder's Add panel, under **EV Charging**, with real controls, a repeater for items, Dynamic Data on text fields and live canvas rendering | You build pages in Breakdance. This is the default. |
 | **Shortcode element** | Breakdance's own Shortcode element with `[evpx_hero …]` etc. | You already have shortcodes (the demo article, existing content), or want the exact same markup as on a non-Breakdance page |
 | **Element Studio** | A save location, "EV Charging Elements", for elements you design yourself on top of the plugin's CSS | You want a variation the controls don't offer |
 

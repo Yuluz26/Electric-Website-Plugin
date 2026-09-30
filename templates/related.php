@@ -5,7 +5,7 @@
  * @var string                         $heading
  * @var string                         $count
  * @var bool                           $animate
- * @var array<int, array<string,string>> $items
+ * @var array<int, array<string,string>> $items image_html is a picture, or a drawing when is_art is set.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -29,9 +29,9 @@ $show_images = ! in_array( '', array_column( $items, 'image_html' ), true );
 			<?php foreach ( $items as $item ) : ?>
 				<li class="evpx-related__item" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
 					<?php if ( $show_images ) : ?>
-						<div class="evpx-related__media">
-							<?php echo $item['image_html']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_the_post_thumbnail() output */ ?>
-							<span class="evpx-related__go" aria-hidden="true"><span class="evpx-button__arrow"></span></span>
+						<div class="evpx-related__media<?php echo $item['is_art'] ? ' evpx-artpanel' : ''; ?>">
+							<?php echo $item['image_html']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_the_post_thumbnail() output, or inline SVG from EVPX\Support\Art */ ?>
+							<span class="evpx-related__go" aria-hidden="true"><?php echo \EVPX\Support\Icons::svg( 'arrow-up-right', 'evpx-button__arrow' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?></span>
 						</div>
 					<?php endif; ?>
 

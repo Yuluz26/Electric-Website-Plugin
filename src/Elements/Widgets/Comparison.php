@@ -3,6 +3,7 @@
 namespace EVPX\Elements\Widgets;
 
 use EVPX\Elements\Element;
+use EVPX\Support\Art;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -56,6 +57,7 @@ final class Comparison extends Element {
 					'neutral' => __( 'Neutral', 'ev-charging-experience' ),
 				),
 			),
+			array( 'key' => 'art', 'label' => __( 'Draw the current with each panel (a wave, a level)', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'visual', 'default' => true ),
 			array( 'key' => 'animation_intensity', 'label' => __( 'Animation intensity', 'ev-charging-experience' ), 'type' => 'select', 'group' => 'motion', 'default' => 'standard', 'options' => array(
 				'standard' => __( 'Standard', 'ev-charging-experience' ),
 				'subtle'   => __( 'Subtle', 'ev-charging-experience' ),
@@ -93,6 +95,7 @@ final class Comparison extends Element {
 					'power_range' => $atts['ac_power_range'],
 					'dwell_label' => $atts['ac_dwell_label'],
 					'best_for'    => $atts['ac_best_for'],
+					'art'         => $atts['art'] ? Art::panel( 'wave-ac' ) : '',
 				),
 				'dc' => array(
 					'title'       => $atts['dc_title'],
@@ -100,6 +103,7 @@ final class Comparison extends Element {
 					'power_range' => $atts['dc_power_range'],
 					'dwell_label' => $atts['dc_dwell_label'],
 					'best_for'    => $atts['dc_best_for'],
+					'art'         => $atts['art'] ? Art::panel( 'wave-dc' ) : '',
 				),
 				'rulers'              => $this->rulers( $atts['ac_power_range'], $atts['dc_power_range'] ),
 				'mode'                => $atts['mode'],

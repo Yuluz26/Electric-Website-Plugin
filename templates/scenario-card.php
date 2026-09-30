@@ -3,7 +3,8 @@
  * @var string $scenario
  * @var string $title
  * @var string $description HTML
- * @var string $icon_html
+ * @var string $icon_html Own image, or ''.
+ * @var string $symbol Icon name from EVPX\Support\Icons, or ''.
  * @var string $requirement
  * @var string $recommendation
  * @var string $cta_label
@@ -15,12 +16,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <article class="evpx-scenario-card evpx-surface--raised-sm" data-evpx-reveal data-evpx-spot>
-	<?php if ( $icon_html ) : ?>
-		<div class="evpx-scenario-card__icon"><?php echo $icon_html; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() output */ ?></div>
-	<?php endif; ?>
-
-	<?php if ( $scenario ) : ?>
-		<p class="evpx-eyebrow evpx-scenario-card__label"><?php echo esc_html( $scenario ); ?></p>
+	<?php if ( $icon_html || $symbol || $scenario ) : ?>
+		<header class="evpx-scenario-card__head">
+			<?php if ( $icon_html ) : ?>
+				<span class="evpx-iconchip evpx-scenario-card__icon"><?php echo $icon_html; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() output */ ?></span>
+			<?php elseif ( $symbol ) : ?>
+				<span class="evpx-iconchip evpx-scenario-card__icon"><?php echo \EVPX\Support\Icons::svg( $symbol ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?></span>
+			<?php endif; ?>
+			<?php if ( $scenario ) : ?>
+				<p class="evpx-eyebrow evpx-scenario-card__label"><?php echo esc_html( $scenario ); ?></p>
+			<?php endif; ?>
+		</header>
 	<?php endif; ?>
 
 	<h3 class="evpx-scenario-card__title"><?php echo esc_html( $title ); ?></h3>
@@ -43,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php if ( $cta_label && $cta_url ) : ?>
 		<a class="evpx-scenario-card__cta" href="<?php echo esc_url( $cta_url ); ?>">
 			<?php echo esc_html( $cta_label ); ?>
-			<span class="evpx-button__arrow" aria-hidden="true"></span>
+			<?php echo \EVPX\Support\Icons::svg( 'arrow-right', 'evpx-button__arrow' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?>
 		</a>
 	<?php endif; ?>
 </article>

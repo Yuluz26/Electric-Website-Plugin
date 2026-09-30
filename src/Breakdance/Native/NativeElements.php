@@ -17,7 +17,7 @@ final class NativeElements {
 	public const CATEGORY = 'evpx';
 
 	/** One file per element in src/Breakdance/Native/elements/, named like the class it declares. */
-	private const ELEMENTS = array( 'Hero', 'Section', 'Comparison', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' );
+	private const ELEMENTS = array( 'Hero', 'Section', 'Comparison', 'Explorer', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' );
 
 	public function register(): void {
 		// Priority 9, like the Element Studio save location: before Breakdance's own priority-10

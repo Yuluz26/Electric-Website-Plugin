@@ -27,7 +27,8 @@ $panel_id    = $id . '-a';
 			aria-controls="<?php echo esc_attr( $panel_id ); ?>"
 		>
 			<span><?php echo esc_html( $question ); ?></span>
-			<span class="evpx-faq__icon" aria-hidden="true"></span>
+			<?php // The knob holds a plus and a minus, one over the other; the stylesheet shows the one that fits the state. ?>
+			<span class="evpx-faq__icon" aria-hidden="true"><?php echo \EVPX\Support\Icons::svg( 'plus' ) . \EVPX\Support\Icons::svg( 'minus' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?></span>
 		</button>
 	</h3>
 	<div

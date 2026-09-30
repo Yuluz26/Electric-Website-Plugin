@@ -3,6 +3,7 @@
 namespace EVPX\Elements\Widgets;
 
 use EVPX\Elements\Element;
+use EVPX\Support\Icons;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -55,6 +56,7 @@ final class TechnicalFlow extends Element {
 			),
 		);
 		$controls[] = array( 'key' => 'compact', 'label' => __( 'Compact mode', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'layout', 'default' => false );
+		$controls[] = array( 'key' => 'icons', 'label' => __( 'Show icons (otherwise step numbers)', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'visual', 'default' => true );
 		$controls[] = array( 'key' => 'animate', 'label' => __( 'Enable sequence animation', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true );
 
 		$controls[] = self::spacingControl();
@@ -68,12 +70,25 @@ final class TechnicalFlow extends Element {
 			$steps[] = $atts[ "step{$n}_label" ];
 		}
 
+		// One icon per step, or none at all: a row where only some steps have one would read as a mistake.
+		$symbols = array_map(
+			static function ( $label ) {
+				return Icons::guess( (string) $label );
+			},
+			$steps
+		);
+
+		if ( ! $atts['icons'] || in_array( '', $symbols, true ) ) {
+			$symbols = array_fill( 0, count( $steps ), '' );
+		}
+
 		return $this->view(
 			'technical-flow',
 			array(
-				'spacing' => $atts['spacing'],
+				'spacing'   => $atts['spacing'],
 				'heading'   => $atts['heading'],
 				'steps'     => $steps,
+				'symbols'   => $symbols,
 				'direction' => $atts['direction'],
 				'compact'   => $atts['compact'],
 				'animate'   => $atts['animate'],

@@ -13,8 +13,8 @@ ev-charging-experience/
 ├── ev-charging-experience.php
 ├── composer.json
 ├── src/
-├── assets/                (css, js, fonts)
-├── templates/
+├── assets/                (css, js, fonts, icons: the Phosphor licence)
+├── templates/             (one view per element; art/ holds the built-in drawings)
 ├── languages/
 ├── element-studio/        (empty save-location folders + .gitkeep)
 ├── docs/

@@ -147,7 +147,7 @@
 			return;
 		}
 
-		gsap.set( held, { autoAlpha: 0, y: 28 } );
+		gsap.set( held, { autoAlpha: 0, y: 18 } );
 
 		ScrollTrigger.batch( held, {
 			start: 'top 85%',
@@ -159,7 +159,7 @@
 					y: 0,
 					duration: 0.9,
 					ease: EASE,
-					stagger: 0.09,
+					stagger: 0.06,
 					overwrite: true,
 					clearProps: 'transform', // keep CSS :hover transforms working
 				} );

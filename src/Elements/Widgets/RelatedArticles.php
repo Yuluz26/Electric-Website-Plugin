@@ -3,6 +3,7 @@
 namespace EVPX\Elements\Widgets;
 
 use EVPX\Elements\Element;
+use EVPX\Support\Art;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -52,6 +53,7 @@ final class RelatedArticles extends Element {
 					'3' => __( '3', 'ev-charging-experience' ),
 				),
 			),
+			array( 'key' => 'art', 'label' => __( 'Draw a picture for articles that have none', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'visual', 'default' => true ),
 			array( 'key' => 'animate', 'label' => __( 'Enable scroll reveal', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true ),
 		);
 	}
@@ -76,6 +78,19 @@ final class RelatedArticles extends Element {
 			return current_user_can( 'edit_posts' ) ? $this->view( 'related-empty' ) : '';
 		}
 
+		$items = array_map( array( $this, 'prepareItem' ), array_values( $posts ) );
+
+		// An article without a picture is given a drawing (a different one each), so a row never has a blank tile
+		// beside a photograph; with the toggle off, a row where any article lacks a picture shows none.
+		if ( $atts['art'] ) {
+			foreach ( $items as $index => $item ) {
+				if ( '' === $item['image_html'] ) {
+					$items[ $index ]['image_html'] = Art::render( Art::nth( $index ) );
+					$items[ $index ]['is_art']     = '1';
+				}
+			}
+		}
+
 		return $this->view(
 			'related',
 			array(
@@ -84,7 +99,7 @@ final class RelatedArticles extends Element {
 				'heading' => $atts['heading'],
 				'count'   => $atts['count'],
 				'animate' => $atts['animate'],
-				'items'   => array_map( array( $this, 'prepareItem' ), $posts ),
+				'items'   => $items,
 			)
 		);
 	}
@@ -143,6 +158,7 @@ final class RelatedArticles extends Element {
 			'date'       => get_the_date( '', $post ),
 			'date_iso'   => get_the_date( 'c', $post ),
 			'category'   => ! empty( $categories ) ? $categories[0]->name : '',
+			'is_art'     => '',
 			'image_html' => (string) get_the_post_thumbnail(
 				$post,
 				'medium_large',

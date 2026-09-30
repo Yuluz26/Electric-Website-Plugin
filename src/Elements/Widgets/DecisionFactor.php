@@ -3,6 +3,7 @@
 namespace EVPX\Elements\Widgets;
 
 use EVPX\Elements\Element;
+use EVPX\Support\Icons;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,6 +25,7 @@ final class DecisionFactor extends Element {
 			array( 'key' => 'title', 'label' => __( 'Factor', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'description', 'label' => __( 'Description', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'question', 'label' => __( 'Question to ask', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
+			array( 'key' => 'symbol', 'label' => __( 'Icon', 'ev-charging-experience' ), 'type' => 'select', 'group' => 'visual', 'default' => 'auto', 'options' => Icons::options() ),
 		);
 	}
 
@@ -54,6 +56,7 @@ final class DecisionFactor extends Element {
 				'title'       => $atts['title'],
 				'description' => $this->autop( $atts['description'] ),
 				'question'    => $atts['question'],
+				'symbol'      => Icons::resolve( (string) $atts['symbol'], $atts['title'] ),
 			)
 		);
 	}

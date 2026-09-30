@@ -6,7 +6,7 @@
  * @var string $figure Optional key figure, set large ("7–22 kW").
  * @var string $figure_label Caption under the figure.
  * @var string $body HTML
- * @var string $media_html
+ * @var string $media_html An <img>, or a drawing on its panel (EVPX\Support\Art::panel()), or ''.
  * @var string $layout
  * @var string $surface
  * @var bool   $animate
@@ -46,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<?php if ( $media_html ) : ?>
 			<div class="evpx-section__media" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
-				<?php echo $media_html; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() output */ ?>
+				<?php echo $media_html; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() output, or inline SVG from EVPX\Support\Art */ ?>
 			</div>
 		<?php endif; ?>
 	</div>

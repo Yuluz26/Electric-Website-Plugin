@@ -38,8 +38,8 @@ install_test_themes
 ORIGIN="http://localhost:8080"
 PLAIN="${ORIGIN}/?page_id=2"                          # WordPress's Sample Page: no EV widget of its own
 POST="${ORIGIN}/?p=1"                                 # Hello world: an ordinary post
-DEMO="$(cat tests/docker/.demo-url)"                  # the demo article: twelve widgets as shortcodes in a post
-NATIVE="$(cat tests/docker/.breakdance-native-url)"   # the same twelve as native elements
+DEMO="$(cat tests/docker/.demo-url)"                  # the demo article: thirteen widgets as shortcodes in a post
+NATIVE="$(cat tests/docker/.breakdance-native-url)"   # the same thirteen as native elements
 QA=(node tests/playwright/template-qa.mjs)
 
 run() { # <mode> <label> <widgets> <urls…>
@@ -56,17 +56,17 @@ for THEME in twentytwentyfive breakdance-zero evpx-classic; do
 	[ "$THEME" = "evpx-classic" ] && FLAGS="--classic"
 
 	# No template: the widgets in the page's own content (shortcodes) and in its Breakdance tree (native).
-	run none "12 shortcode widgets in a post" 12 "$DEMO"
-	run none "12 native widgets on a Breakdance page" 12 "$NATIVE"
+	run none "13 shortcode widgets in a post" 13 "$DEMO"
+	run none "13 native widgets on a Breakdance page" 13 "$NATIVE"
 
 	# A native element in the footer.
 	run footer-native "native CTA in a Breakdance footer" 1 "$PLAIN"
-	run footer-native "native CTA in a Breakdance footer, page has 12 shortcode widgets" 13 "$DEMO"
-	run footer-native "native CTA in a Breakdance footer, page has 12 native widgets" 13 "$NATIVE"
+	run footer-native "native CTA in a Breakdance footer, page has 13 shortcode widgets" 14 "$DEMO"
+	run footer-native "native CTA in a Breakdance footer, page has 13 native widgets" 14 "$NATIVE"
 
 	# The same, in a Shortcode element.
 	run footer-shortcode "Shortcode-element CTA in a Breakdance footer" 1 "$PLAIN"
-	run footer-shortcode "Shortcode-element CTA in a Breakdance footer, page has 12 shortcode widgets" 13 "$DEMO"
+	run footer-shortcode "Shortcode-element CTA in a Breakdance footer, page has 13 shortcode widgets" 14 "$DEMO"
 
 	# Native elements in a Single Post template.
 	run post-template "native Hero and FAQ in a Single Post template" 2 "$POST" "$DEMO"

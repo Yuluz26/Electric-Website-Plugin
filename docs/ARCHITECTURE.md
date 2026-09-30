@@ -23,7 +23,7 @@ edited visually" was met only through Breakdance's Shortcode element. From 0.4.0
 2.8.3's source and running the plugin against it (`docs/QA-REPORT.md`), the plugin also ships the elements
 themselves. There are five integration points, all around **one renderer**:
 
-1. **Native Breakdance elements** (`src/Breakdance/Native/`): nine PHP classes, `EVPX\Hero`, `EVPX\Faq`, …,
+1. **Native Breakdance elements** (`src/Breakdance/Native/`): ten PHP classes, `EVPX\Hero`, `EVPX\Faq`, …,
    listed in the Add panel under **EV Charging**, with controls, an Items repeater, Dynamic Data on text fields
    and live canvas rendering. Each names its widget; controls, defaults and markup come from that widget
    (`Native\Controls` translates the one control schema to Breakdance's controls and back). They are declared
@@ -60,14 +60,16 @@ Electric-Website-Plugin/
 │   ├── Elements/                   # Element (shared contract), Registry, Widgets/ (one class each)
 │   ├── Assets/                     # Loader — conditional CSS/JS, GSAP source filters
 │   ├── Admin/                      # Notices (informational only; no settings screen)
-│   └── Support/                    # ReadingTime
+│   └── Support/                    # ReadingTime, Icons (+ icons-data.php), Art, ChargingModel
 ├── assets/
 │   ├── css/evpx.css                # tokens + every component, one file, everything under .evpx-*
-│   ├── js/                         # evpx.js (vanilla core), motion.js (GSAP), block-editor.js
-│   └── fonts/                      # Spectral, Geist, Geist Mono woff2 (SIL OFL) + licence
+│   ├── js/                         # evpx.js (vanilla core: FAQ, tabs, the explorer, art), motion.js (GSAP), block-editor.js
+│   ├── fonts/                      # Spectral, Geist, Geist Mono woff2 (SIL OFL) + licence
+│   └── icons/                      # the Phosphor licence (MIT); the outlines themselves are in src/Support/icons-data.php
 ├── templates/                      # one PHP view partial per element
+│   └── art/                        # the built-in drawings: one inline SVG per file (hero-schematic, charge-curve, wallbox, …)
 ├── languages/                      # .pot translation template
-├── tests/                          # docker/ (setup, real-Breakdance, media and template checks), playwright/ (qa, interaction-qa, breakdance-qa, media-qa, template-qa), contrast-check, css-check, build-zip
+├── tests/                          # docker/ (setup, real-Breakdance, media and template checks), playwright/ (qa, interaction-qa, explorer-qa, a11y-qa, breakdance-qa, media-qa, template-qa), php/ (the model grid), contrast-check, css-check, build-zip
 └── docs/
 ```
 
@@ -87,17 +89,18 @@ Electric-Website-Plugin/
 | 1 | EV Article Hero | `[evpx_hero]` | `evpx/hero` | also owns the reading-progress bar (`progress_bar`) |
 | 2 | EV Section | `[evpx_section]` | `evpx/section` | general editorial block; flat/raised/recessed surface |
 | 3 | EV AC/DC Comparison | `[evpx_comparison]` | `evpx/comparison` | signature component; toggle or side-by-side |
-| 4 | EV Scenario Cards | `[evpx_scenarios]` | `evpx/scenarios` | container; children are `[evpx_scenario_card]` |
-| 5 | EV Technical Flow | `[evpx_flow]` | `evpx/flow` | Grid → Site → Charger → Vehicle → Battery |
-| 6 | EV Decision Factors | `[evpx_decision_factors]` | `evpx/decision-factors` | container; children are `[evpx_decision_factor]`; numbered flat list |
-| 7 | EV FAQ | `[evpx_faq]` | `evpx/faq` | container; children are `[evpx_faq_item]`; optional FAQPage JSON-LD |
-| 8 | EV Related Articles | `[evpx_related]` | `evpx/related` | lists real published posts; nothing for visitors when empty |
-| 9 | EV CTA | `[evpx_cta]` | `evpx/cta` | accent / dark / media variants |
+| 4 | EV Charging Explorer | `[evpx_explorer]` | `evpx/explorer` | the one interactive: dwell time and charger against what reaches the battery; dark panel; §5.8 |
+| 5 | EV Scenario Cards | `[evpx_scenarios]` | `evpx/scenarios` | container; children are `[evpx_scenario_card]`; an icon per card |
+| 6 | EV Technical Flow | `[evpx_flow]` | `evpx/flow` | Grid → Site → Charger → Vehicle → Battery; an icon per step |
+| 7 | EV Decision Factors | `[evpx_decision_factors]` | `evpx/decision-factors` | container; children are `[evpx_decision_factor]`; numbered flat list |
+| 8 | EV FAQ | `[evpx_faq]` | `evpx/faq` | container; children are `[evpx_faq_item]`; optional FAQPage JSON-LD |
+| 9 | EV Related Articles | `[evpx_related]` | `evpx/related` | lists real published posts; nothing for visitors when empty; a drawing for an article without a picture |
+| 10 | EV CTA | `[evpx_cta]` | `evpx/cta` | dark / accent / media variants |
 
 Each element declares its controls once (`Element::controls()`); defaults, sanitization, the
 shortcode attribute set, the block attribute schema, the block-editor Inspector panels and the native
 Breakdance element's controls are all derived from that one list. `docs/WIDGETS.md` is the human-readable
-reference. The eight section widgets also share one `spacing` control (default / compact / none).
+reference. The nine section widgets also share one `spacing` control (default / compact / none).
 
 Not built, deliberately: separate Article Meta / Intro / Infrastructure Panel widgets (Hero,
 Section and Technical Flow already cover them) and a Media Showcase (it would need real
@@ -132,8 +135,9 @@ WCAG 1.4.3/1.4.11 failure mode neumorphism is known for.
 
 ### 5.1 Color
 
-Avoids the neon-cyan/blue-gradient EV cliché. Ink-graphite base, warm copper as the single
-confident accent (energy/CTA), desaturated blue reserved for technical/data moments only.
+Avoids the cyan/blue-gradient EV cliché. Ink-graphite base, warm copper as the single
+confident accent (energy/CTA), desaturated blue reserved for technical/data moments only. From 0.6.0 the copper is
+also the design's *light* (§5.7): the same hue, on a dark surface, as a thin line with a soft halo.
 
 Tokens live on `.evpx-root` (every top-level element carries it), never on `:root`, so nothing
 leaks to the rest of the page. Dark values are applied by `data-evpx-theme="dark"` (or `auto`,
@@ -259,8 +263,9 @@ side-by-side mode and a 220px column alike (0.5.0's first cut sized it to the wi
   control sets it to `--evpx-space-12` (compact) or `0` (none) through `data-evpx-spacing` on the widget
 - Layout breakpoints are **container** thresholds, not viewport ones: 40rem (two-column grids),
   48rem (side-by-side comparison, wider container padding; below it the flow turns vertical),
-  64rem (two-column section/decision layouts, three-column grids), and a narrow-box tightening
-  below 30rem. See §5.6.
+  64rem (two-column section/decision layouts, three-column grids; below it the hero's drawing is a band), and a
+  narrow-box tightening below 30rem. The explorer has one more, below 20rem (a phone inside a builder Section that has
+  padding of its own). See §5.6.
 - Widths swept by `tests/playwright/qa.mjs` (screenshot + sideways-overflow assertion): 320, 375,
   390, 430, 768, 1024, 1280, 1366, 1440, 1920. `breakdance-qa.mjs` sweeps 320, 390, 768, 1024,
   1440, 1920 on a real Breakdance page.
@@ -307,6 +312,72 @@ marker, and `tests/playwright/interaction-qa.mjs` checks the finished state for 
 
 Movement waits for `@media (hover: hover) and (pointer: fine)`; a phone gets the colour changes and none
 of the decoration (the arrow knob is not drawn, the pointer highlight is not bound).
+
+### 5.7 Neon, icons and drawings (0.6.0)
+
+**Neon is copper drawn as light, not a second colour.** `--evpx-neon` (`#ff8a3d`) is the accent on a dark surface;
+`--evpx-neon-line` is the accent as a line on the surface it is on (the deeper copper on a light one, so a line still
+reads; the neon itself on a dark one); `--evpx-glow` and `--evpx-glow-1/-2` are its halo, quiet on light and lit on
+dark. The rules that keep it minimal: it is a line of 1.5–2.5px with a halo (or a thin bar), **never a fill and never
+body text**; it appears where something is *live or chosen* (the eyebrow's bolt, the line that charges along the foot
+of the hero, a lit stroke in a drawing, the selected tab's rule, the chosen charger, the explorer's curve and bars, the
+progress bar, the dark CTA's top edge, an icon in its socket) and nowhere else; depth stays neumorphic, and the two
+meet only in the socket: an icon in a recessed well, lit in neon. Contrast still comes from real colour: the neon on
+the dark surfaces is 7:1 or better, and `tests/contrast-check.mjs` reads the tokens.
+
+**Focus** is one token, `--evpx-focus-ring`, drawn as a 2px outline offset 3px from the control. It is the accent by
+default; a surface where the accent would vanish says so (the copper CTA uses white; the hero, the dark CTA and the
+explorer use the neon; a CTA over a picture uses white). The explorer's slider carries its ring on the thumb.
+`tests/playwright/a11y-qa.mjs` tabs through the page in both colour schemes and measures every ring at 3:1 against
+the surface it is drawn on.
+
+**One icon family.** Phosphor Icons, Regular weight (MIT; `assets/icons/LICENSE.txt`), 53 outlines in
+`src/Support/icons-data.php`, drawn inline by `EVPX\Support\Icons::svg()` as `<svg … fill="currentColor"
+aria-hidden="true" focusable="false">` at one of three sizes (`--evpx-icon-sm/md/lg`). Inline, not a sprite or a font:
+it works in a shortcode, a block, a Breakdance canvas and a feed alike, takes the colour of the text around it, and
+cannot fail to load. An icon is always beside text that says the same thing, so it is hidden from assistive technology.
+Two ways an icon is placed: a **socket** (`.evpx-iconchip`, a recessed disc, for an icon that labels a block: a scenario
+card, a flow step) and **bare, inline with text** (a tab, a decision factor's title, a byline item, a button's arrow, the
+FAQ knob). `Icons::guess()` chooses one from a piece of copy by its words (English; anything else gets the caller's
+fallback), and the controls that show icons let an editor pick one instead (`symbol`, automatic by default). A flow
+either has an icon on every step or on none.
+
+**Drawings.** `EVPX\Support\Art` renders inline SVG from `templates/art/`: the hero's schematic, and six panels
+(`charge-curve`, `wallbox`, `dc-cabinet`, `grid-path`, `wave-ac`, `wave-dc`). They are how the design has pictures
+before it has photographs: technical line drawings of what the article is about, in `currentColor` and the neon,
+on their own dark ground (`.evpx-artpanel`, `--evpx-art-ground`), so they read on a light page too. They are decoration
+(`aria-hidden`), carry only units, acronyms and a few translated words, and every gradient, mask and filter id is
+unique per instance. The neon halo is one blurred group (an SVG `<filter>`, since Safari does not apply a CSS filter to
+shapes inside an `<svg>`); a zero-height shape (a horizontal rule) is filled with a gradient in user space, or drawn as a
+thin rect, since a gradient in object-bounding-box units does not paint on a line with no height.
+A drawing is finished as printed; with motion on its outlines draw themselves in, once (`stroke-dashoffset` on a path
+of `pathLength="1"`), the light comes on, a band of light crosses the car, and a pulse travels the cable, gated on the same
+`data-evpx-motion="on"` marker as everything else and paused by an `IntersectionObserver` while off screen (so a drawing
+below the fold draws itself in when it is reached, and nothing animates unseen). Labels are scaled so they land at 12px or
+more on the screen whatever size the drawing is shown at (`evpx.js` tells each the scale).
+
+**The hero** is the largest use. Full-bleed dark panel, a blueprint grid, corner marks, a light that follows a fine
+pointer (`data-evpx-spot`), the byline as a readout (an icon and a caption over each value), and the drawing at the right
+(62% of the width from 64rem, bleeding a little off the edge and fading in from the copy; below that a band under the
+copy, sized by the width it has and cropped at the top to the part worth showing; on a phone, the car and the charger
+alone). The copy gives up width beside the drawing (`min(34rem, 46cqi)`) so nothing is ever set over it.
+
+**Forced colours.** The depth is drawn with shadows and a forced-colours browser draws none, so §18 of the stylesheet
+gives each raised or sunken surface an edge, keeps the fills that carry meaning (bars, the selected tab, the progress
+bar) as system colours, lets the drawings keep their own dark panel, and takes the hero's decoration away.
+
+### 5.8 The explorer's model
+
+`EVPX\Support\ChargingModel` (PHP) and the same operations in `assets/js/evpx.js`. Time is stepped a whole minute at a
+time. AC: the charger gives its rating, but the car's onboard charger caps it. DC: the car accepts its peak in full up to
+half full, then linearly less (35% of the peak at 80%, 10% at 100%); the charger gives the smaller of its rating and that.
+Energy per minute is the smaller of the power over 60 and what is left to fill. Range is energy over consumption. The
+page is server-rendered with the default answer (the same model), the script recomputes everything on every input, and
+`tests/playwright/explorer-qa.mjs` compares the script's model to the PHP model over 200 cases (five cars, five chargers,
+eight dwell times) to 1e-9, and the page before the script to the page after it. The slider is bent (`minutes = 15 + 705 ×
+(position/100)²`, snapped to 5, 15 or 30 minutes) and the chart's time axis is a square root of time, so the first hour,
+where the differences are, is not a sliver. The sentence is a polite live region that updates 350ms after the last change,
+so a screen reader hears one message, not one per step.
 
 ### 5.6 Living inside a host: specificity and container queries
 

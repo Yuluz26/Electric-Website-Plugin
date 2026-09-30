@@ -3,6 +3,7 @@
 namespace EVPX\Elements\Widgets;
 
 use EVPX\Elements\Element;
+use EVPX\Support\Art;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -28,6 +29,7 @@ final class Section extends Element {
 			array( 'key' => 'figure_label', 'label' => __( 'Key figure caption', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'media', 'label' => __( 'Media', 'ev-charging-experience' ), 'type' => 'image', 'group' => 'media', 'default' => 0 ),
 			array( 'key' => 'media_alt', 'label' => __( 'Media alt text override', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'media', 'default' => '' ),
+			array( 'key' => 'artwork', 'label' => __( 'Drawing (used when there is no media)', 'ev-charging-experience' ), 'type' => 'select', 'group' => 'media', 'default' => 'none', 'options' => Art::options() ),
 			array(
 				'key'     => 'layout',
 				'label'   => __( 'Layout', 'ev-charging-experience' ),
@@ -67,12 +69,17 @@ final class Section extends Element {
 
 	public function render( array $atts, string $content = '' ): string {
 		$media_html = '';
-		if ( ! empty( $atts['media'] ) && 'text-only' !== $atts['layout'] ) {
-			$img_attr = array( 'class' => 'evpx-section__image' );
-			if ( '' !== $atts['media_alt'] ) {
-				$img_attr['alt'] = $atts['media_alt'];
+		if ( 'text-only' !== $atts['layout'] ) {
+			if ( ! empty( $atts['media'] ) ) {
+				$img_attr = array( 'class' => 'evpx-section__image' );
+				if ( '' !== $atts['media_alt'] ) {
+					$img_attr['alt'] = $atts['media_alt'];
+				}
+				$media_html = $this->image( (int) $atts['media'], 'large', $img_attr );
+			} else {
+				// No picture chosen: the drawing, if one was.
+				$media_html = Art::panel( (string) $atts['artwork'] );
 			}
-			$media_html = $this->image( (int) $atts['media'], 'large', $img_attr );
 		}
 
 		return $this->view(

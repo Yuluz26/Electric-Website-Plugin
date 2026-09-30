@@ -5,7 +5,7 @@
 - WordPress 6.0+
 - PHP 7.4+ (developed and QA'd against 8.2/8.4)
 - Breakdance is **optional** — every widget works as a plain WordPress
-  shortcode/block with no page builder at all. With Breakdance active, the nine widgets also appear
+  shortcode/block with no page builder at all. With Breakdance active, the ten widgets also appear
   in its Add panel as native elements (see `docs/BREAKDANCE.md`). Tested with Breakdance 2.8.3.
 
 ## Install
@@ -35,7 +35,7 @@ panels) and a live preview.
 
 ## Using it with Breakdance
 
-Activate the plugin next to Breakdance, open a page in the builder, click **Add** and search "EV": the nine
+Activate the plugin next to Breakdance, open a page in the builder, click **Add** and search "EV": the ten
 elements are in the **EV Charging** category. Drop one into a Section and edit it in the panel: text, pictures,
 layout, visual variants, motion, and an **Items** repeater for the FAQ, the scenario cards and the decision
 factors. Text fields take Breakdance's dynamic-data button, including the plugin's own **EV Reading Time**.

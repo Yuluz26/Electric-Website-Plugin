@@ -244,7 +244,7 @@ if (!postId) {
 			[...document.querySelectorAll('.breakdance-add-panel__element-name')].map((e) => e.textContent.trim()).filter((t) => /^EV /.test(t))
 		);
 		await b.screenshot({ path: path.join(outDir, 'builder-add-panel.png') });
-		check('the Add panel lists all nine EV elements', listed.length === 9, listed.join(', '));
+		check('the Add panel lists all ten EV elements', listed.length === 10, listed.join(', '));
 
 		// Select each kind of element in the canvas: its panel opens with the Content section and inputs.
 		const kinds = await frame.evaluate(() => [...new Set([...document.querySelectorAll('[class*="evpx-native-"]')].flatMap((e) => [...e.classList].filter((c) => /^evpx-native-[a-z-]+$/.test(c))))]);
@@ -257,7 +257,7 @@ if (!postId) {
 			const panel = await b.evaluate(() => ({ text: document.body.innerText, inputs: document.querySelectorAll('input, textarea').length }));
 			if (!panel.text.includes('Content') || panel.inputs < 2) problems.push(`${kind}: no controls`);
 		}
-		check(`selecting each of the ${kinds.length} kinds of native element in the canvas opens its controls`, kinds.length === 9 && problems.length === 0, problems.join(' | ') || `kinds=${kinds.length}`);
+		check(`selecting each of the ${kinds.length} kinds of native element in the canvas opens its controls`, kinds.length === 10 && problems.length === 0, problems.join(' | ') || `kinds=${kinds.length}`);
 
 		// Edit a control: the canvas re-renders through one SSR call and shows the change.
 		const faq = frame.locator('.evpx-native-faq').first();

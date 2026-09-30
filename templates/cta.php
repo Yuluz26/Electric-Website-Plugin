@@ -32,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php if ( $button_label && $button_url ) : ?>
 			<a class="evpx-button evpx-button--<?php echo 'accent' === $variant ? 'secondary' : 'primary'; ?> evpx-cta__button" href="<?php echo esc_url( $button_url ); ?>">
 				<?php echo esc_html( $button_label ); ?>
-				<span class="evpx-button__arrow" aria-hidden="true"></span>
+				<?php echo \EVPX\Support\Icons::svg( 'arrow-right', 'evpx-button__arrow' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?>
 			</a>
 		<?php endif; ?>
 	</div>

@@ -3,6 +3,7 @@
  * @var string $title
  * @var string $description HTML
  * @var string $question
+ * @var string $symbol Icon name from EVPX\Support\Icons, or ''.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,7 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <li class="evpx-decision__item" role="listitem">
-	<h3 class="evpx-decision__title"><?php echo esc_html( $title ); ?></h3>
+	<h3 class="evpx-decision__title">
+		<?php if ( $symbol ) : ?><?php echo \EVPX\Support\Icons::svg( $symbol, 'evpx-decision__icon' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?><?php endif; ?>
+		<?php echo esc_html( $title ); ?>
+	</h3>
 
 	<?php if ( $description ) : ?>
 		<div class="evpx-body evpx-decision__description"><?php echo $description; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wpautop + wp_kses_post already applied */ ?></div>

@@ -3,6 +3,7 @@
 namespace EVPX\Elements\Widgets;
 
 use EVPX\Elements\Element;
+use EVPX\Support\Art;
 use EVPX\Support\ReadingTime;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -43,6 +44,17 @@ final class Hero extends Element {
 					'auto'  => __( 'Follow system', 'ev-charging-experience' ),
 				),
 			),
+			array(
+				'key'     => 'artwork',
+				'label'   => __( 'Artwork (shown when there is no picture)', 'ev-charging-experience' ),
+				'type'    => 'select',
+				'group'   => 'visual',
+				'default' => 'schematic',
+				'options' => array(
+					'schematic' => __( 'Charging schematic', 'ev-charging-experience' ),
+					'none'      => __( 'None, the grid only', 'ev-charging-experience' ),
+				),
+			),
 			array( 'key' => 'animate', 'label' => __( 'Enable entrance animation', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true ),
 			array(
 				'key'     => 'title_tag',
@@ -76,6 +88,9 @@ final class Hero extends Element {
 			$media_html = $this->image( (int) $atts['media'], 'full', $img_attr );
 		}
 
+		// A picture is the hero's artwork when there is one; the drawing is for when there is not.
+		$artwork_html = ( '' === $media_html && 'schematic' === $atts['artwork'] ) ? Art::render( 'hero-schematic' ) : '';
+
 		return $this->view(
 			'hero',
 			array(
@@ -87,6 +102,7 @@ final class Hero extends Element {
 				'date'         => $atts['date'],
 				'reading_time' => $reading_time,
 				'media_html'   => $media_html,
+				'artwork_html' => $artwork_html,
 				'cta_label'    => $atts['cta_label'],
 				'cta_url'      => $atts['cta_url'],
 				'visual_mode'  => $atts['visual_mode'],

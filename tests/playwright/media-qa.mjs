@@ -197,8 +197,11 @@ if (mixedUrl) {
 	const row = await page.evaluate(() => ({
 		items: document.querySelectorAll('.evpx-related__item').length,
 		slots: document.querySelectorAll('.evpx-related__media').length,
+		pictures: document.querySelectorAll('.evpx-related__media img').length,
+		drawings: document.querySelectorAll('.evpx-related__media.evpx-artpanel svg.evpx-art').length,
+		blank: [...document.querySelectorAll('.evpx-related__media')].filter((m) => !m.querySelector('img, svg.evpx-art')).length,
 	}));
-	check('a related row where one article has no picture shows no picture slots at all (no blank tiles)', row.items === 2 && row.slots === 0, JSON.stringify(row));
+	check('a related row where one article has no picture gives it a drawing, so no tile is blank beside a photograph', row.items === 2 && row.slots === 2 && row.pictures === 1 && row.drawings === 1 && row.blank === 0, JSON.stringify(row));
 	await page.screenshot({ path: path.join(outDir, 'mixed-related.png'), fullPage: true });
 	await page.close();
 } else {

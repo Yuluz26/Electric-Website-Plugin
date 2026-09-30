@@ -1,4 +1,4 @@
-# QA report — v0.5.0
+# QA report — v0.6.0
 
 Everything below was run, not reasoned about. Every command is in the repo, so it can be
 re-run: see "Reproducing" at the end.
@@ -7,7 +7,13 @@ re-run: see "Reproducing" at the end.
 
 **Release candidate — not yet "production ready".** 0.3.0 was the first release run against a real,
 licensed **Breakdance 2.8.3**; 0.4.0 added the nine widgets as native Breakdance elements and drove them in the
-builder. 0.5.0 is a design release: the type, the depth, the hero, the comparison, the hover states and the
+builder. 0.6.0 is a second design release: a new design language (copper as light, one icon family, built-in
+drawings in place of photographs), one new widget (the charging explorer, a tenth native element), and the
+accessibility audit that came with it applied to what already existed. The whole matrix was run again against it, on
+Twenty Twenty-Five and on Breakdance 2.8.3 under its own Zero theme. Building it found seven more defects in the new
+work (45–51 below), all fixed; one was found by an existing check that was written for something else (the 320 px
+overflow sweep), and the two cheapest to have missed (a light that never painted, a label under the copy) now have
+checks that were watched failing first. 0.5.0 was a design release: the type, the depth, the hero, the comparison, the hover states and the
 motion were redone, and the whole matrix was run again against the result: WordPress on Twenty Twenty-Five, and
 Breakdance 2.8.3 under its own Zero theme with the widgets in a default Section and in the full-width Section
 `docs/BREAKDANCE.md` recommends. Redesigning found eleven more bugs in the plugin's own work (34–44 below), all
@@ -31,16 +37,18 @@ Chromium, and a site running your caching stack. Details under "Not verified".
 | JS syntax | `node --check` | clean |
 | Stylesheet, statically | `tests/css-check.mjs`, no browser: every `--evpx-*` token that is read is defined; every selector is scoped under `.evpx-root`; no `!important` outside the reduced-motion rule; every animation is gated on the motion marker | 5/5 |
 | Colour contrast | `tests/contrast-check.mjs` reads the real tokens out of `evpx.css` and asserts 15 pairings, light and dark (30 checks), including the lit and shaded faces of a raised surface and white type on the button's hover fill | all pass |
-| What the widgets print | `tests/docker/widget-render-check.sh`, inside WordPress, no browser: the comparison's power scale (ranges, points, thousands separators, decimals, and six inputs that must *not* draw a ruler), the section's key figure, the hero's captions and blueprint grid, that typed-in text is escaped | 24/24 |
+| What the widgets print | `tests/docker/widget-render-check.sh`, inside WordPress, no browser: the comparison's power scale (ranges, points, thousands separators, decimals, and six inputs that must *not* draw a ruler) and its key, the section's key figure, the hero's captions, icon and drawing, every icon (inline, decorative, one family; a name that is not there renders nothing; the words of the demo article find their icons), every drawing (decoration, unique ids, a stale key renders nothing), the scenario, flow and decision icons and their rules, Related's drawing for an article with no picture, the CTA's default, the explorer (its numbers as JSON, its answer worked out on the server, numbers held in range), that typed-in text is escaped | 58/58 |
 | Activation / deactivation | WP-CLI, `WP_DEBUG` + `WP_DEBUG_LOG` + `WP_DEBUG_DISPLAY` | clean; the only `debug.log` entries across activation, rendering of every widget and every suite below are core's own wordpress.org update check failing on the sandbox network |
-| **Real Breakdance 2.8.3 — integration** | `tests/docker/breakdance-real-check.sh`: 24 assertions against the running plugin (save locations reach Breakdance; Dynamic Data field; reading time; the nine native elements are declared, concrete, in their own category, with control paths that match their controls, repeaters, dynamic-data paths, the spacing attribute, toggle semantics, and the **same markup as the shortcode** for all twelve widgets of the demo article) plus a behavioural probe: an element file saved in the plugin's Element Studio folder — declaring a class with a native element's name — must be loaded by a *fresh* PHP process | 25/25 |
+| **Real Breakdance 2.8.3 — integration** | `tests/docker/breakdance-real-check.sh`: 24 assertions against the running plugin (save locations reach Breakdance; Dynamic Data field; reading time; the ten native elements are declared, concrete, in their own category, with control paths that match their controls, repeaters, dynamic-data paths, the spacing attribute, toggle semantics, and the **same markup as the shortcode** for all thirteen widgets of the demo article) plus a behavioural probe: an element file saved in the plugin's Element Studio folder — declaring a class with a native element's name — must be loaded by a *fresh* PHP process | 25/25 |
 | **Real Breakdance — front end and builder** | `tests/playwright/breakdance-qa.mjs`: a page designed in Breakdance from the demo article, once with Shortcode elements and once with native elements; front end (assets, typography, hover colours, reading time, interactions, motion, overflow at six widths, axe) and the builder itself: server-side renders, canvas, and, for native elements, the Add panel, selecting each element, editing a control (one render), a toggle (saved as `false`), and choosing a picture in the media library | 16/16 on the Shortcode page · 24/24 on the native page · 24/24 on the native page in full-width Sections without padding · 24/24 on the native page with pictures |
 | **Builder round-trip** | `tests/docker/builder-save-check.sh`, on scratch pages it deletes: a dropdown lists the widget's options and re-renders the canvas; Save answers 200; the front end and a reopened builder show the edit; an element added from the Add panel to an empty page renders with its starting copy, brings its stylesheet into the canvas with it, and saves | 6/6 |
 | **Pictures** | `tests/docker/media-pages.sh` generates six test images (GD gradients with a frame at the edges, one of them a near-white sky), imports them, and builds a shortcode post, a native page and a mixed Related row; `tests/playwright/media-qa.mjs` at 1440 and 390 px | 49/49 |
 | **Templates and themes** | `tests/docker/template-check.sh`: a Breakdance footer (native CTA, and a Shortcode element) and a Single Post template, each checked with pages that have their own shortcode or native widgets, under **Twenty Twenty-Five, Breakdance's own Zero theme and a bare classic theme** | 180/180 |
 | **Unrelated pages** | `tests/docker/isolation-check.sh`: three pages with no EV element (Sample Page, a post, a Breakdance page), screenshotted with the plugin active and inactive, under two themes | 12/12 |
 | Browser suite, any WordPress page | `tests/playwright/qa.mjs`, 23 checks, Chromium, WordPress on the Twenty Twenty-Five block theme, with Breakdance also active (also run with Breakdance deactivated, on plain WordPress, and under the Zero theme; the one width assertion that presumes a block theme is skipped inside a Breakdance Section) | 23/23 |
-| Interaction, motion and hover states | `tests/playwright/interaction-qa.mjs`, Chromium: the finished state and the motion that leads to it (the hero's charge line, the flow's connectors, the comparison's range bars), the comparison thumb measured onto the active tab and moved by a click, the button's fill and arrow, the scenario card's rim and highlight following a fine pointer, the decision list's numerals, the FAQ's open state and that a row opens from its own height, the related arrow, keyboard focus rings, no seams between widgets, one shared left edge, "Follow system" following both colour schemes; then the same page for a reduced-motion visitor and for a touch device with no hover | 33/33 |
+| Interaction, motion and hover states | `tests/playwright/interaction-qa.mjs`, Chromium: the finished state and the motion that leads to it (the hero's charge line, the flow's connectors, the comparison's range bars), the comparison thumb measured onto the active tab and moved by a click, the button's fill and arrow, the scenario card's rim and highlight following a fine pointer, the decision list's numerals, the FAQ's open state and that a row opens from its own height, the related arrow, keyboard focus rings, no seams between widgets, one shared left edge, "Follow system" following both colour schemes; the hero drawing's motion, and its stillness for a reduced-motion visitor, and that its labels, charger and gauge lie clear of the copy at seven widths; then the same page for a reduced-motion visitor and for a touch device with no hover | 43/43 |
+| **The explorer** | `tests/playwright/explorer-qa.mjs`, Chromium, plus `php tests/php/model-matrix.php`: the page before the script and after it; the script's model against the PHP one over 200 cases; the controls, from a pointer and from a keyboard; six widths (below) | 43/43 |
+| **Accessibility rules axe cannot see** | `tests/playwright/a11y-qa.mjs`, Chromium: focus rings at 3:1 on every surface in both colour schemes, targets, type size, measure, icons, forced colours (below) | 12/12 |
 | Breakdance contract stub | `tests/docker/breakdance-stub.php` + `breakdance-contract-check.php` — kept for CI without a licence; the real check above is authoritative | 11/11 in 0.4.0; not re-run for 0.5.0, which changes nothing under `src/Breakdance` (the real-Breakdance checks above cover the same ground) |
 | The shipped artifact | the built ZIP installed as a separate plugin directory and the suites run against *that* | all pass, same counts as the working tree: integration 25/25, browser suite 23/23, Shortcode page 16/16, native page 24/24, pictures 49/49, unrelated pages 12/12, templates 180/180 |
 | Motion | real GSAP **3.12.5** (the version the plugin loads by default), served locally because this sandbox blocks cdnjs | verified below |
@@ -89,6 +97,32 @@ contrast, builder typeface); against the pre-fix builder detection the two build
 (`data-evpx-animate="1"`, builder flag empty); and with the recursion guard removed the
 self-referencing page segfaults PHP.
 
+### The checks in `explorer-qa.mjs`
+
+Without a script: the explorer is there, its controls (which would do nothing) are not shown, the comparison is
+shown with five chargers, the empty chart box is not shown, and the figures and the sentence are already worked
+out. With one: the controls appear and the chart is drawn, the slider says its value in words, the sentence is a polite
+live region, no console errors; **the figures, the sentence and the comparison the page printed before the script are
+character for character what the script prints first**; the chart's box keeps its height when it is drawn (nothing
+below it moves); **the script's charging model answers as the PHP one does over 200 cases** (five cars, five
+chargers, eight dwell times, to 1e-9: `tests/php/model-matrix.php` prints the PHP side); a preset sets the dwell time
+and presses itself; eight hours on AC 22 kW fills the battery and the sentence says so; choosing a 350 kW charger draws
+its rating as a dashed line above what the car takes and a 7 kW one draws none; the chosen charger is the lit row; the
+slider runs from the keyboard (Home is 15 min, End is 12 h) and its spoken value follows; the sentence waits for the last
+key; a keyboard sees a 2 px ring on the presets and the chosen charger. At 1440, 1366, 1024, 768, 390 and 320 px: nothing
+pokes out of the widget, the chart's labels are 12 px or more on the screen (or the chart is not shown, below 20rem),
+every control is at least 44 px tall. Reduced motion: the bars do not slide.
+
+### The checks in `a11y-qa.mjs`
+
+The rules axe cannot see. A keyboard walks the page in both colour schemes and every ring it meets is 2 px and 3:1
+against the surface it is drawn on (the surface, not the control: the ring sits outside it), on the hero, the dark CTA,
+the explorer and the light widgets alike; every control is at least 24 × 24 px (WCAG 2.2, 2.5.8; inline links in a
+sentence exempt) and the comparison's tabs are 44 px; nothing meant to be read is set below 12 px; running text keeps to
+80 characters a line; every icon on the page is decorative, in `currentColor`, from one family (one `viewBox`) and comes
+in few sizes; and, emulating forced colours, cards, the comparison's plate, the flow's nodes and the explorer's panel have
+an edge, the explorer's bars are a system colour, the selected tab is outlined and the hero's decoration is gone.
+
 ### The checks in `media-qa.mjs`
 
 For the shortcode page and the native page, each at 1440 and 390 px: the hero picture loads, is described and
@@ -96,15 +130,15 @@ has a `srcset` · fills its box without letterboxing · both section pictures lo
 proportions · all six scenario icons load · the CTA picture loads and fills its box · the Related row is a full
 row of same-sized pictures · (390 px) a wrapped hero meta line clips the separator that would start a row ·
 nothing overflows · no console errors and no failed requests. Then, on the mixed page: a Related row where one
-article has no featured image shows no picture slots at all. Then, on the bright page — a hero and a CTA over a
+article has no featured image gives it a drawing, so no tile is blank beside a photograph. Then, on the bright page — a hero and a CTA over a
 near-white sky, the worst case for white type — each line of type (eyebrow, title, excerpt, meta, body) is
 measured against the brightest 5% of the picture behind it, at 1280 and 390 px: 4.5:1, or 3:1 for large type.
-With the previous template and stylesheet the mixed-row check and both meta checks fail, and ten of the
+With the 0.4.0 template and stylesheet the mixed-row check and both meta checks fail, and ten of the
 fourteen legibility checks fail (the eyebrow at 1.2–1.5:1, the title at 1.6–1.9:1).
 
 ### The checks in `template-check.sh`
 
-Under each of three themes, for eight situations (twelve shortcode widgets in a post; twelve native widgets on a
+Under each of three themes, for eight situations (thirteen shortcode widgets in a post; thirteen native widgets on a
 Breakdance page; a native CTA, and a Shortcode-element CTA, in a Breakdance footer, each on a plain page and on
 pages with their own widgets; native Hero and FAQ in a Single Post template): the expected number of widgets
 render · the stylesheet and each script are delivered **exactly once** · the stylesheet is in `<head>` · the
@@ -112,14 +146,19 @@ widgets are styled in their own typeface · **no widget has collapsed to nothing
 console errors. (On the bare classic theme the stylesheet may appear twice and a footer's may come late; the
 scripts still load once.) Without the two Loader changes five of the block-theme checks fail (assets loaded
 twice; a footer widget's stylesheet after the content); without the width rules all twelve widgets in a post
-collapse to zero width under the Zero theme.
+collapse to zero width under the Zero theme. (The demo article has thirteen widgets since the explorer joined it; the
+expected counts in `tests/docker/template-check.sh` were updated, and the overflow probe now looks past the hero
+drawing, which bleeds off the right edge on purpose and is clipped by the hero.)
 
 ### Weight
 
-Front-end critical path (stylesheet + `evpx.js` + `motion.js`): about **21 KB gzipped** (CSS 14.6, `evpx.js` 4.0,
-`motion.js` 3.1), up from 13 KB in 0.4.0: the redesign is more CSS (depth, the comparison plate and ruler, the
-timeline) and a little more script (the thumb, the in-view marker, the pointer highlight). Bundled fonts: 128 KB in
-five files, up from 96 KB (Spectral 22 KB in each of two weights; Geist 29 KB and its italic 31 KB; Geist Mono
+Front-end critical path (stylesheet + `evpx.js` + `motion.js`): about **34 KB gzipped** (CSS 21.6, `evpx.js` 9.2,
+`motion.js` 3.1), up from 21 KB in 0.5.0 and 13 KB in 0.4.0. 0.6.0's share is the explorer (its layout, and about 5 KB
+of script for the model, the controls and the chart), the drawings' styling and motion, the icon and forced-colour
+rules. The icon outlines and the drawings are not in the stylesheet: they are inline SVG in the page's HTML, where a
+drawing costs 1.2 to 2.8 KB gzipped each time it is used, and the demo article's drawings and 28 icons, which repeat,
+compress well. Nothing is requested for them. Bundled fonts: 128 KB in
+five files, up from 96 KB in 0.4.0 (unchanged in 0.6.0; Spectral 22 KB in each of two weights; Geist 29 KB and its italic 31 KB; Geist Mono
 23 KB; woff2 is already compressed) with `font-display: swap`. A browser fetches only the faces a page uses, so a
 page without italic body copy never loads the Geist italic. GSAP + ScrollTrigger come from the CDN and only on pages
 with an EV element. No render-blocking third-party request is made by the plugin itself. (Lighthouse / field
@@ -321,6 +360,62 @@ redesign itself and caught before it shipped.
     panel was hidden. The padding now travels with the height, and toggling again cancels a running animation instead of
     stacking a second one. `interaction-qa.mjs` reads the row's height synchronously after the click; with the padding
     left out it reads 113 px against 89 px.
+
+**Pass 7 — a second design pass (0.6.0)**
+
+The pass began with an audit of the running 0.5.0 pages against a UI/UX rule set (the `ui-ux-pro-max` skill in
+`.claude/skills/`; its dataset text is a recommendation, and the repository's own rules, the brief and the tokens
+were kept over it wherever they differed). Eight findings against what already existed, all fixed and, where a
+check can see them, guarded by `a11y-qa.mjs`: **(a)** the keyboard ring was one colour on every surface, and copper
+on a copper CTA is invisible (now `--evpx-focus-ring`, set per surface); **(b)** the comparison's selected tab
+was told apart by depth alone, was 42 px tall and set no `touch-action` (a copper rule along its foot, 44 px,
+`manipulation`); **(c)** nothing handled forced colours, where every shadow the design is made of disappears
+(§18 of the stylesheet); **(d)** the FAQ answer ran to about 80 characters a line (it keeps the reading measure);
+**(e)** three rules set text at 11 px (all 12 px or more; a check walks every text node); **(f)** the font sizes were
+literals scattered through 24 rules (all on the nine-step scale); **(g)** the comparison's bar and outline were
+told apart by colour and outline alone (a key, hidden from assistive technology, as the bar is); **(h)** scroll
+reveals travelled 28 px, 90 ms apart (18 px, 60 ms).
+
+Then the seven defects in the new work:
+
+45. **The hero drawing's neon horizon painted nothing.** It was a horizontal `<path>` stroked with a gradient in
+    object-bounding-box units; a horizontal line has no height, so per the SVG spec the gradient is not applied and
+    the stroke is not painted. Found by looking at the render: there was no line. It is now a 1.5-unit rect filled
+    with the gradient. *Guard: none automated; the drawings were reviewed by eye at five sizes.*
+46. **The band of light that crosses the car was invisible.** The rule that hides the still drawing's moving light
+    said `fill: none` on the class, and CSS beats the shape's `fill` presentation attribute, so the gradient never
+    applied. Found in a filmstrip of the entrance. *Guard: `interaction-qa.mjs` asserts that the scan band's computed
+    fill is the gradient (`url(...)`), and that it animates.*
+47. **A label in the hero drawing ran under the copy at every desktop width.** "CCS2 · 150 kW" was end-anchored to
+    the left of the charging port, which put it across the last line of the summary at 1440 px (and the charger 7 px
+    from the copy column). The label now sits above the car, the charger moved right, and the copy gives up width
+    beside the drawing (`min(34rem, 46cqi)`). *Guard: `interaction-qa.mjs` measures the drawing's labels, charger and
+    gauge against the copy's boxes at seven widths; it fails at the five desktop ones with the original label
+    placement restored, which is how it was checked.*
+48. **In the tablet band, the drawing's floor, horizon and glow ended in vertical edges.** They were drawn 40 units
+    past the drawing's box, which is enough on desktop (the hero clips there) and not when the drawing is centred in a
+    band wider than itself. They now extend 400 units and fade before the edge. *Guard: none automated.*
+49. **The explorer's chart labels were 9 px.** Text inside an SVG scales with the drawing; at the chart's real
+    width (about 480 px of a 640-unit drawing) a 12-unit label is 9 px. The script now tells the chart its scale and
+    sets the labels to 12.5 px on the screen, and draws fewer time ticks when it is small. The same fix is applied to
+    every drawing's labels. *Guard: `explorer-qa.mjs` measures the labels at six widths.*
+50. **The explorer overflowed a 220 px box** (a phone inside a Breakdance Section with 50 px padding of its own).
+    The comparison rows' two fixed columns and their gaps added up to 180 px, wider than the space, and a grid track
+    sized to its content pushed the whole column out. Every single-column grid in the explorer is now
+    `minmax(0, 1fr)`, and below 20rem the charger choices become a list, each row's bar drops under its name, the
+    figures stack and the chart is left out. Found by the existing 320 px overflow sweep on the Breakdance media page,
+    not by a check written for the explorer. *Guard: that sweep, and `explorer-qa.mjs` at 320 px.*
+51. **The explorer's sentence could break between "122" and "km".** The figure and its unit were separate words in
+    the translated sentence. They are now one value joined with a no-break space, on the server and in the script
+    alike. *Guard: `widget-render-check.php`.*
+
+Test-side, in the same pass: the overflow probe now skips the inside of a drawing (its shapes may run past their
+box on purpose; the widget clips them, and the drawing's own `<svg>` box is still held to the widget's) and the hero's
+drawing; the a11y probe first measured a focus ring against the control's own fill instead of the surface behind it
+(a primary button read 2.3:1 against itself); several assertions were rewritten because the design changed, not
+because it broke (the byline's markup now has an icon in it, the arrow is an SVG, the ruler has a key, a mixed Related
+row has a drawing, the demo article has thirteen widgets); and the FAQ's plus and minus are two icons now, so the check
+reads their opacity.
 
 A design-choice correction rather than a bug: the first draft of 0.5.0 used Newsreader for the headings, and the
 project's own design notes list it as a face models reach for by default. The choice was re-run over twelve candidates

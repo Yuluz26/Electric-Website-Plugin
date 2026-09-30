@@ -1,8 +1,8 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
- * @var array{title:string,description:string,power_range:string,dwell_label:string,best_for:string} $ac
- * @var array{title:string,description:string,power_range:string,dwell_label:string,best_for:string} $dc
+ * @var array{title:string,description:string,power_range:string,dwell_label:string,best_for:string,art:string} $ac
+ * @var array{title:string,description:string,power_range:string,dwell_label:string,best_for:string,art:string} $dc
  * @var array<string, array<string, string>>|null $rulers Per panel (ac|dc): from, to, other_from, other_to, max. Null: no ruler.
  * @var string $mode
  * @var string $accent_treatment
@@ -43,6 +43,7 @@ $panels = array(
 						aria-selected="<?php echo 'ac' === $key ? 'true' : 'false'; ?>"
 						tabindex="<?php echo 'ac' === $key ? '0' : '-1'; ?>"
 					>
+						<?php echo \EVPX\Support\Icons::svg( 'ac' === $key ? 'wave-sine' : 'lightning' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?>
 						<?php echo esc_html( $panel['title'] ); ?>
 					</button>
 				<?php endforeach; ?>
@@ -65,6 +66,10 @@ $panels = array(
 						<?php if ( $panel['description'] ) : ?>
 							<div class="evpx-body evpx-comparison__description"><?php echo $panel['description']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wpautop + wp_kses_post already applied */ ?></div>
 						<?php endif; ?>
+
+						<?php if ( $panel['art'] ) : ?>
+							<?php echo $panel['art']; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from EVPX\Support\Art */ ?>
+						<?php endif; ?>
 					</div>
 
 					<dl class="evpx-comparison__data evpx-surface--raised">
@@ -82,6 +87,11 @@ $panels = array(
 									>
 										<span class="evpx-ruler__other"></span>
 										<span class="evpx-ruler__span"></span>
+									</span>
+									<?php // What the bar and the outline are: this panel's range, and the other's, on one scale. ?>
+									<span class="evpx-ruler__key" aria-hidden="true">
+										<span><span class="evpx-ruler__swatch"></span><?php echo esc_html( $panel['title'] ); ?></span>
+										<span><span class="evpx-ruler__swatch evpx-ruler__swatch--other"></span><?php echo esc_html( $panels[ 'ac' === $key ? 'dc' : 'ac' ]['title'] ); ?></span>
 									</span>
 								<?php endif; ?>
 							</dd>

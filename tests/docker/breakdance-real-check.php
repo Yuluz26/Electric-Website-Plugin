@@ -183,14 +183,14 @@ if ( $field ) {
 // The EV widgets as elements of their own in the builder's Add panel. Everything about them is
 // derived from the widgets, so these checks are about the seams: what Breakdance is told, and that
 // what it gets back is the same component the shortcode renders.
-$names    = array( 'Hero', 'Section', 'Comparison', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' );
+$names    = array( 'Hero', 'Section', 'Comparison', 'Explorer', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' );
 $declared = array_filter(
 	$names,
 	static function ( $n ) {
 		return class_exists( 'EVPX\\' . $n, false );
 	}
 );
-$check( 'all nine native elements are declared', 9 === count( $declared ), implode( ',', array_diff( $names, $declared ) ) );
+$check( 'all ten native elements are declared', 10 === count( $declared ), implode( ',', array_diff( $names, $declared ) ) );
 
 $evpx_classes = array_values(
 	array_filter(
@@ -208,7 +208,7 @@ $bad = array_filter(
 );
 // Breakdance instantiates every declared Element subclass to read its definition; an abstract
 // class of ours in that list crashes the builder ("Cannot instantiate abstract class").
-$check( 'Breakdance sees only concrete, instantiable EVPX element classes (no abstract base)', 9 === count( $evpx_classes ) && empty( $bad ), implode( ',', $evpx_classes ) );
+$check( 'Breakdance sees only concrete, instantiable EVPX element classes (no abstract base)', 10 === count( $evpx_classes ) && empty( $bad ), implode( ',', $evpx_classes ) );
 
 $defs = array();
 foreach ( \Breakdance\Elements\get_elements_for_builder() as $d ) {
@@ -216,7 +216,7 @@ foreach ( \Breakdance\Elements\get_elements_for_builder() as $d ) {
 		$defs[ $d['slug'] ] = $d;
 	}
 }
-$check( 'the builder is given all nine, in the EV Charging category, in this plugin\'s order', 9 === count( $defs ) && 1 === count( array_unique( array_column( $defs, 'category' ) ) ) && 'evpx' === reset( $defs )['category'] );
+$check( 'the builder is given all ten, in the EV Charging category, in this plugin\'s order', 10 === count( $defs ) && 1 === count( array_unique( array_column( $defs, 'category' ) ) ) && 'evpx' === reset( $defs )['category'] );
 
 $categories = array_column( \Breakdance\Elements\get_element_categories(), 'label', 'slug' );
 $check( 'the EV Charging category is registered', 'EV Charging' === ( $categories['evpx'] ?? '' ), wp_json_encode( $categories ) );
@@ -269,7 +269,7 @@ $check(
 
 // The "Vertical spacing" control reaches the markup of every section widget.
 $spaced = array();
-foreach ( array( 'Section', 'Comparison', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' ) as $n ) {
+foreach ( array( 'Section', 'Comparison', 'Explorer', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' ) as $n ) {
 	$c    = 'EVPX\\' . $n;
 	$none = $c::ssr( array( 'content' => array( 'layout' => array( 'spacing' => 'none' ) ) ), array(), false );
 	$def  = $c::ssr( array(), array(), false );
@@ -307,7 +307,7 @@ $nodes = evpx_test_native_nodes( (string) file_get_contents( '/tmp/demo-article.
 $norm  = static function ( $html ) {
 	// Random ids differ per render; whitespace between tags differs because the shortcode source has
 	// newlines between nested tags and the repeater has none. Neither is a difference in the component.
-	return preg_replace( array( '/evpx-(?:cmp|faq)-[0-9a-f]{8}/', '/>\s+</' ), array( 'evpx-id', '><' ), (string) $html );
+	return preg_replace( array( '/evpx-(?:cmp|faq)-[0-9a-f]{8}/', '/evpx-art-\d+/', '/evpx-explorer-\d+/', '/>\s+</' ), array( 'evpx-id', 'evpx-art-id', 'evpx-explorer-id', '><' ), (string) $html );
 };
 $diffs = array();
 foreach ( $nodes as $i => $node ) {

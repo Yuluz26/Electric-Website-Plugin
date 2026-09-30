@@ -3,7 +3,7 @@
  * Plugin Name:       EV Charging Experience
  * Plugin URI:        https://marcopolosupplies.com/
  * Description:       Premium, neumorphic, editorial EV-charging article components for WordPress + Breakdance. Adds capabilities to Breakdance; never overrides it.
- * Version:           0.5.0
+ * Version:           0.6.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Marco Polo Supplies
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Constants
 // --------------------------------------------------------------------
 
-define( 'EVPX_VERSION', '0.5.0' );
+define( 'EVPX_VERSION', '0.6.0' );
 define( 'EVPX_FILE', __FILE__ );
 define( 'EVPX_PATH', plugin_dir_path( __FILE__ ) );
 define( 'EVPX_URL', plugin_dir_url( __FILE__ ) );
