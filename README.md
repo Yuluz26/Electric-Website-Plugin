@@ -66,6 +66,7 @@ node tests/playwright/qa.mjs "$(cat tests/docker/.demo-url)"   # browser checks:
 node tests/playwright/interaction-qa.mjs "$(cat tests/docker/.demo-url)"   # hover, focus, motion on/off, the comparison thumb and range bar
 node tests/playwright/explorer-qa.mjs "$(cat tests/docker/.demo-url)"      # the explorer: page before/after the script, the model against the PHP one, controls, six widths
 node tests/playwright/a11y-qa.mjs "$(cat tests/docker/.demo-url)"          # focus rings on every surface in both schemes, targets, type size, measure, icons, forced colours
+node tests/playwright/layout-qa.mjs "$(cat tests/docker/.demo-url)"        # composition: the hero's gauge reads, drawings paint and keep their units, the floor reaches the edges, a related row ends square
 bash tests/docker/widget-render-check.sh        # what the widgets print (the power scale, the key figure, captions, icons, drawings, the explorer, escaping)
 node tests/contrast-check.mjs                   # WCAG pairings, read from the real tokens
 node tests/css-check.mjs                        # undefined tokens, selector scope, !important, ungated animation

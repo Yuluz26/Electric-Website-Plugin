@@ -47,8 +47,8 @@ $bolt  = \EVPX\Support\Icons::path( 'lightning' );
 		<rect class="evpx-art__draw" pathLength="1" style="--i:1" x="150" y="44" width="176" height="300" rx="16" stroke="currentColor" stroke-opacity=".7" stroke-width="1.5"/>
 		<rect x="176" y="84" width="124" height="88" rx="9" fill="#0b0d11" stroke="currentColor" stroke-opacity=".38" stroke-width="1.2"/>
 		<path class="evpx-art__dot" d="<?php echo esc_attr( $bolt ); ?>" transform="translate(190 100) scale(.15)"/>
-		<text class="evpx-art__value" x="238" y="138" font-size="28">150</text>
-		<text class="evpx-art__label" x="238" y="158">kW</text>
+		<text class="evpx-art__value" x="238" y="134" font-size="28">150</text>
+		<text class="evpx-art__label" x="238" y="160"><tspan class="evpx-art__unit">kW</tspan></text>
 		<path d="M180 216H296M180 234H296M180 252H296M180 270H296M180 288H296" stroke="currentColor" stroke-opacity=".16" stroke-width="1.4"/>
 		<path d="M144 344H332" stroke="currentColor" stroke-opacity=".7" stroke-width="1.5"/>
 	</g>

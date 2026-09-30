@@ -36,6 +36,27 @@ export const scrollThrough = (page) =>
 		}
 	});
 
+/**
+ * Wait until every finite animation and transition on the page has finished, up to `limit` ms (an endless one, like the
+ * pulse along a cable, is left running). A page is judged as it settles, not part-way through a reveal: text that is
+ * fading in is measured at its blended colour, which is a lower contrast than the one it comes to rest on.
+ * Returns how many were still running when it gave up.
+ */
+export const settled = (page, limit = 8000) =>
+	page.evaluate(
+		(max) =>
+			new Promise((resolve) => {
+				const started = performance.now();
+				const poll = () => {
+					const running = document.getAnimations().filter((a) => a.playState === 'running' && Number.isFinite(a.effect.getComputedTiming().endTime));
+					if (!running.length || performance.now() - started > max) resolve(running.length);
+					else setTimeout(poll, 100);
+				};
+				poll();
+			}),
+		limit
+	);
+
 export const notFullyVisible = (page) =>
 	page.$$eval('[data-evpx-reveal]', (els) => els.filter((e) => getComputedStyle(e).opacity !== '1' || getComputedStyle(e).visibility === 'hidden').length);
 
@@ -82,6 +103,7 @@ export async function axeViolations(page, outFile) {
 	if (!axePath) return null;
 
 	await page.addScriptTag({ path: axePath });
+	await settled(page);
 	const results = await page.evaluate(() =>
 		window.axe.run(
 			{ include: [['.evpx-root']] },

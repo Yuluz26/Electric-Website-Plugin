@@ -55,6 +55,13 @@ fi
 wp config set WP_DEBUG_LOG true --raw
 wp config set WP_DEBUG_DISPLAY true --raw
 
+# WordPress checks wordpress.org for updates on the first admin page after a theme is added or removed. Where there is
+# no route to it (a sandbox behind a proxy) that check takes about 30 s to fail, longer than the browser suites wait for
+# a login. Refuse external requests at once instead; set EVPX_ALLOW_EXTERNAL_HTTP=1 to leave them alone.
+if [ -z "${EVPX_ALLOW_EXTERNAL_HTTP:-}" ]; then
+	wp config set WP_HTTP_BLOCK_EXTERNAL true --raw
+fi
+
 # A real, licensed Breakdance ZIP (never committed here). Extracted on the host
 # because the WordPress image has no unzip, then copied in and activated.
 if [ -n "${EVPX_BREAKDANCE_ZIP:-}" ]; then

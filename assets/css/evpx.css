@@ -505,6 +505,24 @@
 	height: 100%;
 }
 
+/* The hero's pointer light, on a panel: the copper the drawings are lit with, following a fine pointer
+   (evpx.js writes --evpx-mx and --evpx-my for anything marked data-evpx-spot). */
+.evpx-root .evpx-artpanel::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0;
+	background: radial-gradient(18rem circle at var(--evpx-mx, 70%) var(--evpx-my, 30%), rgba(255, 138, 61, 0.13), transparent 70%);
+	transition: opacity var(--evpx-dur-section) var(--evpx-ease-premium);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.evpx-root[data-evpx-motion='on'] .evpx-artpanel:hover::after {
+		opacity: 1;
+	}
+}
+
 .evpx-root .evpx-art__stop-neon {
 	stop-color: var(--evpx-neon);
 }
@@ -942,8 +960,9 @@
 		width: auto;
 		height: var(--evpx-art-h);
 		overflow: hidden;
-		-webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 32%);
-		mask-image: linear-gradient(to bottom, transparent 0, #000 32%);
+		/* Only the cut edge is softened: the gauge stands in the top quarter of the band and has to read. */
+		-webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 7%);
+		mask-image: linear-gradient(to bottom, transparent 0, #000 7%);
 	}
 
 	.evpx-root .evpx-hero__visual .evpx-art {
@@ -2974,6 +2993,7 @@
 
 	margin-top: 0.2em;
 	color: var(--evpx-neon-line);
+	transition: filter var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
 .evpx-root .evpx-decision__description {
@@ -3010,6 +3030,10 @@
 
 	.evpx-root .evpx-decision__item:hover .evpx-decision__ask {
 		color: var(--evpx-accent-text);
+	}
+
+	.evpx-root .evpx-decision__item:hover .evpx-decision__icon {
+		filter: drop-shadow(0 0 5px var(--evpx-glow));
 	}
 }
 
@@ -3059,6 +3083,22 @@
 	}
 }
 
+/* Two to a row here, so a card left over takes the whole row, its picture beside its text, and the row ends square
+   instead of leaving a hole. */
+@container (min-width: 40rem) and (max-width: 63.99rem) {
+	.evpx-root .evpx-related__list--cols-3 > .evpx-related__item:last-child:nth-child(odd) {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		align-items: center;
+		column-gap: var(--evpx-space-8);
+	}
+
+	.evpx-root .evpx-related__item:last-child:nth-child(odd) > .evpx-related__body:only-child {
+		grid-column: 1 / -1;
+	}
+}
+
 @container (min-width: 64rem) {
 	.evpx-root .evpx-related__list--cols-3 {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3098,6 +3138,7 @@
 /* A raised knob with an arrow, in the corner of the picture. It only shows for a fine pointer. */
 .evpx-root .evpx-related__go {
 	position: absolute;
+	z-index: 1;
 	right: var(--evpx-space-4);
 	bottom: var(--evpx-space-4);
 	width: 2.75rem;

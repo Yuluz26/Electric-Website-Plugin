@@ -176,9 +176,14 @@ if (!hasGsap) {
 } else {
 	const bar = await page.$('.evpx-progress__fill');
 	if (bar) {
-		await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-		await page.waitForTimeout(600);
-		const scale = await bar.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
+		// The bar follows the scroll a beat behind it, and a page that loads pictures as it is scrolled grows under
+		// the reader: scroll to the end again and give it up to four seconds to arrive.
+		let scale = 0;
+		for (let attempt = 0; attempt < 10 && scale <= 0.95; attempt++) {
+			await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+			await page.waitForTimeout(attempt === 0 ? 600 : 400);
+			scale = await bar.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
+		}
 		check('progress bar tracks scroll', scale > 0.95, `scaleX=${scale}`);
 		// A constrained block theme caps and centres every child of the post content, a fixed bar included:
 		// on Twenty Twenty-Five the track was 645px wide, starting 398px in.

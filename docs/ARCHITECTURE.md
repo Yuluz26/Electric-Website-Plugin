@@ -69,7 +69,7 @@ Electric-Website-Plugin/
 ├── templates/                      # one PHP view partial per element
 │   └── art/                        # the built-in drawings: one inline SVG per file (hero-schematic, charge-curve, wallbox, …)
 ├── languages/                      # .pot translation template
-├── tests/                          # docker/ (setup, real-Breakdance, media and template checks), playwright/ (qa, interaction-qa, explorer-qa, a11y-qa, breakdance-qa, media-qa, template-qa), php/ (the model grid), contrast-check, css-check, build-zip
+├── tests/                          # docker/ (setup, real-Breakdance, media and template checks), playwright/ (qa, interaction-qa, explorer-qa, a11y-qa, layout-qa, breakdance-qa, media-qa, template-qa), php/ (the model grid), contrast-check, css-check, build-zip
 └── docs/
 ```
 
@@ -349,7 +349,9 @@ on their own dark ground (`.evpx-artpanel`, `--evpx-art-ground`), so they read o
 (`aria-hidden`), carry only units, acronyms and a few translated words, and every gradient, mask and filter id is
 unique per instance. The neon halo is one blurred group (an SVG `<filter>`, since Safari does not apply a CSS filter to
 shapes inside an `<svg>`); a zero-height shape (a horizontal rule) is filled with a gradient in user space, or drawn as a
-thin rect, since a gradient in object-bounding-box units does not paint on a line with no height.
+thin rect, since a gradient in object-bounding-box units does not paint on a line with no height. A panel catches the
+hero's pointer light (`data-evpx-spot` on `.evpx-artpanel`; a warm glow in its `::after`, for a fine pointer with motion
+on). A unit in a drawing goes in a `<tspan class="evpx-art__unit">` so the labels' capitals do not reach it (kW, not KW).
 A drawing is finished as printed; with motion on its outlines draw themselves in, once (`stroke-dashoffset` on a path
 of `pathLength="1"`), the light comes on, a band of light crosses the car, and a pulse travels the cable, gated on the same
 `data-evpx-motion="on"` marker as everything else and paused by an `IntersectionObserver` while off screen (so a drawing
@@ -360,7 +362,11 @@ more on the screen whatever size the drawing is shown at (`evpx.js` tells each t
 pointer (`data-evpx-spot`), the byline as a readout (an icon and a caption over each value), and the drawing at the right
 (62% of the width from 64rem, bleeding a little off the edge and fading in from the copy; below that a band under the
 copy, sized by the width it has and cropped at the top to the part worth showing; on a phone, the car and the charger
-alone). The copy gives up width beside the drawing (`min(34rem, 46cqi)`) so nothing is ever set over it.
+alone). The copy gives up width beside the drawing (`min(34rem, 46cqi)`) so nothing is ever set over it. In the band the
+top edge of the drawing is softened by a short mask (7%); it must not reach the gauge, which stands in the band's top
+quarter, and `layout-qa.mjs` measures that the gauge's figure is as bright as its type. The floor, horizon and glow are
+drawn 400 units past the drawing's box, so a drawing centred in a wider band runs out under the hero's edge instead of
+ending in a line.
 
 **Forced colours.** The depth is drawn with shadows and a forced-colours browser draws none, so §18 of the stylesheet
 gives each raised or sunken surface an edge, keeps the fills that carry meaning (bars, the selected tab, the progress

@@ -183,7 +183,9 @@ accepted, otherwise falls back to `post`); `count` select 2/3 (layout); `animate
 (motion). Lists real published posts, excluding the current page and password-protected
 posts. With nothing to list, visitors see nothing and editors see a one-line note. An article with no featured
 image is given a drawing (a different one each), so a row never has a blank tile beside a photograph; `art` toggle (visual,
-default on) — with it off, a row where any article lacks a picture shows none at all, as a text-only row.
+default on) — with it off, a row where any article lacks a picture shows none at all, as a text-only row. Three
+to a row from 64rem, two to a row from 40rem, one below that; at two to a row an odd card left over takes the whole row,
+its picture beside its text.
 
 ## EV CTA — `[evpx_cta]` / `evpx/cta`
 

@@ -47,7 +47,7 @@ final class Art {
 
 		$svg = self::render( $key );
 
-		return '' === $svg ? '' : '<div class="evpx-artpanel">' . $svg . '</div>';
+		return '' === $svg ? '' : '<div class="evpx-artpanel" data-evpx-spot>' . $svg . '</div>';
 	}
 
 	/**

@@ -6,8 +6,8 @@ A second design pass. Yul's brief: fitting pictures, icons used consistently, ne
 heroes that stop a visitor, futuristic, and a finish worth what a site of this kind costs to have made. The design
 language changed (copper became light as well as colour; one icon family; drawings where there were no pictures),
 one widget was added, and the audit that came with it (contrast, focus, targets, measure, type scale, forced
-colours) was applied to what already existed. Seven defects in the new work were found and fixed
-(`docs/QA-REPORT.md`, bugs 45-51).
+colours) was applied to what already existed. Ten defects in the new work were found and fixed
+(`docs/QA-REPORT.md`, bugs 45-54); the last three came from looking at every widget at four widths, not from a test.
 
 **Added**
 - **EV Charging Explorer** (`[evpx_explorer]`, `evpx/explorer`, a native Breakdance element): how long a car stays,
@@ -52,8 +52,12 @@ colours) was applied to what already existed. Seven defects in the new work were
 - A **forced-colours** block: an edge where the design used a shadow, system colours for the fills that carry meaning,
   the hero's decoration taken away.
 - The explorer's sentences keep a figure and its unit on one line.
+- The drawing panels catch the hero's pointer light (a warm glow that follows a fine pointer, off on touch and under
+  reduced motion), and a decision factor's icon lights when its row is hovered.
+- A Related row of three that has to fall to two per row at a tablet width no longer leaves the third card alone in the
+  corner: it takes the whole row, its picture beside its text.
 
-**Fixed** (in the new work; bugs 45-51 in `docs/QA-REPORT.md`)
+**Fixed** (in the new work; bugs 45-54 in `docs/QA-REPORT.md`)
 - The hero drawing's horizon painted nothing (a gradient in object-bounding-box units on a line with no height).
 - The band of light crossing the car was invisible (a class that said `fill: none` beat the shape's `fill` attribute).
 - A label in the hero's drawing ran under the copy at every desktop width.
@@ -61,12 +65,19 @@ colours) was applied to what already existed. Seven defects in the new work were
 - The explorer's chart labels scaled down with the chart to 9px.
 - The explorer overflowed a 220px box (a phone in a builder Section with its own padding), found by the 320px sweep.
 - The explorer's sentence could break between "122" and "km".
+- In the tablet band the hero's state-of-charge gauge was faded to a ghost by the mask meant to soften the band's cut edge.
+- The DC cabinet's readout said "KW" (a capitalised label rule reached the unit) and sat tight under its number on a phone.
+- A Related row of three left its third card alone in the corner at a tablet width.
 
 **Added - tests**
 - `tests/playwright/explorer-qa.mjs`: the page before the script and after it; the script's model against the PHP one
   over 200 cases (`tests/php/model-matrix.php`); the controls; six widths.
 - `tests/playwright/a11y-qa.mjs`: a focus ring at 3:1 on every control it reaches, in both colour schemes; targets;
   12px; measure; icons; forced colours.
+- `tests/playwright/layout-qa.mjs`: the composition checks a screenshot review turned up. The hero's gauge is as bright as
+  its type beside the copy and in the band under it; no drawing paints with a gradient measured from a box with no height
+  or width; a unit in a drawing keeps its case; the hero's floor, horizon and glow reach the edges of their box at six
+  widths; a Related row ends square at 820, 1366 and 390 px. Each was watched failing on the code it guards.
 - Render checks for icons, drawings, the explorer and the CTA's default; the interaction suite gains the hero drawing's
   motion and its stillness, and a check that its labels and charger lie clear of the copy at seven widths.
 
