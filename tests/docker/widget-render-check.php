@@ -106,6 +106,7 @@ $flow = static function ( string $atts ): string {
 $check( 'flow: five steps that all name something get an icon each, and the number becomes a caption', 5 === substr_count( $flow( '' ), 'class="evpx-flow__num"' ) && str_contains( $flow( '' ), 'evpx-icon--charging-station' ) );
 $check( 'flow: if one step\'s words are not known, none has an icon and every node is its number', ! str_contains( $flow( 'step3_label="Permits"' ), 'evpx-icon' ) && 5 === preg_match_all( '/class="evpx-flow__node" aria-hidden="true">0[1-5]<\/span>/', $flow( 'step3_label="Permits"' ) ) );
 $check( 'flow: icons can be switched off', ! str_contains( $flow( 'icons="false"' ), 'evpx-icon' ) );
+$check( 'flow: dark is the default look (the dark tokens are set on the widget), light leaves them off, and a stale value is the default', str_contains( $flow( '' ), 'data-evpx-theme="dark"' ) && ! str_contains( $flow( 'variant="light"' ), 'data-evpx-theme' ) && str_contains( $flow( 'variant="neon"' ), 'data-evpx-theme="dark"' ) );
 
 $factor = do_shortcode( '[evpx_decision_factors][evpx_decision_factor title="Dwell time"][evpx_decision_factor title="Dwell time" symbol="none"][/evpx_decision_factors]' );
 $check( 'decision factor: the icon is chosen from the title, and can be switched off', 1 === substr_count( $factor, 'evpx-decision__icon' ) && str_contains( $factor, 'evpx-icon--clock' ) );

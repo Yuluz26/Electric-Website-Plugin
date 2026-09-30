@@ -1,5 +1,48 @@
 # Changelog
 
+## 0.6.1
+
+Two weak spots the 0.6.0 review named, fixed: the Technical Flow was the plainest thing on the page, and the hero's
+byline could leave its last item alone on a second row. Both were found by looking, and neither had a check.
+
+**Changed**
+- **The Technical Flow is the article's schematic.** It is laid as a rail now: a groove cut into the surface with the
+  copper drawn along it as light, larger recessed sockets ringed in the glow holding each step's icon, and the name in the
+  display face (centred under its socket when it runs across, beside it when it is stacked). It is dark by default, a band
+  with the blueprint grid and the neon as itself, like the explorer and the closing panel; a new **Look** control
+  (`variant`: dark or light) keeps the old light surface one setting away. With motion the light runs along the rail and each
+  socket lights as it is reached. Stacked is now the base layout and the horizontal one is added from 48rem (it was the
+  other way round, with the same vertical rules written twice).
+- **The hero byline's date and reading time are a pair that wraps as one.** A byline that will not fit on a line is the
+  author over the two of them, never one item alone at the end.
+- **The dark faces share what they have in common.** The explorer and the dark flow one glow; the dark flow and the dark
+  closing panel one blueprint grid; the dark tokens carry the neon as itself, so the explorer no longer sets it. The
+  explorer and the closing panel render pixel for pixel as before.
+
+**Fixed**
+- The flow's steps could leave in the wrong order when the flow was reached soon after a page loaded: the stagger that
+  spaces them out on the way in also applied to being put away when motion is set up, so for two seconds the last steps
+  were still showing. The stagger is on the way in only.
+- In forced-colours mode the flow's connecting line was not drawn (a background is replaced there); the light is a system
+  colour now.
+- The hero byline stranded "Reading time" alone on a second row beside the drawing (the strip needed 546 px of a 544 px
+  column at 1440, and more than the column had at every width down to 1024).
+- The stacked flow overflowed a narrow column (220 px: a phone inside a builder Section with padding of its own): its one
+  grid track was sized to its longest name and pushed it out of the box. The track is `minmax(0, 1fr)`, a name may break
+  where it must, and below 20rem the sockets and their gap give up a little. Found by the existing 320 px sweep of a
+  Breakdance page.
+
+**Added - tests**
+- `layout-qa.mjs` (12 checks now): a wrapped byline is the author over the pair, never a lone item at the end (watched
+  failing at 1100 and 1024 px on the old markup); the flow's rail starts at one socket, ends at the next and runs through
+  their centres, across at three widths and down at three (watched failing with the rail shortened); nothing in the flow
+  pokes out of a 220 px column (watched failing with the fix taken out).
+- `interaction-qa.mjs`: a flow that has not been reached is put away at once (six elements were still showing 400 ms after
+  load with the old stagger, none now).
+- `widget-render-check.php`: the flow's look.
+- `media-qa.mjs` counts a byline's rows by where its items are, not by `offsetTop`, which changes meaning when a wrapper
+  is positioned.
+
 ## 0.6.0
 
 A second design pass. Yul's brief: fitting pictures, icons used consistently, neon with neumorphism but minimal,

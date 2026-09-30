@@ -56,6 +56,17 @@ final class TechnicalFlow extends Element {
 			),
 		);
 		$controls[] = array( 'key' => 'compact', 'label' => __( 'Compact mode', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'layout', 'default' => false );
+		$controls[] = array(
+			'key'     => 'variant',
+			'label'   => __( 'Look', 'ev-charging-experience' ),
+			'type'    => 'select',
+			'group'   => 'visual',
+			'default' => 'dark',
+			'options' => array(
+				'dark'  => __( 'Dark (blueprint band)', 'ev-charging-experience' ),
+				'light' => __( 'Light', 'ev-charging-experience' ),
+			),
+		);
 		$controls[] = array( 'key' => 'icons', 'label' => __( 'Show icons (otherwise step numbers)', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'visual', 'default' => true );
 		$controls[] = array( 'key' => 'animate', 'label' => __( 'Enable sequence animation', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true );
 
@@ -90,6 +101,7 @@ final class TechnicalFlow extends Element {
 				'steps'     => $steps,
 				'symbols'   => $symbols,
 				'direction' => $atts['direction'],
+				'variant'   => $atts['variant'],
 				'compact'   => $atts['compact'],
 				'animate'   => $atts['animate'],
 			)

@@ -5,6 +5,7 @@
  * @var string[] $steps
  * @var string[] $symbols One icon name per step, or all ''.
  * @var string   $direction
+ * @var string   $variant dark | light.
  * @var bool     $compact
  * @var bool     $animate
  */
@@ -15,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <section
 	class="evpx-root alignfull evpx-flow evpx-flow--<?php echo esc_attr( $direction ); ?><?php echo $compact ? ' evpx-flow--compact' : ''; ?>"
+	<?php echo 'dark' === $variant ? 'data-evpx-theme="dark"' : ''; ?>
 	data-evpx-animate="<?php echo $animate ? '1' : '0'; ?>"
 	data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>"
 >

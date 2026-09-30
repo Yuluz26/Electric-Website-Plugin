@@ -221,7 +221,9 @@
 	--evpx-ink-muted: #a7aeb6;
 	--evpx-ink-faint: #838b96; /* verified by tests/contrast-check.mjs */
 	--evpx-accent-text: #ff8a3d;
+	--evpx-neon-line: var(--evpx-neon);
 	--evpx-glow: rgba(255, 138, 61, 0.5);
+	--evpx-grid-line: rgba(255, 255, 255, 0.055);
 	--evpx-border: #262c34;
 	--evpx-spot: rgba(255, 255, 255, 0.07);
 
@@ -254,7 +256,9 @@
 		--evpx-ink-muted: #a7aeb6;
 		--evpx-ink-faint: #838b96;
 		--evpx-accent-text: #ff8a3d;
+		--evpx-neon-line: var(--evpx-neon);
 		--evpx-glow: rgba(255, 138, 61, 0.5);
+		--evpx-grid-line: rgba(255, 255, 255, 0.055);
 		--evpx-border: #262c34;
 		--evpx-spot: rgba(255, 255, 255, 0.07);
 
@@ -1039,7 +1043,9 @@
 
 /* The byline as a small readout: an icon and a caption over each value, a hairline between. Each item carries
    a hairline in the middle of the gap before it; when the strip wraps, the hairline that lands before
-   the first item of a row falls outside the box and is clipped, so a separator never dangles. */
+   the first item of a row falls outside the box and is clipped, so a separator never dangles. The date and the
+   reading time are a pair that wraps as one, so a byline that will not fit on a line is the author over the two
+   of them, never a lone item at the end; the pair does not wrap inside itself (a value does, when it must). */
 .evpx-root .evpx-hero__meta {
 	--evpx-meta-gap: var(--evpx-space-10);
 
@@ -1100,7 +1106,14 @@
 	grid-area: value;
 }
 
-.evpx-root .evpx-hero__meta-item + .evpx-hero__meta-item::after {
+.evpx-root .evpx-hero__meta-group {
+	position: relative;
+	display: flex;
+	column-gap: var(--evpx-meta-gap);
+}
+
+.evpx-root .evpx-hero__meta-item + .evpx-hero__meta-item::after,
+.evpx-root .evpx-hero__meta-item + .evpx-hero__meta-group::before {
 	content: '';
 	position: absolute;
 	inset-block: 0;
@@ -1614,14 +1627,19 @@
    controls raised on the left and the readout sunk into a well on the right, like a display in a panel.
    -------------------------------------------------------------------- */
 
-.evpx-root.evpx-explorer {
-	--evpx-focus-ring: var(--evpx-neon);
-	--evpx-neon-line: var(--evpx-neon);
-
-	padding-block: var(--evpx-section-y);
+/* A dark band: copper glowing low at the right, on the page's dark ground. The explorer is one, and so is the flow
+   when it is set dark. */
+.evpx-root.evpx-explorer,
+.evpx-root.evpx-flow[data-evpx-theme='dark'] {
 	background:
 		radial-gradient(60% 80% at 88% 100%, rgba(255, 138, 61, 0.09), transparent 70%),
 		var(--evpx-surface-base);
+}
+
+.evpx-root.evpx-explorer {
+	--evpx-focus-ring: var(--evpx-neon);
+
+	padding-block: var(--evpx-section-y);
 	color: var(--evpx-ink);
 }
 
@@ -2427,13 +2445,41 @@
 }
 
 /* ----------------------------------------------------------------------
-   9. Technical Flow — a timeline drawn on the page: a numbered node per step,
-   a line between them, the label underneath. With motion the line charges from
-   the first step to the last as it scrolls into view.
+   9. Technical Flow — the path from the grid to the battery, laid as a rail: a groove cut into the surface with the
+   copper drawn along it as light, and at each step a socket that holds the step's icon. Dark by default (the article's
+   schematic: the blueprint grid, the neon as itself); light is one attribute away. Stacked by default (a phone, a
+   narrow column); from 48rem a horizontal one runs across. With motion the light runs from the first step to the last
+   and each socket lights as it is reached.
    -------------------------------------------------------------------- */
 
 .evpx-root.evpx-flow {
 	padding-block: var(--evpx-section-y);
+}
+
+.evpx-root.evpx-flow[data-evpx-theme='dark'] {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+}
+
+/* The blueprint grid, as a pseudo-element on the dark faces that carry it (the flow, and the dark CTA further on),
+   behind the content; each fades it out from its own corner. */
+.evpx-root.evpx-flow[data-evpx-theme='dark']::before,
+.evpx-root.evpx-cta--dark::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background-image:
+		linear-gradient(to right, var(--evpx-grid-line) 1px, transparent 1px),
+		linear-gradient(to bottom, var(--evpx-grid-line) 1px, transparent 1px);
+	background-size: 4rem 4rem;
+}
+
+.evpx-root.evpx-flow[data-evpx-theme='dark']::before {
+	z-index: -1;
+	-webkit-mask-image: radial-gradient(90% 120% at 15% 0%, #000, transparent 70%);
+	mask-image: radial-gradient(90% 120% at 15% 0%, #000, transparent 70%);
 }
 
 .evpx-root .evpx-flow__heading {
@@ -2443,49 +2489,64 @@
 }
 
 .evpx-root .evpx-flow__steps {
-	--evpx-node: 3.25rem;
+	--evpx-node: 3.5rem;
+	--evpx-rail: 6px;
+	--evpx-flow-gap: var(--evpx-space-8);
 
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	display: grid;
-	grid-auto-flow: column;
-	grid-auto-columns: minmax(0, 1fr);
+	grid-template-columns: minmax(0, 1fr); /* a track sized to its content would push a long name out of a narrow box */
+	row-gap: var(--evpx-flow-gap);
 }
 
 .evpx-root.evpx-flow--compact .evpx-flow__steps {
-	--evpx-node: 2.5rem;
+	--evpx-node: 2.75rem;
+	--evpx-flow-gap: var(--evpx-space-6);
 }
 
 .evpx-root .evpx-flow__step {
+	--evpx-charge-from: scaleY(0);
+
 	position: relative;
 	display: grid;
-	justify-items: start;
-	align-content: start;
-	row-gap: var(--evpx-space-4);
-	padding-right: var(--evpx-space-4);
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: start;
+	column-gap: var(--evpx-space-5);
 }
 
-/* The line to the next step: a hairline, and on it the copper charge. */
+/* The rail from this step's socket to the next one's, behind both: the groove, and the light in it. */
 .evpx-root .evpx-flow__step:not(:last-child)::before,
 .evpx-root .evpx-flow__step:not(:last-child)::after {
 	content: '';
 	position: absolute;
 	top: calc(var(--evpx-node) / 2);
-	left: calc(var(--evpx-node) + var(--evpx-space-3));
-	right: var(--evpx-space-3);
-	height: 1px;
-	background: var(--evpx-border);
+	bottom: calc(var(--evpx-flow-gap) * -1 - var(--evpx-node) / 2);
+	left: calc((var(--evpx-node) - var(--evpx-rail)) / 2);
+	width: var(--evpx-rail);
+	border-radius: 999px;
+}
+
+.evpx-root .evpx-flow__step:not(:last-child)::before {
+	background: var(--evpx-surface-base);
+	box-shadow: var(--evpx-well-1);
 }
 
 .evpx-root .evpx-flow__step:not(:last-child)::after {
-	background: var(--evpx-accent-text);
-	transform-origin: left center;
+	left: calc((var(--evpx-node) - 2px) / 2);
+	width: 2px;
+	background: var(--evpx-neon-line);
+	box-shadow: var(--evpx-glow-1);
+	transform-origin: top center;
 }
 
+/* The socket: a recessed disc, ringed in the glow, holding the step's icon lit. */
 .evpx-root .evpx-flow__node {
-	--evpx-icon-size: calc(var(--evpx-node) * 0.42);
+	--evpx-icon-size: calc(var(--evpx-node) * 0.4);
 
+	position: relative;
+	z-index: 1;
 	flex: none;
 	width: var(--evpx-node);
 	height: var(--evpx-node);
@@ -2494,28 +2555,29 @@
 	justify-content: center;
 	border-radius: 50%;
 	background: var(--evpx-surface-base);
-	box-shadow: var(--evpx-well-1);
+	box-shadow: var(--evpx-well-1), 0 0 0 1px var(--evpx-glow);
 	color: var(--evpx-neon-line);
 	font-family: var(--evpx-font-mono);
 	font-weight: 500;
-	font-size: var(--evpx-size-label);
+	font-size: var(--evpx-size-small);
 	letter-spacing: 0.02em;
 	font-variant-numeric: tabular-nums;
 	transition: transform var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
-@media (hover: hover) and (pointer: fine) {
-	.evpx-root .evpx-flow__step:hover .evpx-flow__node {
-		transform: scale(1.06);
-	}
+.evpx-root .evpx-flow__node .evpx-icon {
+	filter: drop-shadow(0 0 5px var(--evpx-glow));
+	transition: filter var(--evpx-dur-section) var(--evpx-ease-premium);
 }
 
 .evpx-root .evpx-flow__text {
+	min-height: var(--evpx-node);
 	display: grid;
+	align-content: center;
 	row-gap: var(--evpx-space-1);
 }
 
-/* With an icon in the node the step's number is a caption above its name. */
+/* With an icon in the socket the step's number is a caption above its name. */
 .evpx-root .evpx-flow__num {
 	font-family: var(--evpx-font-mono);
 	font-size: var(--evpx-size-label);
@@ -2526,69 +2588,86 @@
 }
 
 .evpx-root .evpx-flow__label {
-	font-size: var(--evpx-size-body);
-	font-weight: 550;
-	line-height: 1.3;
+	font-family: var(--evpx-font-display);
+	font-size: var(--evpx-size-lede);
+	font-weight: var(--evpx-title-weight);
+	letter-spacing: var(--evpx-title-tracking);
+	line-height: 1.2;
+	overflow-wrap: anywhere;
 	color: var(--evpx-ink);
+	transition: color var(--evpx-dur-base) var(--evpx-ease-premium);
 }
 
-/* A vertical run: nodes down the left, the label beside each, the line running down between them
-   (and charging downward, not sideways). */
-.evpx-root.evpx-flow--vertical .evpx-flow__steps {
-	grid-auto-flow: row;
-	row-gap: var(--evpx-space-8);
+@media (hover: hover) and (pointer: fine) {
+	.evpx-root .evpx-flow__step:hover .evpx-flow__node {
+		transform: scale(1.05);
+	}
+
+	.evpx-root .evpx-flow__step:hover .evpx-flow__label {
+		color: var(--evpx-accent-text);
+	}
 }
 
-.evpx-root.evpx-flow--vertical .evpx-flow__step {
-	--evpx-charge-from: scaleY(0);
+/* In a narrow box (a phone inside a builder Section with padding of its own) the socket and the gap beside it give up a
+   little so the names keep their room. */
+@container (max-width: 19.99rem) {
+	.evpx-root .evpx-flow__steps {
+		--evpx-node: 2.75rem;
+	}
 
-	grid-template-columns: auto minmax(0, 1fr);
-	align-items: center;
-	column-gap: var(--evpx-space-4);
-	padding-right: 0;
+	.evpx-root .evpx-flow__step {
+		column-gap: var(--evpx-space-3);
+	}
+
+	.evpx-root .evpx-flow__label {
+		font-size: var(--evpx-size-body);
+	}
 }
 
-.evpx-root.evpx-flow--vertical .evpx-flow__step:not(:last-child)::after {
-	transform-origin: top center;
-}
-
-.evpx-root.evpx-flow--vertical .evpx-flow__step:not(:last-child)::before,
-.evpx-root.evpx-flow--vertical .evpx-flow__step:not(:last-child)::after {
-	top: calc(var(--evpx-node) + var(--evpx-space-2));
-	bottom: calc(var(--evpx-space-8) * -1 + var(--evpx-space-2));
-	left: calc(var(--evpx-node) / 2);
-	right: auto;
-	width: 1px;
-	height: auto;
-}
-
-@container (max-width: 47.99rem) {
+/* Across, from 48rem: the sockets in equal columns on one rail, each name centred under its socket. */
+@container (min-width: 48rem) {
 	.evpx-root.evpx-flow--horizontal .evpx-flow__steps {
-		grid-auto-flow: row;
-		row-gap: var(--evpx-space-8);
+		--evpx-node: 4.5rem;
+
+		grid-template-columns: none;
+		grid-auto-flow: column;
+		grid-auto-columns: minmax(0, 1fr);
+		row-gap: 0;
+	}
+
+	.evpx-root.evpx-flow--horizontal.evpx-flow--compact .evpx-flow__steps {
+		--evpx-node: 3.25rem;
 	}
 
 	.evpx-root.evpx-flow--horizontal .evpx-flow__step {
-		--evpx-charge-from: scaleY(0);
+		--evpx-charge-from: scaleX(0);
 
-		grid-template-columns: auto minmax(0, 1fr);
-		align-items: center;
-		column-gap: var(--evpx-space-4);
-		padding-right: 0;
-	}
-
-	.evpx-root.evpx-flow--horizontal .evpx-flow__step:not(:last-child)::after {
-		transform-origin: top center;
+		grid-template-columns: minmax(0, 1fr);
+		justify-items: center;
+		align-content: start;
+		row-gap: var(--evpx-space-5);
+		padding-inline: var(--evpx-space-3);
+		text-align: center;
 	}
 
 	.evpx-root.evpx-flow--horizontal .evpx-flow__step:not(:last-child)::before,
 	.evpx-root.evpx-flow--horizontal .evpx-flow__step:not(:last-child)::after {
-		top: calc(var(--evpx-node) + var(--evpx-space-2));
-		bottom: calc(var(--evpx-space-8) * -1 + var(--evpx-space-2));
-		left: calc(var(--evpx-node) / 2);
-		right: auto;
-		width: 1px;
-		height: auto;
+		top: calc((var(--evpx-node) - var(--evpx-rail)) / 2);
+		bottom: auto;
+		left: 50%;
+		width: 100%;
+		height: var(--evpx-rail);
+	}
+
+	.evpx-root.evpx-flow--horizontal .evpx-flow__step:not(:last-child)::after {
+		top: calc((var(--evpx-node) - 2px) / 2);
+		height: 2px;
+		transform-origin: left center;
+	}
+
+	.evpx-root.evpx-flow--horizontal .evpx-flow__text {
+		min-height: 0;
+		align-content: start;
 	}
 }
 
@@ -2738,6 +2817,7 @@
 
 .evpx-root.evpx-cta--dark {
 	--evpx-focus-ring: var(--evpx-neon);
+	--evpx-grid-line: rgba(255, 255, 255, 0.05);
 
 	background:
 		radial-gradient(60% 130% at 90% 110%, rgba(255, 138, 61, 0.16), transparent 65%),
@@ -2767,16 +2847,9 @@
 	pointer-events: none;
 }
 
-/* The same blueprint grid as an image-less hero, so the two ends of the article match. */
+/* The same blueprint grid as an image-less hero, so the two ends of the article match. It is drawn once (with the dark
+   flow's, above) and each face fades it out from its own corner. */
 .evpx-root.evpx-cta--dark::after {
-	content: '';
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-	background-image:
-		linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-		linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-	background-size: 4rem 4rem;
 	-webkit-mask-image: radial-gradient(110% 100% at 12% 100%, #000 0%, transparent 62%);
 	mask-image: radial-gradient(110% 100% at 12% 100%, #000 0%, transparent 62%);
 }
@@ -3368,22 +3441,44 @@
 		animation: evpx-rise 0.8s var(--evpx-ease-premium) both;
 	}
 
-	/* The flow: the steps arrive one after another and each connector charges toward the next as it does,
-	   all from one trigger (.evpx-in-view), so the line and the steps can never fall out of step. */
+	/* The flow: the steps arrive one after another and the light runs along the rail toward the next as they do,
+	   all from one trigger (.evpx-in-view), so the rail and the steps can never fall out of step. Each socket lights
+	   as the light reaches it. The stagger belongs to the way in only: when motion is first set up everything is put
+	   away at once, so a flow reached soon after the page loads is not still tidying itself in the wrong order. */
+	.evpx-root[data-evpx-motion='on'].evpx-flow .evpx-flow__step > * {
+		transition:
+			opacity 0.6s var(--evpx-ease-premium),
+			transform 0.6s var(--evpx-ease-premium);
+	}
+
+	.evpx-root[data-evpx-motion='on'].evpx-flow .evpx-flow__step:not(:last-child)::before {
+		transition: opacity 0.6s var(--evpx-ease-premium);
+	}
+
 	.evpx-root[data-evpx-motion='on'].evpx-flow:not(.evpx-in-view) .evpx-flow__step > * {
 		opacity: 0;
 		transform: translateY(14px);
 	}
 
-	.evpx-root[data-evpx-motion='on'].evpx-flow .evpx-flow__step > * {
-		transition:
-			opacity 0.6s var(--evpx-ease-premium),
-			transform 0.6s var(--evpx-ease-premium);
-		transition-delay: calc(var(--evpx-step, 0) * 0.4s);
+	.evpx-root[data-evpx-motion='on'].evpx-flow:not(.evpx-in-view) .evpx-flow__step:not(:last-child)::before {
+		opacity: 0;
+	}
+
+	.evpx-root[data-evpx-motion='on'].evpx-flow:not(.evpx-in-view) .evpx-flow__node .evpx-icon {
+		filter: none;
 	}
 
 	.evpx-root[data-evpx-motion='on'].evpx-flow:not(.evpx-in-view) .evpx-flow__step::after {
 		transform: var(--evpx-charge-from, scaleX(0));
+	}
+
+	.evpx-root[data-evpx-motion='on'].evpx-flow.evpx-in-view .evpx-flow__step > *,
+	.evpx-root[data-evpx-motion='on'].evpx-flow.evpx-in-view .evpx-flow__step:not(:last-child)::before {
+		transition-delay: calc(var(--evpx-step, 0) * 0.4s);
+	}
+
+	.evpx-root[data-evpx-motion='on'].evpx-flow.evpx-in-view .evpx-flow__node .evpx-icon {
+		transition-delay: calc(0.45s + var(--evpx-step, 0) * 0.4s);
 	}
 
 	.evpx-root[data-evpx-motion='on'].evpx-flow.evpx-in-view .evpx-flow__step:not(:last-child)::after {
@@ -3521,9 +3616,15 @@
 	.evpx-root .evpx-explorer__bar-fill,
 	.evpx-root .evpx-explorer__track-fill,
 	.evpx-root .evpx-hero__line::after,
+	.evpx-root .evpx-flow__step:not(:last-child)::after,
 	.evpx-root .evpx-progress__fill {
 		forced-color-adjust: none;
 		background: Highlight;
+	}
+
+	.evpx-root .evpx-flow__step:not(:last-child)::before,
+	.evpx-root.evpx-flow[data-evpx-theme='dark']::before {
+		display: none;
 	}
 
 	.evpx-root .evpx-artpanel {

@@ -43,6 +43,17 @@ const style = (page, selector, prop, pseudo = null) =>
 
 const IDENTITY = /^(none|matrix\(1, 0, 0, 1, 0, 0\))$/;
 
+/* ---------------------------------------------------------------- 0. a flow not yet reached is put away at once */
+{
+	// When motion is set up each step is hidden until its flow is seen. The stagger that spaces them out on the way in
+	// once applied on the way out as well, so for two seconds after the page loaded the last steps were still showing.
+	const { context, page } = await open({});
+	await page.waitForTimeout(400);
+	const showing = await page.evaluate(() => [...document.querySelectorAll('.evpx-flow__step > *')].filter((e) => Number(getComputedStyle(e).opacity) > 0.02).length);
+	check('flow: until it has been reached every step is put away, all at once (none left showing just after the page loads)', showing === 0, `${showing} still showing`);
+	await context.close();
+}
+
 /* ---------------------------------------------------------------- 1. motion allowed, fine pointer */
 {
 	const { context, page, problems } = await open({});

@@ -13,11 +13,14 @@
  *  - a unit inside a drawing keeps its case (kW, not KW);
  *  - the hero drawing's floor, horizon and glow run out to the edges of its box, in the band under the copy as well
  *    as beside it (they once stopped short and ended in vertical edges);
+ *  - a wrapped hero byline is the author over the date and the reading time, never a lone item at the end;
+ *  - the flow's rail starts at one socket, ends at the next and runs through their centres, across and down, and in a
+ *    220px column nothing pokes out of it;
  *  - a Related Articles row ends square at every width: two to a row at a tablet with the odd card taking the
  *    whole row, three to a row wide, one to a row on a phone. The row is built from the widget's own markup, so
  *    the check does not depend on how many articles a site happens to have.
  */
-import { launch, reporter } from './lib.mjs';
+import { launch, reporter, overflowProbe } from './lib.mjs';
 import fs from 'node:fs';
 
 const [url, outDir = 'qa-layout-output'] = process.argv.slice(2);
@@ -49,8 +52,8 @@ async function peakLuma(png) {
 	}, png.toString('base64'));
 }
 
-async function open(width, height) {
-	const context = await browser.newContext({ viewport: { width, height } });
+async function open(width, height, options = {}) {
+	const context = await browser.newContext({ viewport: { width, height }, ...options });
 	const page = await context.newPage();
 	await page.goto(url, { waitUntil: 'networkidle' });
 	await page.addStyleTag({ content: 'html{scroll-behavior:auto!important} .evpx-progress{display:none!important}' });
@@ -163,7 +166,107 @@ for (const [width, height] of [[820, 1180], [1440, 900]]) {
 	check(`hero: the floor, horizon and glow reach the drawing's edges at ${widths.map((w) => w[0]).join(', ')} px`, short.length === 0, short.slice(0, 3).join(' | '));
 }
 
-/* ---------------------------------------------------------------- 4. the related row ends square */
+/* ---------------------------------------------------------------- 4. the byline never strands its last item */
+{
+	// The date and the reading time are a pair that wraps as one, so a byline that will not fit on a line is the author
+	// over the two of them. It once wrapped its third item alone under the first (the strip needed 546px of a 544px
+	// column, a hair too much, and again at every narrower width beside the drawing).
+	const widths = [1920, 1440, 1100, 1024, 900, 390, 320];
+	const strays = [];
+	for (const width of widths) {
+		const { context, page } = await open(width, 900);
+		await page.evaluate(() => document.fonts.ready);
+		const rows = await page.evaluate(() => {
+			const tops = {};
+			for (const item of document.querySelectorAll('.evpx-hero__meta-item')) (tops[Math.round(item.getBoundingClientRect().top)] ||= []).push(item.getAttribute('data-label'));
+			return Object.keys(tops).map(Number).sort((a, b) => a - b).map((top) => tops[top]);
+		});
+		if (rows.flat().length >= 3 && rows.slice(1).some((row) => row.length < 2)) strays.push(`${width}: ${rows.map((row) => row.join(' + ')).join(' / ')}`);
+		await context.close();
+	}
+	check(`hero: a wrapped byline is the author over the date and the reading time, never a lone item at the end (${widths.join(', ')} px)`, strays.length === 0, strays.slice(0, 3).join(' | '));
+}
+
+/* ---------------------------------------------------------------- 5. the flow's rail joins its sockets */
+{
+	// The rail (a groove and the light in it) is drawn from each step's socket to the next one's, behind both. Its
+	// length and its place are arithmetic on the gap between rows and the size of a socket, which is easy to get
+	// almost right: measured here from the drawn pseudo-elements against the sockets they should join.
+	const rails = (page) =>
+		page.evaluate(() => {
+			const steps = [...document.querySelectorAll('.evpx-flow__step')];
+			const across = getComputedStyle(document.querySelector('.evpx-flow__steps')).gridAutoFlow.startsWith('column');
+			const centre = (step) => {
+				const r = step.querySelector('.evpx-flow__node').getBoundingClientRect();
+				return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+			};
+			let worst = 0;
+			let where = '';
+			for (let i = 0; i < steps.length - 1; i++) {
+				const a = centre(steps[i]);
+				const b = centre(steps[i + 1]);
+				const box = steps[i].getBoundingClientRect();
+				for (const pseudo of ['::before', '::after']) {
+					const cs = getComputedStyle(steps[i], pseudo);
+					const left = box.left + parseFloat(cs.left);
+					const top = box.top + parseFloat(cs.top);
+					const w = parseFloat(cs.width);
+					const h = parseFloat(cs.height);
+					const gaps = across
+						? { length: w - (b.x - a.x), start: left - a.x, centred: top + h / 2 - a.y }
+						: { length: h - (b.y - a.y), start: top - a.y, centred: left + w / 2 - a.x };
+					for (const [what, gap] of Object.entries(gaps)) {
+						if (Math.abs(gap) > worst) {
+							worst = Math.abs(gap);
+							where = `step ${i + 1} ${pseudo} ${what} ${gap.toFixed(1)}px`;
+						}
+					}
+				}
+			}
+			return { across, steps: steps.length, worst, where, box: document.querySelector('.evpx-flow').getBoundingClientRect().width };
+		});
+
+	const cases = [[1440, 900, false], [1100, 800, false], [768, 1024, false], [390, 844, false], [320, 700, false], [1440, 900, true]];
+	const bad = [];
+	for (const [width, height, vertical] of cases) {
+		// Measured at rest: before the flow has been seen, motion holds each step 14px low.
+		const { context, page } = await open(width, height, { reducedMotion: 'reduce' });
+		if (vertical) {
+			// A container query is re-evaluated a frame or two after a class changes: let it.
+			await page.evaluate(async () => {
+				document.querySelector('.evpx-flow').classList.replace('evpx-flow--horizontal', 'evpx-flow--vertical');
+				await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+			});
+		}
+		await page.evaluate(() => document.fonts.ready);
+		const r = await rails(page);
+		// It runs across from a box of 48rem (768px), and the box is the widget's own: a host that pads it (a builder Section)
+		// gives it less than the window.
+		const expectStacked = vertical || r.box < 768;
+		if (r.steps < 2 || r.worst > 1.5 || r.across === expectStacked) bad.push(`${width}${vertical ? ' (vertical)' : ''}: ${r.where || 'not laid out as expected'} (across=${r.across}, box ${Math.round(r.box)}px)`);
+		await context.close();
+	}
+	check('flow: the rail starts at one socket, ends at the next and runs through their centres (across at 1440, 1100 and 768 px, down at 390, 320 and when set vertical)', bad.length === 0, bad.slice(0, 3).join(' | '));
+}
+
+{
+	// The steps' track is sized to the box, not to its longest name: in a 220px column (a phone inside a builder Section
+	// with padding of its own, which is where the 320px sweep of a Breakdance page found it) nothing may poke out.
+	const { context, page } = await open(320, 700, { reducedMotion: 'reduce' });
+	await page.evaluate(() => {
+		const flow = document.querySelector('.evpx-flow');
+		const box = document.createElement('div');
+		box.style.cssText = 'width:220px;margin:0 auto';
+		flow.before(box);
+		box.append(flow);
+	});
+	await page.evaluate(() => document.fonts.ready);
+	const bad = await overflowProbe(page);
+	check('flow: in a 220 px column nothing pokes out of the widget', bad.length === 0, bad.slice(0, 2).join(' | '));
+	await context.close();
+}
+
+/* ---------------------------------------------------------------- 6. the related row ends square */
 {
 	const item = (n) => `<li class="evpx-related__item"><div class="evpx-related__media"></div><div class="evpx-related__body"><p class="evpx-eyebrow evpx-related__category">EV infrastructure</p><h3 class="evpx-related__title"><a class="evpx-related__link" href="#fixture">An article title that runs to a second line ${n}</a></h3><time class="evpx-related__date" datetime="2026-09-01">September 1, 2026</time></div></li>`;
 	const section = (count) => `<section class="evpx-root alignfull evpx-related" data-fixture="${count}"><div class="evpx-container"><ul class="evpx-related__list evpx-related__list--cols-3" role="list">${Array.from({ length: count }, (_, i) => item(i + 1)).join('')}</ul></div></section>`;

@@ -1,4 +1,4 @@
-# QA report — v0.6.0
+# QA report — v0.6.1
 
 Everything below was run, not reasoned about. Every command is in the repo, so it can be
 re-run: see "Reproducing" at the end.
@@ -17,6 +17,10 @@ overflow sweep). Three (52–54) were found by looking at every widget at four w
 is the argument for looking. Each of these (a light that never painted, a label under the copy, a gauge faded to a
 ghost, a floor that ended in a line, a unit in the wrong case, a card left alone in a row) now has a check that was
 watched failing on the code it guards.
+
+0.6.1 fixes the two weak spots that review named (the hero byline, which could leave its last item alone on a row, and the
+Technical Flow, the plainest widget, which is now a rail on a dark blueprint band) and three defects the work turned up
+(55–57 below), each with a check that was watched failing first.
 
 0.5.0 was a design release: the type, the depth, the hero, the comparison, the hover states and the
 motion were redone, and the whole matrix was run again against the result: WordPress on Twenty Twenty-Five, and
@@ -42,7 +46,7 @@ Chromium, and a site running your caching stack. Details under "Not verified".
 | JS syntax | `node --check` | clean |
 | Stylesheet, statically | `tests/css-check.mjs`, no browser: every `--evpx-*` token that is read is defined; every selector is scoped under `.evpx-root`; no `!important` outside the reduced-motion rule; every animation is gated on the motion marker | 5/5 |
 | Colour contrast | `tests/contrast-check.mjs` reads the real tokens out of `evpx.css` and asserts 15 pairings, light and dark (30 checks), including the lit and shaded faces of a raised surface and white type on the button's hover fill | all pass |
-| What the widgets print | `tests/docker/widget-render-check.sh`, inside WordPress, no browser: the comparison's power scale (ranges, points, thousands separators, decimals, and six inputs that must *not* draw a ruler) and its key, the section's key figure, the hero's captions, icon and drawing, every icon (inline, decorative, one family; a name that is not there renders nothing; the words of the demo article find their icons), every drawing (decoration, unique ids, a stale key renders nothing), the scenario, flow and decision icons and their rules, Related's drawing for an article with no picture, the CTA's default, the explorer (its numbers as JSON, its answer worked out on the server, numbers held in range), that typed-in text is escaped | 58/58 |
+| What the widgets print | `tests/docker/widget-render-check.sh`, inside WordPress, no browser: the comparison's power scale (ranges, points, thousands separators, decimals, and six inputs that must *not* draw a ruler) and its key, the section's key figure, the hero's captions, icon and drawing, every icon (inline, decorative, one family; a name that is not there renders nothing; the words of the demo article find their icons), every drawing (decoration, unique ids, a stale key renders nothing), the scenario, flow and decision icons and their rules, Related's drawing for an article with no picture, the CTA's default, the explorer (its numbers as JSON, its answer worked out on the server, numbers held in range), the flow's look, that typed-in text is escaped | 59/59 |
 | Activation / deactivation | WP-CLI, `WP_DEBUG` + `WP_DEBUG_LOG` + `WP_DEBUG_DISPLAY` | clean; the only `debug.log` entries across activation, rendering of every widget and every suite below are core's own wordpress.org update check failing on the sandbox network |
 | **Real Breakdance 2.8.3 — integration** | `tests/docker/breakdance-real-check.sh`: 24 assertions against the running plugin (save locations reach Breakdance; Dynamic Data field; reading time; the ten native elements are declared, concrete, in their own category, with control paths that match their controls, repeaters, dynamic-data paths, the spacing attribute, toggle semantics, and the **same markup as the shortcode** for all thirteen widgets of the demo article) plus a behavioural probe: an element file saved in the plugin's Element Studio folder — declaring a class with a native element's name — must be loaded by a *fresh* PHP process | 25/25 |
 | **Real Breakdance — front end and builder** | `tests/playwright/breakdance-qa.mjs`: a page designed in Breakdance from the demo article, once with Shortcode elements and once with native elements; front end (assets, typography, hover colours, reading time, interactions, motion, overflow at six widths, axe) and the builder itself: server-side renders, canvas, and, for native elements, the Add panel, selecting each element, editing a control (one render), a toggle (saved as `false`), and choosing a picture in the media library | 16/16 on the Shortcode page · 24/24 on the native page · 24/24 on the native page in full-width Sections without padding · 24/24 on the native page with pictures |
@@ -50,13 +54,13 @@ Chromium, and a site running your caching stack. Details under "Not verified".
 | **Pictures** | `tests/docker/media-pages.sh` generates six test images (GD gradients with a frame at the edges, one of them a near-white sky), imports them, and builds a shortcode post, a native page and a mixed Related row; `tests/playwright/media-qa.mjs` at 1440 and 390 px | 49/49 |
 | **Templates and themes** | `tests/docker/template-check.sh`: a Breakdance footer (native CTA, and a Shortcode element) and a Single Post template, each checked with pages that have their own shortcode or native widgets, under **Twenty Twenty-Five, Breakdance's own Zero theme and a bare classic theme** | 180/180 |
 | **Unrelated pages** | `tests/docker/isolation-check.sh`: three pages with no EV element (Sample Page, a post, a Breakdance page), screenshotted with the plugin active and inactive, under two themes | 12/12 |
-| Browser suite, any WordPress page | `tests/playwright/qa.mjs`, 23 checks, Chromium, WordPress on the Twenty Twenty-Five block theme, with Breakdance also active. Also run, in 0.6.0, on plain WordPress with Breakdance deactivated (this suite and the interaction, explorer, accessibility and composition suites) and under Breakdance's Zero theme (the same five, and the four Breakdance pages); the one width assertion that presumes a block theme is skipped inside a Breakdance Section | 23/23 on both themes and without Breakdance (22 and 1 skipped under Zero) |
-| Interaction, motion and hover states | `tests/playwright/interaction-qa.mjs`, Chromium: the finished state and the motion that leads to it (the hero's charge line, the flow's connectors, the comparison's range bars), the comparison thumb measured onto the active tab and moved by a click, the button's fill and arrow, the scenario card's rim and highlight following a fine pointer, the decision list's numerals, the FAQ's open state and that a row opens from its own height, the related arrow, keyboard focus rings, no seams between widgets, one shared left edge, "Follow system" following both colour schemes; the hero drawing's motion, and its stillness for a reduced-motion visitor, and that its labels, charger and gauge lie clear of the copy at seven widths; then the same page for a reduced-motion visitor and for a touch device with no hover | 43/43 |
+| Browser suite, any WordPress page | `tests/playwright/qa.mjs`, 23 checks, Chromium, WordPress on the Twenty Twenty-Five block theme, with Breakdance also active. Also run, in 0.6.0 and again in 0.6.1, on plain WordPress with Breakdance deactivated (this suite and the interaction, explorer, accessibility and composition suites) and under Breakdance's Zero theme (the same five, and the four Breakdance pages); the one width assertion that presumes a block theme is skipped inside a Breakdance Section | 23/23 on both themes and without Breakdance (22 and 1 skipped under Zero) |
+| Interaction, motion and hover states | `tests/playwright/interaction-qa.mjs`, Chromium: the finished state and the motion that leads to it (the hero's charge line, the flow's connectors, the comparison's range bars), the comparison thumb measured onto the active tab and moved by a click, the button's fill and arrow, the scenario card's rim and highlight following a fine pointer, the decision list's numerals, the FAQ's open state and that a row opens from its own height, the related arrow, keyboard focus rings, no seams between widgets, one shared left edge, "Follow system" following both colour schemes; a flow not yet reached put away at once, the hero drawing's motion, and its stillness for a reduced-motion visitor, and that its labels, charger and gauge lie clear of the copy at seven widths; then the same page for a reduced-motion visitor and for a touch device with no hover | 44/44 |
 | **The explorer** | `tests/playwright/explorer-qa.mjs`, Chromium, plus `php tests/php/model-matrix.php`: the page before the script and after it; the script's model against the PHP one over 200 cases; the controls, from a pointer and from a keyboard; six widths (below) | 43/43 |
 | **Accessibility rules axe cannot see** | `tests/playwright/a11y-qa.mjs`, Chromium: focus rings at 3:1 on every surface in both colour schemes, targets, type size, measure, icons, forced colours (below) | 12/12 |
-| **Composition** | `tests/playwright/layout-qa.mjs`, Chromium: the hero's gauge is as bright as its type, no drawing paints with a gradient on an empty box, units keep their case, the floor reaches the drawing's edges, a Related row ends square (below) | 9/9 |
+| **Composition** | `tests/playwright/layout-qa.mjs`, Chromium: the hero's gauge is as bright as its type, no drawing paints with a gradient on an empty box, units keep their case, the floor reaches the drawing's edges, a wrapped byline is the author over the pair, the flow's rail joins its sockets and fits a narrow column, a Related row ends square (below) | 12/12 |
 | Breakdance contract stub | `tests/docker/breakdance-stub.php` + `breakdance-contract-check.php` — kept for CI without a licence; the real check above is authoritative | 11/11 in 0.4.0; not re-run since. 0.6.0 adds the explorer to `src/Breakdance`, and the real-Breakdance checks above cover the same ground with the real thing |
-| The shipped artifact | the built ZIP installed as a separate plugin directory and the suites run against *that* | all pass, same counts as the working tree: integration 25/25, browser suite 23/23, composition 9/9, Shortcode page 16/16, native page 24/24, pictures 49/49, unrelated pages 12/12, templates 180/180 |
+| The shipped artifact | the built ZIP installed as a separate plugin directory and the suites run against *that* | 0.6.1: the integration check 25/25 and the composition suite 12/12 against the installed ZIP, whose files are byte for byte the tested tree's. The full pass (browser suite, both Breakdance pages, pictures, unrelated pages, templates) was run on 0.6.0's ZIP; the packaging script has not changed since |
 | Motion | real GSAP **3.12.5** (the version the plugin loads by default), served locally because this sandbox blocks cdnjs | verified below |
 
 ### The 23 checks in `qa.mjs`
@@ -133,15 +137,24 @@ an edge, the explorer's bars are a system colour, the selected tab is outlined a
 
 What a screenshot review found and no earlier check could have. The hero's state-of-charge figure is screenshotted at 820
 px (the band under the copy) and 1440 (beside it), and its brightest pixel must be as bright as its type (190 of 255 or
-more; it measures 233–234). Every shape in every drawing that is painted from a gradient in bounding-box units is
+more; it measures 233–236). Every shape in every drawing that is painted from a gradient in bounding-box units is
 measured, with each comparison tab open in turn, and none may sit in a box with no height or width. Every unit in every
 drawing (kW, kWh, Hz) must keep its case. The floor, horizon and glow of the hero's drawing must reach both edges of the
-drawing's box at 390, 700, 820 and 1000 px and its right edge at 1440 and 1920. A Related row built from the widget's
-own markup for one, two and three articles must end square: at 820 px two rows for three articles, the third across the
-whole row with its picture beside its text; at 1366 one row of three; at 390 a card to a row. Run against the code as
-it was before this pass, four of the nine fail (the gauge at 820 px, the units, the Related row twice). Two more were
-checked by putting the fault back: the old 40-unit extents fail at 700 px (23 px short on each side), and a line stroked
-with a bounding-box gradient, added to a drawing, is reported.
+drawing's box at 390, 700, 820 and 1000 px and its right edge at 1440 and 1920. A wrapped hero byline must be the author
+over the date and the reading time, never a lone item at the end, at 1920, 1440, 1100, 1024, 900, 390 and 320 px. The
+flow's rail, a groove and the light in it, is measured from the pseudo-elements that draw it against the sockets it should
+join: it starts at one socket's centre, ends at the next one's and runs through their centres, across at 1440, 1100 and
+768 px (read at rest, since motion holds the steps 14 px low until the flow is seen) and down at 390, 320 and when the
+flow is set vertical; and put in a 220 px column (a phone inside a builder Section) nothing in it may poke out of its
+widget. A Related row built from the widget's own markup for one, two and three articles must end square:
+at 820 px two rows for three articles, the third across the whole row with its picture beside its text; at 1366 one row of
+three; at 390 a card to a row.
+
+Each was watched failing. Against the 0.5.0 code four of the first nine fail (the gauge at 820 px, the units, the Related
+row twice). The rest by putting the fault back: the old 40-unit extents fail at 700 px (23 px short on each side); a line
+stroked with a bounding-box gradient, added to a drawing, is reported; the old flat byline fails at 1100 and 1024 px; and the
+flow's vertical rail, shortened by half a socket, fails at 390 and 320 px by 28 px; and the narrow-column check fails with
+the column's three safeguards taken out (removing only one does not: they overlap).
 
 ### The checks in `media-qa.mjs`
 
@@ -172,7 +185,7 @@ drawing, which bleeds off the right edge on purpose and is clipped by the hero.)
 
 ### Weight
 
-Front-end critical path (stylesheet + `evpx.js` + `motion.js`): about **34 KB gzipped** (CSS 21.9, `evpx.js` 9.2,
+Front-end critical path (stylesheet + `evpx.js` + `motion.js`): about **35 KB gzipped** (CSS 22.3, `evpx.js` 9.2,
 `motion.js` 3.1), up from 21 KB in 0.5.0 and 13 KB in 0.4.0. 0.6.0's share is the explorer (its layout, and about 5 KB
 of script for the model, the controls and the chart), the drawings' styling and motion, the icon and forced-colour
 rules. The icon outlines and the drawings are not in the stylesheet: they are inline SVG in the page's HTML, where a
@@ -456,6 +469,10 @@ because it broke (the byline's markup now has an icon in it, the arrow is an SVG
 row has a drawing, the demo article has thirteen widgets); and the FAQ's plus and minus are two icons now, so the check
 reads their opacity.
 
+The first run of the new composition checks under Twenty Twenty-Five crashed, not failed: the guard screenshotted the hero's
+gauge where the block theme's header had pushed it below the window, and Playwright refuses a clip outside the window (the
+runs under the Zero theme, which has no header, had hidden it). It scrolls the figure into view first now.
+
 Run under Breakdance's Zero theme, which has no footer, so the flow reaches the end of a scroll sooner, two checks
 failed that were racing rather than finding anything. axe measured the last step of the flow while it was still fading
 in: text at partial opacity is measured at its blended colour (`#9aa0a8` on `#eef0f3`, 2.3:1) where the colour it comes
@@ -476,6 +493,41 @@ Test-side, in the same pass: "scenario cards align in grid rows" contradicted th
 became "the outer two share a top edge and the middle steps down". A first full run of the matrix was polluted by
 other work sharing the machine (the timing-sensitive checks in `qa.mjs` and `interaction-qa.mjs` fail when the CPU is
 contended); it was thrown away and the matrix re-run on an idle machine. Run those two on an idle machine.
+
+**Pass 8 — two weak spots (0.6.1)**
+
+The 0.6.0 review named two things it was not happy with: the hero's byline and the Technical Flow, the plainest widget on
+the page. Fixing them turned up two more defects, both in what already existed.
+
+55. **The hero byline stranded "Reading time" alone on a second row beside the drawing.** Author, date and reading time
+    are a flex strip, and beside the drawing the copy column is 544 px at most; with a long author name the three needed
+    546 px at 1440, so the last wrapped under the first, and at every narrower width beside the drawing (1100, 1024) it
+    did so by more. (The phone already wrapped correctly, by luck: the author, then the other two.) The date and the
+    reading time are one wrapper now, so a byline that will not fit is the author over the pair. It is not a fixed
+    two-row layout: a short author still lets all three sit on one line. *Guard: `layout-qa.mjs` reads the byline's rows
+    at seven widths; with the old markup it fails at 1100 and 1024 px ("Author + Published / Reading time").*
+56. **The flow's steps left in the wrong order when it was reached soon after the page loaded.** With motion on, each
+    step is hidden until the flow is seen, by a transition whose delay is the step's number times 0.4 s, and that delay
+    applied on the way out as well as the way in: the first step went at once and the fifth 1.6 s later, so a flow reached
+    within two seconds of loading showed "Battery" and "Vehicle" and nothing between. Found by filming the new sequence,
+    where the order was plainly backwards; the old flow had it too. The stagger is on the way in only. *Guard:
+    `interaction-qa.mjs` counts the steps still showing 400 ms after load: six with the old rule, none now.*
+
+57. **The stacked flow overflowed a 220 px column.** Stacked is the base layout, and its list was a grid with no column
+    template, so its one implicit track was sized to the widest step: a socket, a gap and "Site Infrastructure" set in
+    the display face need about 240 px, and a phone inside a Breakdance Section with 50 px of its own padding leaves the
+    widget 220. Found by the existing 320 px overflow sweep of the Breakdance pages, not by a check written for the flow
+    (the demo page has no Section around it, so its own 320 px sweep passed). The track is `minmax(0, 1fr)`, a name may
+    break where it must, and below 20rem the socket, its gap and the name give up a little. *Guard: `layout-qa.mjs` puts
+    the flow in a 220 px box and runs the overflow probe; it fails with all three measures taken out (`flow__num` and
+    `flow__label` 150–272 px in a widget that ends at 270).*
+
+The redesign itself: the flow is a rail (a groove, and the copper drawn along it as light) with larger sockets, on a dark
+blueprint band by default and on the light surface with `variant="light"`. Its geometry is arithmetic on a row gap and a
+socket size, so `layout-qa.mjs` measures each drawn rail against the sockets it should join (start, length and centring,
+across at 1440, 1100 and 768 px and down at 390, 320 and when set vertical) and it was watched failing with the vertical
+rail shortened. The refactor that came with it moved the dark bands' shared glow and grid into one rule each; the explorer
+and the closing panel were rendered before and after and are pixel for pixel the same at 1440 and 390 px.
 
 ## Not verified
 

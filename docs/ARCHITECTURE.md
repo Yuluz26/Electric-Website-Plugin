@@ -307,7 +307,7 @@ marker, and `tests/playwright/interaction-qa.mjs` checks the finished state for 
 | FAQ | The question turns copper and the knob lifts; opening presses the knob in and turns its plus into a minus |
 | Related articles | The picture eases in, a raised arrow knob appears in its corner, and the title underlines itself line by line |
 | Comparison | A raised thumb slides between the tabs; on a change the range bar grows to its length and the figure rises out of its line |
-| Flow | The steps arrive one after another while the line between them charges toward the next |
+| Flow | The steps arrive one after another, the light runs along the rail toward the next, and each socket lights as it is reached |
 | Hero | The title rises out of a mask, the picture settles and drifts slower than the page, a copper line at the foot fills once from the left |
 
 Movement waits for `@media (hover: hover) and (pointer: fine)`; a phone gets the colour changes and none
@@ -367,6 +367,17 @@ top edge of the drawing is softened by a short mask (7%); it must not reach the 
 quarter, and `layout-qa.mjs` measures that the gauge's figure is as bright as its type. The floor, horizon and glow are
 drawn 400 units past the drawing's box, so a drawing centred in a wider band runs out under the hero's edge instead of
 ending in a line.
+
+**Dark bands.** The article has three dark faces besides the hero: the explorer, the closing CTA and (since 0.6.1, by
+default) the technical flow, whose `variant` control switches it back to the page's light surface. They are made of the same
+few parts and share them: the page's dark tokens set on the widget (`data-evpx-theme="dark"`, which since 0.6.1 also carry
+the neon as itself, `--evpx-neon-line: var(--evpx-neon)`, and the grid line), one rule for the copper glowing low at the
+right, and one for the blueprint grid drawn as a pseudo-element behind the content and faded out from each face's own corner.
+The flow is laid as a rail: each step's socket is a recessed disc ringed in the glow, and the rail from it to the next is a
+recessed groove (a 6px track like the explorer's slider) with the light, a 2px neon line with a halo, drawn in it; both are
+pseudo-elements of the step, positioned from the socket's size and the gap between rows, which is arithmetic
+`layout-qa.mjs` measures. Stacked is the base layout and the horizontal one is added from 48rem, so a browser without container
+queries gets the stacked flow.
 
 **Forced colours.** The depth is drawn with shadows and a forced-colours browser draws none, so §18 of the stylesheet
 gives each raised or sunken surface an edge, keeps the fills that carry meaning (bars, the selected tab, the progress

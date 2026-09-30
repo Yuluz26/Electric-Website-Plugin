@@ -61,7 +61,7 @@ const readPictures = () => {
 		related: all('.evpx-related__media img'),
 		relatedItems: document.querySelectorAll('.evpx-related__item').length,
 		meta: {
-			rows: new Set(items.map((i) => i.offsetTop)).size,
+			rows: new Set(items.map((i) => Math.round(i.getBoundingClientRect().top))).size,
 			overflowX: meta ? getComputedStyle(meta).overflowX : '',
 		},
 	};

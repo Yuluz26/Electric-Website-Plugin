@@ -57,12 +57,16 @@ $has_meta = $author || $date || $reading_time;
 				<div class="evpx-body evpx-hero__excerpt"><?php echo $excerpt; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wpautop + wp_kses_post already applied */ ?></div>
 			<?php endif; ?>
 
-			<?php // The captions come from data-label (CSS), so each item's text stays just its value. ?>
+			<?php // The captions come from data-label (CSS), so each item's text stays just its value. The date and the reading time are a pair that wraps as one. ?>
 			<?php if ( $has_meta ) : ?>
 				<div class="evpx-hero__meta">
 					<?php if ( $author ) : ?><span class="evpx-hero__meta-item" data-label="<?php echo esc_attr_x( 'Author', 'article byline caption', 'ev-charging-experience' ); ?>"><?php echo \EVPX\Support\Icons::svg( 'user' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?><span class="evpx-hero__meta-value"><?php echo esc_html( $author ); ?></span></span><?php endif; ?>
-					<?php if ( $date ) : ?><span class="evpx-hero__meta-item" data-label="<?php echo esc_attr_x( 'Published', 'article date caption', 'ev-charging-experience' ); ?>"><?php echo \EVPX\Support\Icons::svg( 'calendar-blank' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?><span class="evpx-hero__meta-value"><?php echo esc_html( $date ); ?></span></span><?php endif; ?>
-					<?php if ( $reading_time ) : ?><span class="evpx-hero__meta-item" data-label="<?php echo esc_attr_x( 'Reading time', 'article length caption', 'ev-charging-experience' ); ?>"><?php echo \EVPX\Support\Icons::svg( 'clock' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?><span class="evpx-hero__meta-value"><?php echo esc_html( $reading_time ); ?></span></span><?php endif; ?>
+					<?php if ( $date || $reading_time ) : ?>
+						<span class="evpx-hero__meta-group">
+							<?php if ( $date ) : ?><span class="evpx-hero__meta-item" data-label="<?php echo esc_attr_x( 'Published', 'article date caption', 'ev-charging-experience' ); ?>"><?php echo \EVPX\Support\Icons::svg( 'calendar-blank' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?><span class="evpx-hero__meta-value"><?php echo esc_html( $date ); ?></span></span><?php endif; ?>
+							<?php if ( $reading_time ) : ?><span class="evpx-hero__meta-item" data-label="<?php echo esc_attr_x( 'Reading time', 'article length caption', 'ev-charging-experience' ); ?>"><?php echo \EVPX\Support\Icons::svg( 'clock' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?><span class="evpx-hero__meta-value"><?php echo esc_html( $reading_time ); ?></span></span><?php endif; ?>
+						</span>
+					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 

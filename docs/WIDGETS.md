@@ -143,14 +143,18 @@ cards of different lengths line up on their answers.
 
 ## EV Technical Flow — `[evpx_flow]` / `evpx/flow`
 
-Grid → Site → Charger → Vehicle → Battery, drawn as a timeline: a socket per step holding its icon, a line between
-them, the step's number and its name underneath (beside the node in `vertical`, which is also what a narrow box falls back to). The
-icons are chosen from the step names; if any one step's name is not one the plugin knows, no step has an icon and every node is
-its number, since a row where only some have one would read as a mistake (`icons` toggle, visual: off gives numbers). With motion
-the steps arrive in turn while the line charges toward the next. `heading` (content),
-`step1_label` … `step5_label` (content, defaults pre-filled), `direction`
-select (horizontal/vertical, layout), `compact` toggle (layout), `icons` toggle (visual), `animate`
-toggle (motion).
+Grid → Site → Charger → Vehicle → Battery, drawn as a rail: a groove cut into the surface with the copper drawn along
+it as light, and on it a socket per step holding its icon, ringed in the glow, the step's number and its name
+underneath. It is stacked by default (the name beside its socket, the rail running down between them), which is also
+what a box narrower than 48rem gets; from 48rem a `horizontal` flow runs across, each name centred under its socket.
+The `variant` control (visual) sets the look: **dark** (the default) is the article's schematic, a dark band with the
+blueprint grid and the neon as itself, like the explorer and the closing panel; **light** keeps the page's surface.
+The icons are chosen from the step names; if any one step's name is not one the plugin knows, no step has an icon and
+every node is its number, since a row where only some have one would read as a mistake (`icons` toggle, visual: off
+gives numbers). With motion the steps arrive in turn, the light runs along the rail toward the next and each socket
+lights as it is reached. `heading` (content), `step1_label` … `step5_label` (content, defaults pre-filled), `direction`
+select (horizontal/vertical, layout), `compact` toggle (layout), `variant` select (dark/light, visual), `icons` toggle
+(visual), `animate` toggle (motion).
 
 ## EV FAQ — `[evpx_faq]` / `evpx/faq` (container)
 
