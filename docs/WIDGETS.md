@@ -21,6 +21,14 @@ already has its own padding. It sets the `--evpx-section-y` token on the widget,
 `.evpx-root { --evpx-section-y: 0; }` in your own CSS does the same. The Hero has no rhythm to set: it has its
 own minimum height.
 
+## Anchor — every section widget
+
+`anchor` (text, advanced) is the HTML id of the widget's root, so a link elsewhere on the page can point at it:
+`anchor="decision"` on the Decision Factors and `cta_url="#decision"` on the hero. Letters, digits, hyphens and
+underscores only (anything else is dropped, so the id survives being pasted into a URL). It is the same in a
+shortcode, a block and a native element; Breakdance's own **ID** control, which sits on its Section, is a second way
+to do it there. Empty by default: no `id` is printed.
+
 ## EV Article Hero — `[evpx_hero]` / `evpx/hero`
 
 | Key | Type | Group | Default |

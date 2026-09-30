@@ -1,44 +1,20 @@
 <?php
 /**
- * Test helper: turns docs/demo-article.txt into the same article expressed as native Breakdance
+ * Test helper: turns content/demo-article.txt into the same article expressed as native Breakdance
  * elements, so a shortcode page and a native page can be compared and both opened in the builder.
  * Required by breakdance-page.php, breakdance-real-check.php and media-pages.php (needs WordPress
  * and the plugin).
  *
- * For every top-level EV shortcode it returns the shortcode text, the widget behind it, the native
- * element class that stands for it and the properties Breakdance would save for it — the inverse of
- * EVPX\Breakdance\Native\Controls::attsFromProperties(). evpx_test_shortcode() goes the other way,
- * so a node whose properties were edited (an image added, say) can be turned back into a shortcode.
+ * The conversion itself is the plugin's (EVPX\Breakdance\Native\Tree, the same code that makes the example
+ * page on activation), so what these suites drive is what ships. Here: the Breakdance Shortcode-element
+ * variant of a tree, a node turned back into a shortcode, and a media object as the builder saves it.
  */
 
 if ( ! function_exists( 'evpx_test_native_nodes' ) ) {
 
 	/** @return array<int, array{shortcode: string, widget: object, class: string, properties: array<string, mixed>}> */
 	function evpx_test_native_nodes( string $article ): array {
-		$by_tag = array();
-		foreach ( array( 'Hero', 'Section', 'Comparison', 'Explorer', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' ) as $name ) {
-			$class  = 'EVPX\\' . $name;
-			$method = new ReflectionMethod( $class, 'widget' );
-			$method->setAccessible( true );
-			$widget                        = $method->invoke( null );
-			$by_tag[ $widget->shortcodeTag() ] = array( $class, $widget );
-		}
-
-		preg_match_all( '/' . get_shortcode_regex( array_keys( $by_tag ) ) . '/s', $article, $matches, PREG_SET_ORDER );
-
-		$nodes = array();
-		foreach ( $matches as $match ) {
-			list( $class, $widget ) = $by_tag[ $match[2] ];
-
-			$nodes[] = array(
-				'shortcode'  => $match[0],
-				'widget'     => $widget,
-				'class'      => $class,
-				'properties' => evpx_test_properties( $widget, (array) shortcode_parse_atts( $match[3] ), (string) $match[5] ),
-			);
-		}
-
-		return $nodes;
+		return \EVPX\Breakdance\Native\Tree::nodes( $article );
 	}
 
 	/**
@@ -109,126 +85,35 @@ if ( ! function_exists( 'evpx_test_native_nodes' ) ) {
 		);
 	}
 
-	/** @return array<string, mixed> */
-	function evpx_test_properties( $widget, array $atts, string $enclosed ): array {
-		$content = evpx_test_group_values( $widget, $atts );
-
-		$child = $widget->childWidget();
-		if ( $child && '' !== trim( $enclosed ) ) {
-			preg_match_all( '/' . get_shortcode_regex( array( $child->shortcodeTag() ) ) . '/s', $enclosed, $rows, PREG_SET_ORDER );
-
-			$out = array();
-			foreach ( $rows as $row ) {
-				$flat = array();
-				foreach ( evpx_test_group_values( $child, (array) shortcode_parse_atts( $row[3] ) ) as $group ) {
-					$flat = array_merge( $flat, $group );
-				}
-				$out[] = $flat;
-			}
-			$content['items']['rows'] = $out;
-		}
-
-		return array( 'content' => $content );
-	}
-
-	/** @return array<string, array<string, mixed>> */
-	function evpx_test_group_values( $widget, array $atts ): array {
-		$groups = array();
-
-		foreach ( $widget->controls() as $control ) {
-			if ( ! array_key_exists( $control['key'], $atts ) || 'image' === $control['type'] ) {
-				continue;
-			}
-
-			$value = $atts[ $control['key'] ];
-			if ( 'toggle' === $control['type'] ) {
-				$value = filter_var( $value, FILTER_VALIDATE_BOOLEAN );
-			}
-
-			$groups[ $control['group'] ][ $control['key'] ] = $value;
-		}
-
-		return $groups;
-	}
-
 	/** A Section that lets a widget run edge to edge and supply its own rhythm (docs/BREAKDANCE.md). */
 	function evpx_test_full_width_section(): array {
-		$zero = array(
-			'number' => 0,
-			'unit'   => 'px',
-			'style'  => '0px',
-		);
-
-		return array(
-			'design' => array(
-				'size'    => array( 'width' => 'full' ),
-				'spacing' => array(
-					'padding' => array(
-						'breakpoint_base' => array(
-							'top'    => $zero,
-							'right'  => $zero,
-							'bottom' => $zero,
-							'left'   => $zero,
-						),
-					),
-				),
-			),
-		);
+		return \EVPX\Breakdance\Native\Tree::fullWidthSection();
 	}
 
 	/**
-	 * A Breakdance tree: one Section per element, as a builder user would place them.
+	 * A Breakdance tree: one Section per element, as a builder user would place them. Each holds the
+	 * native element ($native) or Breakdance's own Shortcode element with the article's shortcode.
 	 *
 	 * @param array<string, mixed>|null $section_properties Settings for every Section; null keeps Breakdance's
 	 *                                                       defaults (a 1120px container with its own padding).
 	 */
 	function evpx_test_tree( array $nodes, bool $native, ?array $section_properties = null ): array {
-		$next     = 2;
-		$sections = array();
-
-		foreach ( $nodes as $node ) {
-			$section_id = $next++;
-			$element_id = $next++;
-
-			$element = $native
-				? array(
-					'type'       => $node['class'],
-					'properties' => $node['properties'],
-				)
-				: array(
-					'type'       => 'EssentialElements\\Shortcode',
-					'properties' => array( 'content' => array( 'shortcode' => array( 'full_shortcode' => $node['shortcode'] ) ) ),
-				);
-
-			$sections[] = array(
-				'id'       => $section_id,
-				'data'     => array(
-					'type'       => 'EssentialElements\\Section',
-					'properties' => $section_properties,
-				),
-				'children' => array(
-					array(
-						'id'       => $element_id,
-						'data'     => $element,
-						'children' => array(),
-					),
-				),
-			);
-		}
-
-		// The builder validates what it opens: an "exported" tree carries _nextNodeId and status
-		// beside the root, and nodes without settings have null (not empty-array) properties.
-		return array(
-			'root'        => array(
-				'id'       => 1,
-				'data'     => array(
-					'type'       => 'root',
-					'properties' => null,
-				),
-				'children' => $sections,
+		return \EVPX\Breakdance\Native\Tree::build(
+			array_map(
+				static function ( array $node ) use ( $native ): array {
+					return $native
+						? array(
+							'type'       => $node['class'],
+							'properties' => $node['properties'],
+						)
+						: array(
+							'type'       => 'EssentialElements\\Shortcode',
+							'properties' => array( 'content' => array( 'shortcode' => array( 'full_shortcode' => $node['shortcode'] ) ) ),
+						);
+				},
+				$nodes
 			),
-			'_nextNodeId' => $next,
-			'status'      => 'exported',
+			$section_properties
 		);
 	}
 }

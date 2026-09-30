@@ -14,17 +14,47 @@
    and **Install Now**. (Building the ZIP yourself: `docs/PACKAGING.md`. Or use the repository directly as
    `wp-content/plugins/ev-charging-experience/`.)
 2. **Activate** "EV Charging Experience".
-   Activation only records the installed version in `wp_options` — it
+   Activation records the installed version and queues two example articles (below). It
    never touches existing posts, pages, Breakdance data, or theme files.
 3. That's it. No database migration, no setup wizard, no settings page, no required
    configuration.
+
+## The example articles
+
+The next admin screen after activation shows a notice and two new **drafts**, so a fresh install has something
+to open, read and copy from:
+
+| Example | Where | What it is |
+|---|---|---|
+| *Choosing AC or DC Charging for Your Site* | Posts | The article as shortcodes in the post's content (`content/demo-article.txt`). Works on any WordPress, with or without Breakdance. |
+| *Choosing AC or DC Charging for Your Site (Breakdance)* | Pages | The same article as native Breakdance elements, one full-width Section each, ready to open with **Edit in Breakdance**. Made once Breakdance is active. |
+
+- **Drafts.** Nothing is public until you publish. The notice links to Preview and to Edit (the builder, for the
+  Breakdance one). The status is the `evpx_example_pages_status` filter's (`draft`, `private` or `publish`), which
+  has to be in place before the first admin screen after activation: `add_filter( 'evpx_example_pages_status', fn() => 'private' );`
+  in a must-use plugin or your theme's `functions.php`.
+- **Made once.** The plugin keeps the two ids in the `evpx_examples` option. Deleting an example does not bring it
+  back, and neither does deactivating and activating again. To have them made again, delete the option
+  (`wp option delete evpx_examples`) and activate; deleting the plugin from the Plugins screen removes it for you.
+- **Breakdance arriving later.** With the plugin active and Breakdance not, only the post is made, and the notice
+  says the Breakdance page will follow. The next admin request after Breakdance is activated adds it.
+- **Upgrading a copy that is already active.** Uploading a newer version over it does not run activation (WordPress
+  skips it for an update), so a site that already had the plugin gets no examples. Deactivate and activate to get
+  them. A scripted activation (`wp plugin activate`) makes them when an administrator next opens wp-admin.
+- **Nothing else changes.** No existing post, page, template or setting is touched, and the examples are the only
+  content the plugin ever writes. Multisite: they are made on the site where the plugin is activated.
+- **The hero heading.** On the Breakdance page the hero is the page's `h1` under Breakdance's own Zero theme, which
+  prints no title of its own, and an `h2` under any other theme, which prints the title as an `h1` above it (see
+  "One h1 per page" below).
 
 ## Your first page in Breakdance
 
 With the plugin and Breakdance both active:
 
-1. **New page.** Pages → Add New → *Edit in Breakdance*. For an article that should list its category's
-   other posts under it, use a Post instead of a Page.
+1. **New page.** The quickest start is the Breakdance example the plugin has already made (Pages → *Choosing AC or DC
+   … (Breakdance)* → **Edit in Breakdance**): change the copy, then duplicate the page for the next article. To
+   build one from nothing: Pages → Add New → *Edit in Breakdance*. For an article that should list its
+   category's other posts under it, use a Post instead of a Page.
 2. **Prepare one Section.** Add a Section and, in its Design settings, set **Width** to *Full* and **Padding** to
    0 on every side. Duplicate it once per widget. The widgets are full-bleed bands with their own vertical
    rhythm, so this is what makes the page read as one piece (`docs/BREAKDANCE.md`, "Recommended setup").
@@ -42,8 +72,8 @@ With the plugin and Breakdance both active:
 6. **Save and open the page.** The builder shows a static version (no entrance animation, no scroll triggers, no
    progress bar); the motion runs on the live page.
 
-Rather see everything working first? Create a Post and paste `docs/demo-article.txt` into its editor (a Custom
-HTML block), or load it with WP-CLI: "Trying the demo article", below.
+Rather see everything working first? It is already there: the example articles above. To load the article
+yourself (a Custom HTML block, or WP-CLI): "Trying the demo article", below.
 
 ## Using it without Breakdance
 
@@ -124,11 +154,11 @@ Tips for a Breakdance Section that holds a widget:
 
 ## Trying the demo article
 
-`docs/demo-article.txt` is the full "Choosing AC or DC Charging for Your Site" article as
+`content/demo-article.txt` is the full "Choosing AC or DC Charging for Your Site" article as
 shortcodes. To load it as a post:
 
 ```
-wp post create docs/demo-article.txt --post_type=post --post_status=draft \
+wp post create content/demo-article.txt --post_type=post --post_status=draft \
   --post_title="Choosing AC or DC Charging for Your Site"
 ```
 
@@ -140,6 +170,7 @@ same category, so it appears empty until you have some.
 
 ## Uninstalling
 
-Deactivate normally from Plugins. There is currently no data to clean up —
-the only thing the plugin writes to the database is the `evpx_version`
-option, which is harmless to leave behind.
+Deactivate normally from Plugins; nothing is removed, and the example articles stay. Deleting the plugin
+(Plugins → Delete, which runs `uninstall.php`) removes what it stored — the `evpx_version` and `evpx_examples`
+options — and still leaves the examples: by then they are your content, and may have been edited. Delete them from
+Posts and Pages if you don't want them.

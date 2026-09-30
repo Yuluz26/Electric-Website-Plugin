@@ -16,8 +16,7 @@ The result is dramatically faster charging: many vehicles can recover a meaningf
 
 [evpx_explorer eyebrow="Try it" heading="What does your dwell time buy?" intro="Move the slider to how long cars stay on your site, then try each charger. Notice where more power stops helping." dwell="120" charger="ac-22" animate="true"]
 
-<span id="decision"></span>
-[evpx_decision_factors eyebrow="The decision framework" heading="What decides the choice" intro="Seven factors decide this. Dwell time and site capacity come first; the rest follow from them." animate="true"]
+[evpx_decision_factors anchor="decision" eyebrow="The decision framework" heading="What decides the choice" intro="Seven factors decide this. Dwell time and site capacity come first; the rest follow from them." animate="true"]
 [evpx_decision_factor title="Dwell time" description="How long a vehicle realistically stays on site. It caps how much energy a session can deliver, and it is the input that most often decides between AC and DC." question="How long does a typical vehicle stay, and does that change by time of day?"]
 [evpx_decision_factor title="Required energy" description="The energy each vehicle needs per visit, which is not the same as the size of its battery." question="How much range does a driver actually need to add before leaving?"]
 [evpx_decision_factor title="Site capacity" description="The electrical supply available at the site, and what it would take to increase it. Capacity often limits the choice before preference does." question="What spare capacity does the site's connection have today?"]

@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
+ * @var string $anchor HTML id for links to this section, or ''.
  * @var string $eyebrow
  * @var string $heading
  * @var string $intro HTML
@@ -29,7 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <section
 	class="evpx-root alignfull evpx-explorer"
 	data-evpx-theme="dark"
-	data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>"
+	<?php echo $anchor ? 'id="' . esc_attr( $anchor ) . '"' : ''; ?> data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>"
 	data-evpx-explorer="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
 	data-evpx-strings="<?php echo esc_attr( wp_json_encode( $strings ) ); ?>"
 >

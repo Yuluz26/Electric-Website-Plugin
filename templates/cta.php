@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
+ * @var string $anchor HTML id for links to this section, or ''.
  * @var string $eyebrow
  * @var string $title
  * @var string $body HTML
@@ -14,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<section class="evpx-root alignfull evpx-cta evpx-cta--<?php echo esc_attr( $variant ); ?>" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
+<section class="evpx-root alignfull evpx-cta evpx-cta--<?php echo esc_attr( $variant ); ?>" <?php echo $anchor ? 'id="' . esc_attr( $anchor ) . '"' : ''; ?> data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<?php if ( $media_html ) : ?>
 		<div class="evpx-cta__media"><?php echo $media_html; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() output */ ?></div>
 		<div class="evpx-cta__scrim" aria-hidden="true"></div>

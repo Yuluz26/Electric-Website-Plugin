@@ -14,6 +14,16 @@ says what that covered and what it didn't). Other versions are untested.
 All three render through the same PHP renderer, so a native element, a shortcode and a block with the same
 settings produce the same markup (asserted by `tests/docker/breakdance-real-check.sh`).
 
+## The example page
+
+Activating the plugin with Breakdance active makes a draft page, *Choosing AC or DC Charging for Your Site
+(Breakdance)*: the whole demo article as native elements, each in its own full-width, no-padding Section (the
+"Recommended setup" below). Open it with **Edit in Breakdance** and change the copy, or duplicate it for the next
+article. If Breakdance is activated after the plugin, the page is added the next time an admin screen loads.
+`docs/INSTALLATION.md`, "The example articles", says what is made, when, and how to have it made again. It is the
+same tree the suites open in the builder (`src/Breakdance/Native/Tree.php` builds it; `tests/docker/example-pages-check.sh`
+checks it).
+
 ## Native elements
 
 Open the **Add** panel and search "EV", or scroll to the **EV Charging** category:

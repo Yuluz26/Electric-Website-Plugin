@@ -21,7 +21,7 @@ status=0
 echo "== structure"
 "${COMPOSE[@]}" cp tests/docker/breakdance-real-check.php wordpress:/tmp/breakdance-real-check.php
 "${COMPOSE[@]}" cp tests/docker/native-helpers.php wordpress:/tmp/native-helpers.php
-"${COMPOSE[@]}" cp docs/demo-article.txt wordpress:/tmp/demo-article.txt
+"${COMPOSE[@]}" cp content/demo-article.txt wordpress:/tmp/demo-article.txt
 wp eval-file /tmp/breakdance-real-check.php || status=1
 
 echo

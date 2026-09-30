@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
+ * @var string $anchor HTML id for links to this section, or ''.
  * @var string                         $eyebrow
  * @var string                         $heading
  * @var string                         $count
@@ -16,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // broken; an all-text row reads as intended, and so does an all-picture row.
 $show_images = ! in_array( '', array_column( $items, 'image_html' ), true );
 ?>
-<section class="evpx-root alignfull evpx-related" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
+<section class="evpx-root alignfull evpx-related" <?php echo $anchor ? 'id="' . esc_attr( $anchor ) . '"' : ''; ?> data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container">
 		<?php if ( $eyebrow || $heading ) : ?>
 			<div class="evpx-related__intro" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>

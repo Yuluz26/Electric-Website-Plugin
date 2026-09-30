@@ -22,6 +22,7 @@ final class DecisionFactors extends Element {
 	public function controls(): array {
 		return array(
 			self::spacingControl(),
+			self::anchorControl(),
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'intro', 'label' => __( 'Intro', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
@@ -46,6 +47,7 @@ final class DecisionFactors extends Element {
 			'decision-factors',
 			array(
 				'spacing' => $atts['spacing'],
+				'anchor'  => $atts['anchor'],
 				'eyebrow' => $atts['eyebrow'],
 				'heading' => $atts['heading'],
 				'intro'   => $this->autop( $atts['intro'] ),

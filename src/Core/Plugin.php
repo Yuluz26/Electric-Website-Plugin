@@ -9,6 +9,7 @@ use EVPX\Breakdance\ElementStudioBridge;
 use EVPX\Breakdance\Native\NativeElements;
 use EVPX\Assets\Loader;
 use EVPX\Elements\Registry;
+use EVPX\Setup\ExamplePages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -54,6 +55,7 @@ final class Plugin {
 
 		if ( is_admin() ) {
 			( new Notices() )->register();
+			( new ExamplePages() )->register();
 		}
 	}
 

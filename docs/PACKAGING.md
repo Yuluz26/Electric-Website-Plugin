@@ -11,10 +11,12 @@ This produces `dist/ev-charging-experience.zip`, containing only:
 ```
 ev-charging-experience/
 ├── ev-charging-experience.php
+├── uninstall.php          (what "Delete" removes: two options; never the example articles)
 ├── composer.json
 ├── src/
 ├── assets/                (css, js, fonts, icons: the Phosphor licence)
 ├── templates/             (one view per element; art/ holds the built-in drawings)
+├── content/               (demo-article.txt: the example articles are made from it, so it must ship)
 ├── languages/
 ├── element-studio/        (empty save-location folders + .gitkeep)
 ├── docs/

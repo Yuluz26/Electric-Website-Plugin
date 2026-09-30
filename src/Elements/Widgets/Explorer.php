@@ -35,6 +35,7 @@ final class Explorer extends Element {
 
 		return array(
 			self::spacingControl(),
+			self::anchorControl(),
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'Try it', 'ev-charging-experience' ) ),
 			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'What does your dwell time buy?', 'ev-charging-experience' ) ),
 			array( 'key' => 'intro', 'label' => __( 'Introduction', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => __( 'Set how long a car stays, then try each charger. Watch where more power stops helping.', 'ev-charging-experience' ) ),
@@ -137,6 +138,7 @@ final class Explorer extends Element {
 			'explorer',
 			array(
 				'spacing'   => $atts['spacing'],
+				'anchor'    => $atts['anchor'],
 				'eyebrow'   => $atts['eyebrow'],
 				'heading'   => $atts['heading'],
 				'intro'     => $this->autop( $atts['intro'] ),

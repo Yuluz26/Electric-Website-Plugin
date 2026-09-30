@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
+ * @var string $anchor HTML id for links to this section, or ''.
  * @var string $eyebrow
  * @var string $heading
  * @var string $columns
@@ -12,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<section class="evpx-root alignfull evpx-scenarios" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
+<section class="evpx-root alignfull evpx-scenarios" <?php echo $anchor ? 'id="' . esc_attr( $anchor ) . '"' : ''; ?> data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container">
 		<?php if ( $eyebrow || $heading ) : ?>
 			<div class="evpx-scenarios__intro" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>

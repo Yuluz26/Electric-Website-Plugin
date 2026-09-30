@@ -21,7 +21,7 @@ wp() { "${COMPOSE[@]}" exec -T --user www-data wordpress wp "$@"; }
 
 "${COMPOSE[@]}" cp tests/docker/native-helpers.php wordpress:/tmp/native-helpers.php
 "${COMPOSE[@]}" cp tests/docker/media-pages.php wordpress:/tmp/media-pages.php
-"${COMPOSE[@]}" cp docs/demo-article.txt wordpress:/tmp/demo-article.txt
+"${COMPOSE[@]}" cp content/demo-article.txt wordpress:/tmp/demo-article.txt
 
 read -r POST_ID NATIVE_ID MIXED_ID BRIGHT_ID < <(wp eval-file /tmp/media-pages.php /tmp/demo-article.txt | tail -1)
 

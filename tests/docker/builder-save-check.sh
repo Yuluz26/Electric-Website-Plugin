@@ -18,7 +18,7 @@ wp() { "${COMPOSE[@]}" exec -T --user www-data wordpress wp "$@"; }
 
 "${COMPOSE[@]}" cp tests/docker/native-helpers.php wordpress:/tmp/native-helpers.php
 "${COMPOSE[@]}" cp tests/docker/breakdance-page.php wordpress:/tmp/breakdance-page.php
-"${COMPOSE[@]}" cp docs/demo-article.txt wordpress:/tmp/demo-article.txt
+"${COMPOSE[@]}" cp content/demo-article.txt wordpress:/tmp/demo-article.txt
 
 PAGE_ID="$(wp eval-file /tmp/breakdance-page.php /tmp/demo-article.txt native | tail -1)"
 EMPTY_ID="$(wp eval-file /tmp/breakdance-page.php /tmp/demo-article.txt empty | tail -1)"

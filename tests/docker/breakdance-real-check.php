@@ -281,6 +281,26 @@ foreach ( array( 'Section', 'Comparison', 'Explorer', 'ScenarioCards', 'Flow', '
 }
 $check( 'every section element carries data-evpx-spacing (default, and none when set)', empty( $spaced ), implode( ',', $spaced ) );
 
+// The "Anchor" control reaches the root of every section widget, cleaned down to what an id can safely be, and
+// prints nothing when it is empty.
+$anchored = array();
+foreach ( array( 'Section', 'Comparison', 'Explorer', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' ) as $n ) {
+	$c     = 'EVPX\\' . $n;
+	$set   = $c::ssr( array( 'content' => array( 'advanced' => array( 'anchor' => 'jump-here' ) ) ), array(), false );
+	$dirty = $c::ssr( array( 'content' => array( 'advanced' => array( 'anchor' => 'a b"><script>x' ) ) ), array(), false );
+	$none  = $c::ssr( array(), array(), false );
+	if ( 'Related' === $n && '' === trim( $none ) ) { // Related renders nothing when there is nothing to list.
+		continue;
+	}
+	preg_match( '/<section\b[^>]*>/', $none, $root_none );
+	if ( ! preg_match( '/<section\b[^>]*\sid="jump-here"[^>]*>/', $set ) || 1 !== substr_count( $set, 'id="jump-here"' )
+		|| false !== strpos( $dirty, '<script>' ) || ! preg_match( '/<section\b[^>]*\sid="abscriptx"[^>]*>/', $dirty )
+		|| ! $root_none || preg_match( '/\sid=/', $root_none[0] ) ) {
+		$anchored[] = $n;
+	}
+}
+$check( 'every section element prints its Anchor as the id of its root (letters, digits, - and _ only), and none when empty', empty( $anchored ), implode( ',', $anchored ) );
+
 // The empty row "Add" creates, and a row with an answer but no question, must not reach the page: an empty
 // button on the front end, an empty entry in the FAQ's structured data.
 $rows  = array(

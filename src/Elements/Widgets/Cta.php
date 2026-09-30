@@ -21,6 +21,7 @@ final class Cta extends Element {
 	public function controls(): array {
 		return array(
 			self::spacingControl(),
+			self::anchorControl(),
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'title', 'label' => __( 'Title', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'Plan the charging system around how your site actually works.', 'ev-charging-experience' ) ),
 			array( 'key' => 'body', 'label' => __( 'Body', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
@@ -52,6 +53,7 @@ final class Cta extends Element {
 			'cta',
 			array(
 				'spacing' => $atts['spacing'],
+				'anchor'  => $atts['anchor'],
 				'eyebrow'      => $atts['eyebrow'],
 				'title'        => $atts['title'],
 				'body'         => $this->autop( $atts['body'] ),

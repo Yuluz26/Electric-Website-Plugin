@@ -159,5 +159,22 @@ $check( 'explorer: what is typed into it is escaped', ! str_contains( do_shortco
 $miles = do_shortcode( '[evpx_explorer unit="mi"]' );
 $check( 'explorer: miles are miles (122 km is 76 mi)', str_contains( $miles, 'data-out="range">76<' ) && str_contains( $miles, 'data-out="distance">mi<' ) );
 
+// ------------------------------------------------------------------ the anchor
+$unanchored = array();
+foreach ( array( 'section', 'comparison', 'explorer', 'scenarios', 'flow', 'decision_factors', 'faq', 'related', 'cta' ) as $tag ) {
+	$set  = do_shortcode( '[evpx_' . $tag . ' anchor="jump-here"]' );
+	$none = do_shortcode( '[evpx_' . $tag . ']' );
+	if ( 'related' === $tag && '' === trim( $none ) ) { // Related renders nothing when there is nothing to list.
+		continue;
+	}
+	preg_match( '/<section\b[^>]*>/', $none, $root );
+	if ( ! preg_match( '/<section\b[^>]*\sid="jump-here"[^>]*>/', $set ) || 1 !== substr_count( $set, 'id="jump-here"' ) || ! $root || preg_match( '/\sid=/', $root[0] ) ) {
+		$unanchored[] = $tag;
+	}
+}
+$check( 'anchor: a section widget prints it as the id of its root, and no id when it is empty', empty( $unanchored ), implode( ',', $unanchored ) );
+$check( 'anchor: it is cut down to letters, digits, - and _ (no quote, space or tag gets through)', 1 === preg_match( '/<section\b[^>]*\sid="abscriptx"[^>]*>/', do_shortcode( '[evpx_faq anchor=\'a b"><script>x\']' ) ) && ! str_contains( do_shortcode( '[evpx_faq anchor=\'a b"><script>x\']' ), '<script>' ) );
+$check( 'anchor: the demo article’s hero button has its target (the decision factors carry #decision)', 1 === substr_count( do_shortcode( '[evpx_decision_factors anchor="decision"]' ), 'id="decision"' ) && str_contains( (string) file_get_contents( EVPX_PATH . 'content/demo-article.txt' ), 'cta_url="#decision"' ) && str_contains( (string) file_get_contents( EVPX_PATH . 'content/demo-article.txt' ), '[evpx_decision_factors anchor="decision"' ) );
+
 echo $failures ? "\n{$failures} check(s) failed.\n" : "\nAll render checks passed.\n";
 exit( $failures ? 1 : 0 );

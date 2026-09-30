@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
+ * @var string $anchor HTML id for links to this section, or ''.
  * @var string $eyebrow
  * @var string $heading
  * @var string $intro HTML
@@ -12,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<section class="evpx-root alignfull evpx-decision" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
+<section class="evpx-root alignfull evpx-decision" <?php echo $anchor ? 'id="' . esc_attr( $anchor ) . '"' : ''; ?> data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container evpx-decision__grid">
 		<div class="evpx-decision__intro" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
 			<?php if ( $eyebrow ) : ?><p class="evpx-eyebrow"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>

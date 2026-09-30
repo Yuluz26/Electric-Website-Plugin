@@ -2,6 +2,8 @@
 
 namespace EVPX\Breakdance\Native;
 
+use EVPX\Elements\Widgets;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -16,8 +18,23 @@ final class NativeElements {
 
 	public const CATEGORY = 'evpx';
 
-	/** One file per element in src/Breakdance/Native/elements/, named like the class it declares. */
-	private const ELEMENTS = array( 'Hero', 'Section', 'Comparison', 'Explorer', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' );
+	/**
+	 * The elements: one file each in src/Breakdance/Native/elements/, named like the class it declares
+	 * (EVPX\<name>, the slug Breakdance stores in a page), and the widget each one edits. Tree reads it to
+	 * lay an article out as native elements; tests/docker/widget-render-check.php holds it to the files.
+	 */
+	public const WIDGETS = array(
+		'Hero'            => Widgets\Hero::class,
+		'Section'         => Widgets\Section::class,
+		'Comparison'      => Widgets\Comparison::class,
+		'Explorer'        => Widgets\Explorer::class,
+		'ScenarioCards'   => Widgets\ScenarioCards::class,
+		'Flow'            => Widgets\TechnicalFlow::class,
+		'DecisionFactors' => Widgets\DecisionFactors::class,
+		'Faq'             => Widgets\Faq::class,
+		'Related'         => Widgets\RelatedArticles::class,
+		'Cta'             => Widgets\Cta::class,
+	);
 
 	public function register(): void {
 		// Priority 9, like the Element Studio save location: before Breakdance's own priority-10
@@ -36,7 +53,7 @@ final class NativeElements {
 
 		// Breakdance builds its element list from *declared* classes, so an autoloader that only
 		// loads on first use would never be asked. Declare them now, explicitly.
-		foreach ( self::ELEMENTS as $name ) {
+		foreach ( array_keys( self::WIDGETS ) as $name ) {
 			require_once EVPX_PATH . 'src/Breakdance/Native/elements/' . $name . '.php';
 		}
 	}

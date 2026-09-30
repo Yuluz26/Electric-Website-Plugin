@@ -28,8 +28,13 @@ for photographs until you have them. Both are drawn in the page, need no upload,
 
 A complete demo article — "Choosing AC or DC Charging for Your Site," original copy
 grounded in independently-verified AC/DC charging facts, not copied from any reference — is
-in `docs/demo-article.txt` and is the end-to-end QA fixture (`docs/QA-REPORT.md`). It ships
+in `content/demo-article.txt` and is the end-to-end QA fixture (`docs/QA-REPORT.md`). It ships
 without photography; `docs/MEDIA-BRIEF.md` is the shot list.
+
+**Activating the plugin makes it for you:** two draft examples, so a new install has something to open instead
+of an empty Pages list. One is a post with the article as shortcodes; the other, made once Breakdance is
+active, is a page with the same article as native elements in full-width Sections, ready for the builder.
+Nothing is public until you publish, and nothing that already exists is touched (`docs/INSTALLATION.md`).
 
 ## Quick start
 
@@ -37,7 +42,8 @@ without photography; `docs/MEDIA-BRIEF.md` is the shot list.
 wp plugin activate ev-charging-experience
 ```
 
-Then either search "EV" in Breakdance's Add panel, drop `[evpx_hero]` (etc.) into any post/page
+Then open the two example articles it adds under Posts and Pages (drafts; the notice after activation links
+to them). Or search "EV" in Breakdance's Add panel, drop `[evpx_hero]` (etc.) into any post/page
 content, or search "EV" in the block inserter. Full setup: `docs/INSTALLATION.md`; everything about
 Breakdance: `docs/BREAKDANCE.md`.
 
@@ -82,6 +88,7 @@ bash tests/docker/builder-save-check.sh         # the builder round-trip: dropdo
 bash tests/docker/media-pages.sh                # generated pictures, then: node tests/playwright/media-qa.mjs …
 bash tests/docker/template-check.sh             # footers and templates under a block, the Zero and a classic theme
 bash tests/docker/isolation-check.sh            # unrelated pages are pixel-identical with the plugin on and off
+bash tests/docker/example-pages-check.sh        # the example articles made on activation: what, once, as drafts, Breakdance arriving later
 ```
 
 The browser scripts need `playwright` (and optionally `axe-core`) installed in

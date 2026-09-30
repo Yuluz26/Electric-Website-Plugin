@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
+ * @var string $anchor HTML id for links to this section, or ''.
  * @var array{title:string,description:string,power_range:string,dwell_label:string,best_for:string,art:string} $ac
  * @var array{title:string,description:string,power_range:string,dwell_label:string,best_for:string,art:string} $dc
  * @var array<string, array<string, string>>|null $rulers Per panel (ac|dc): from, to, other_from, other_to, max. Null: no ruler.
@@ -23,7 +24,7 @@ $panels = array(
 <section
 	class="evpx-root alignfull evpx-comparison evpx-comparison--<?php echo esc_attr( $accent_treatment ); ?> evpx-comparison--mobile-<?php echo esc_attr( $mobile_mode ); ?>"
 	data-mode="<?php echo esc_attr( $mode ); ?>"
-	data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>"
+	<?php echo $anchor ? 'id="' . esc_attr( $anchor ) . '"' : ''; ?> data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>"
 	data-default="ac"
 	data-evpx-animate="<?php echo 'off' !== $animation_intensity ? '1' : '0'; ?>"
 	data-evpx-intensity="<?php echo esc_attr( $animation_intensity ); ?>"

@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
+ * @var string $anchor HTML id for links to this section, or ''.
  * @var string $eyebrow
  * @var string $heading
  * @var string $content Rendered FaqItem children.
@@ -11,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<section class="evpx-root alignfull evpx-faq" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
+<section class="evpx-root alignfull evpx-faq" <?php echo $anchor ? 'id="' . esc_attr( $anchor ) . '"' : ''; ?> data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container evpx-faq__grid">
 		<div class="evpx-faq__intro" data-evpx-reveal>
 			<?php if ( $eyebrow ) : ?><p class="evpx-eyebrow"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>

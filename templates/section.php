@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
+ * @var string $anchor HTML id for links to this section, or ''.
  * @var string $eyebrow
  * @var string $heading
  * @var string $figure Optional key figure, set large ("7–22 kW").
@@ -16,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<section class="evpx-root alignfull evpx-section evpx-section--<?php echo esc_attr( $layout ); ?><?php echo $media_html ? '' : ' evpx-section--no-media'; ?>" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
+<section class="evpx-root alignfull evpx-section evpx-section--<?php echo esc_attr( $layout ); ?><?php echo $media_html ? '' : ' evpx-section--no-media'; ?>" <?php echo $anchor ? 'id="' . esc_attr( $anchor ) . '"' : ''; ?> data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container evpx-section__grid">
 		<div
 			class="evpx-section__text evpx-surface--<?php echo esc_attr( $surface ); ?>"

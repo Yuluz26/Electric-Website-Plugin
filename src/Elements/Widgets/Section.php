@@ -22,6 +22,7 @@ final class Section extends Element {
 	public function controls(): array {
 		return array(
 			self::spacingControl(),
+			self::anchorControl(),
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'body', 'label' => __( 'Body copy', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
@@ -86,6 +87,7 @@ final class Section extends Element {
 			'section',
 			array(
 				'spacing'      => $atts['spacing'],
+				'anchor'       => $atts['anchor'],
 				'eyebrow'      => $atts['eyebrow'],
 				'heading'      => $atts['heading'],
 				'figure'       => $atts['figure'],

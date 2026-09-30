@@ -1,13 +1,51 @@
 # Changelog
 
-## Unreleased
+## 0.7.0
 
-Documentation only; no file the plugin runs has changed since 0.6.1.
+Activating the plugin now makes the pages. A new install used to open onto an empty Pages list, ten elements and a
+document to read; it now has two draft example articles built from every widget, ready to open, edit and copy from:
+a post with the article as shortcodes and, once Breakdance is active, the same article as a Breakdance page of native
+elements in full-width Sections, ready for the builder.
 
-- `docs/INSTALLATION.md`: installing from the ZIP, and a first-page walkthrough for Breakdance (Section set-up, which
-  elements go where, dynamic data, one `h1` per page).
-- Corrected two stale lines: `docs/BREAKDANCE.md` listed nine native elements and left out the Charging Explorer;
-  `docs/INSTALLATION.md` said "9 blocks" where there are thirteen (ten widgets and three item blocks).
+**Added**
+- **Example articles on activation** (`Setup\ExamplePages`). Activation queues them; the first admin request after it,
+  by an administrator, makes what can be made, so activating Breakdance and this plugin together (in either order) gives
+  both, and a Breakdance activated later adds its page then. They are drafts (the `evpx_example_pages_status` filter can
+  make them private or published), made once (`evpx_examples` records their ids: deleting one never brings it back, and
+  neither does activating again), contained (a kind that fails is recorded and not retried, so a fault here cannot repeat on
+  every admin page) and additive: nothing that exists is touched. A one-time notice links to Preview and to Edit in
+  Breakdance. `uninstall.php` (new) removes `evpx_version` and `evpx_examples` when the plugin is deleted, and leaves the
+  articles, which are the site's content by then.
+- **`Native\Tree` and `Controls::propertiesFromAtts()`**: an article of shortcodes as a Breakdance tree, one full-width,
+  no-padding Section per element. It was the test helper's; it is the plugin's now, so the example page and the suites
+  use the same converter. `NativeElements::WIDGETS` (element → widget) replaces the list of names it used to keep.
+- **An `anchor` control on every section widget** (Advanced): the HTML id, so a link elsewhere on the page can point at it.
+- Docs: installing from the ZIP, "The example articles", "Your first page in Breakdance", a troubleshooting entry, the
+  architecture note (§2.2a).
+
+**Changed**
+- The demo article is `content/demo-article.txt` (it was `docs/demo-article.txt`): the plugin reads it, so it must ship.
+- Activation was "inert beyond recording the version". It still never touches existing content, and now also queues the examples.
+- On the Breakdance example the hero is the page's `h1` under Breakdance's own Zero theme, which prints no title of its
+  own, and an `h2` under any other theme, which prints the title as an `h1` above it.
+
+**Fixed**
+- **The hero's button went nowhere on a page built with native elements.** "Jump to the decision framework" links to
+  `#decision`, which the shortcode article supplied with a hand-written `<span id="decision">`; the same article as native
+  elements has no such span. The decision factors carry the id now (`anchor="decision"`), in a shortcode, a block and a
+  native element alike.
+- Two stale doc lines: the native-element list left out the Charging Explorer, and "9 blocks" is thirteen.
+
+**Added tests**
+- `tests/docker/example-pages-check.sh` (with `example-pages-check.php` and `tests/playwright/examples-qa.mjs`): activation
+  queues and makes nothing; the first admin request makes both, as drafts, exactly once; a subscriber, an editor and an ajax
+  request trigger nothing; a failure stays contained; nothing that existed is touched; the page is a real Breakdance
+  document whose every element carries what its shortcode carries; the notice, its links and its being shown once; both
+  examples inspected in a browser (one `h1`, the hero's target exists, the same widgets in the same order, nothing overflows
+  from 320 to 1440 px, drafts invisible when logged out); the Activate link on the Plugins screen; Breakdance arriving after
+  the plugin; uninstall. Watched failing against 21 deliberate faults (16 in the logic, 5 in the browser layer).
+- Render and integration checks for the anchor on every section widget, through a shortcode and through a native element
+  (a template that drops the id, an id that is not cleaned and a widget that ignores the control each fail them).
 
 ## 0.6.1
 

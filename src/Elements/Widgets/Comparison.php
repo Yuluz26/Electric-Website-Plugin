@@ -23,6 +23,7 @@ final class Comparison extends Element {
 	public function controls(): array {
 		return array(
 			self::spacingControl(),
+			self::anchorControl(),
 			array( 'key' => 'ac_title', 'label' => __( 'AC title', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => __( 'AC Charging', 'ev-charging-experience' ) ),
 			array( 'key' => 'ac_description', 'label' => __( 'AC description', 'ev-charging-experience' ), 'type' => 'textarea', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'ac_power_range', 'label' => __( 'AC power range', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '7–22 kW' ),
@@ -89,6 +90,7 @@ final class Comparison extends Element {
 			'comparison',
 			array(
 				'spacing' => $atts['spacing'],
+				'anchor'  => $atts['anchor'],
 				'ac' => array(
 					'title'       => $atts['ac_title'],
 					'description' => $this->autop( $atts['ac_description'] ),

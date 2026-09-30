@@ -21,6 +21,19 @@ those requests: `add_filter( 'evpx_load_assets', '__return_true' );` (the filter
 and the queried post, so you can restrict it). Native elements, and any theme that renders the body first
 (block themes, Breakdance's Zero theme and templates), don't show this.
 
+**I don't see the example articles after activating.**
+They are made on the next admin screen, not during activation itself, as drafts, and only when an administrator loads
+it (an editor's visit does nothing). Look under Posts and Pages for *Choosing AC or DC Charging for Your Site* (draft). If Breakdance was not
+active when the plugin was, only the post exists until Breakdance is activated and an admin screen loads. They are made once: if you deleted them, or
+activated before this version, run `wp option delete evpx_examples` and activate again (or deactivate and
+activate). `wp option get evpx_examples` shows what was recorded: `article` and `breakdance` hold their ids, `0`
+means that one failed and was not retried, and `pending: true` means the Breakdance page is waiting for Breakdance.
+
+**The example page shows the title twice.**
+The theme prints the page's title, and the hero repeats it. On the Breakdance example the hero is already an `h2`
+under any theme but Breakdance's Zero theme; in your own pages set the hero's **Title tag** to `h2` (Advanced), or
+leave the title off in the theme or the page template.
+
 **The EV elements aren't in Breakdance's Add panel.**
 Search for "EV" in the panel, or look for the **EV Charging** category. If it isn't there: Breakdance must be
 active (the elements are only declared once it is), and the plugin file must be loaded — a cache or

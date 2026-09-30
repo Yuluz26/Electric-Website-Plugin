@@ -233,6 +233,56 @@ final class Controls {
 	}
 
 	/**
+	 * The inverse of attsFromProperties() and rowsFromProperties(): what Breakdance saves for a widget set
+	 * to these attributes, as a page of shortcodes lays out when it becomes native elements (Tree). A
+	 * control left out reads as its default. Pictures are skipped: Breakdance saves a media object for
+	 * them, and the attributes carry only an attachment id.
+	 *
+	 * @param array<string, mixed>             $atts Attributes of the widget, as a shortcode carries them.
+	 * @param array<int, array<string, mixed>> $rows Attributes of each item of a container.
+	 * @return array<string, mixed>
+	 */
+	public static function propertiesFromAtts( Widget $widget, array $atts, array $rows = array() ): array {
+		$content = self::groupedValues( $widget, $atts );
+		$child   = $widget->childWidget();
+
+		if ( $child && $rows ) {
+			$out = array();
+			foreach ( $rows as $row ) {
+				$out[] = array_merge( array(), ...array_values( self::groupedValues( $child, $row ) ) );
+			}
+			$content[ self::ITEMS_SECTION ][ self::ITEMS_CONTROL ] = $out;
+		}
+
+		return array( 'content' => $content );
+	}
+
+	/**
+	 * The values a set of attributes gives the widget's controls, grouped the way the builder saves them.
+	 *
+	 * @param array<string, mixed> $atts
+	 * @return array<string, array<string, mixed>>
+	 */
+	private static function groupedValues( Widget $widget, array $atts ): array {
+		$groups = array();
+
+		foreach ( $widget->controls() as $control ) {
+			if ( ! array_key_exists( $control['key'], $atts ) || 'image' === $control['type'] ) {
+				continue;
+			}
+
+			$value = $atts[ $control['key'] ];
+			if ( 'toggle' === $control['type'] ) {
+				$value = filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+			}
+
+			$groups[ $control['group'] ][ $control['key'] ] = $value;
+		}
+
+		return $groups;
+	}
+
+	/**
 	 * The control that names a row: a title-like one if the item has it, else its first text field. It
 	 * titles the row in the builder's list, and a row without it isn't rendered.
 	 */

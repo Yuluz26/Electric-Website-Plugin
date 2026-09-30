@@ -1,6 +1,6 @@
 <?php
 /**
- * Creates a page designed in Breakdance from docs/demo-article.txt: one Breakdance Section per
+ * Creates a page designed in Breakdance from content/demo-article.txt: one Breakdance Section per
  * top-level EV widget, each holding either Breakdance's Shortcode element (mode "shortcode") or the
  * plugin's own native element (mode "native") — the way a site builder would place them. Mode "empty"
  * makes a page with one empty Section, for adding an element from the builder's Add panel. Mode "full" is

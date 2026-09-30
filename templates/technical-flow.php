@@ -1,6 +1,7 @@
 <?php
 /**
  * @var string $spacing Vertical rhythm: default | compact | none.
+ * @var string $anchor HTML id for links to this section, or ''.
  * @var string   $heading
  * @var string[] $steps
  * @var string[] $symbols One icon name per step, or all ''.
@@ -18,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	class="evpx-root alignfull evpx-flow evpx-flow--<?php echo esc_attr( $direction ); ?><?php echo $compact ? ' evpx-flow--compact' : ''; ?>"
 	<?php echo 'dark' === $variant ? 'data-evpx-theme="dark"' : ''; ?>
 	data-evpx-animate="<?php echo $animate ? '1' : '0'; ?>"
-	data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>"
+	<?php echo $anchor ? 'id="' . esc_attr( $anchor ) . '"' : ''; ?> data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>"
 >
 	<div class="evpx-container">
 		<?php if ( $heading ) : ?>

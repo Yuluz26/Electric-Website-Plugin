@@ -22,6 +22,7 @@ final class ScenarioCards extends Element {
 	public function controls(): array {
 		return array(
 			self::spacingControl(),
+			self::anchorControl(),
 			array( 'key' => 'eyebrow', 'label' => __( 'Eyebrow', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'heading', 'label' => __( 'Heading', 'ev-charging-experience' ), 'type' => 'text', 'group' => 'content', 'default' => '' ),
 			array( 'key' => 'columns', 'label' => __( 'Columns (desktop)', 'ev-charging-experience' ), 'type' => 'select', 'group' => 'layout', 'default' => '3', 'options' => array(
@@ -48,6 +49,7 @@ final class ScenarioCards extends Element {
 			'scenario-cards',
 			array(
 				'spacing' => $atts['spacing'],
+				'anchor'  => $atts['anchor'],
 				'eyebrow' => $atts['eyebrow'],
 				'heading' => $atts['heading'],
 				'columns' => $atts['columns'],

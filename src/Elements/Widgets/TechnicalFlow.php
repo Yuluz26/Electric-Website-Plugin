@@ -71,6 +71,7 @@ final class TechnicalFlow extends Element {
 		$controls[] = array( 'key' => 'animate', 'label' => __( 'Enable sequence animation', 'ev-charging-experience' ), 'type' => 'toggle', 'group' => 'motion', 'default' => true );
 
 		$controls[] = self::spacingControl();
+		$controls[] = self::anchorControl();
 
 		return $controls;
 	}
@@ -97,6 +98,7 @@ final class TechnicalFlow extends Element {
 			'technical-flow',
 			array(
 				'spacing'   => $atts['spacing'],
+				'anchor'    => $atts['anchor'],
 				'heading'   => $atts['heading'],
 				'steps'     => $steps,
 				'symbols'   => $symbols,

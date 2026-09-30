@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Creates two pages designed in Breakdance from docs/demo-article.txt — one Breakdance Section per
+# Creates two pages designed in Breakdance from content/demo-article.txt — one Breakdance Section per
 # EV widget — and writes their URLs:
 #   tests/docker/.breakdance-url          each widget in Breakdance's Shortcode element
 #   tests/docker/.breakdance-native-url   each widget as the plugin's own native element
@@ -19,7 +19,7 @@ wp() { "${COMPOSE[@]}" exec -T --user www-data wordpress wp "$@"; }
 
 "${COMPOSE[@]}" cp tests/docker/native-helpers.php wordpress:/tmp/native-helpers.php
 "${COMPOSE[@]}" cp tests/docker/breakdance-page.php wordpress:/tmp/breakdance-page.php
-"${COMPOSE[@]}" cp docs/demo-article.txt wordpress:/tmp/demo-article.txt
+"${COMPOSE[@]}" cp content/demo-article.txt wordpress:/tmp/demo-article.txt
 
 SHORTCODE_ID="$(wp eval-file /tmp/breakdance-page.php /tmp/demo-article.txt shortcode | tail -1)"
 NATIVE_ID="$(wp eval-file /tmp/breakdance-page.php /tmp/demo-article.txt native | tail -1)"

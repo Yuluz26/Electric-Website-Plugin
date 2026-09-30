@@ -55,8 +55,9 @@ Electric-Website-Plugin/
 ├── phpcs.xml.dist                  # WordPress coding standards ruleset (exclusions explained inline)
 ├── src/
 │   ├── Core/                       # Plugin, Activation, Deactivation
+│   ├── Setup/                      # ExamplePages: the two draft example articles made after activation
 │   ├── Breakdance/                 # Compatibility, ElementStudioBridge, DynamicData (+ Fields/)
-│   │   └── Native/                 # NativeElements, NativeElement (trait), Controls, elements/ (one class per element)
+│   │   └── Native/                 # NativeElements, NativeElement (trait), Controls, Tree, elements/ (one class per element)
 │   ├── Elements/                   # Element (shared contract), Registry, Widgets/ (one class each)
 │   ├── Assets/                     # Loader — conditional CSS/JS, GSAP source filters
 │   ├── Admin/                      # Notices (informational only; no settings screen)
@@ -68,10 +69,35 @@ Electric-Website-Plugin/
 │   └── icons/                      # the Phosphor licence (MIT); the outlines themselves are in src/Support/icons-data.php
 ├── templates/                      # one PHP view partial per element
 │   └── art/                        # the built-in drawings: one inline SVG per file (hero-schematic, charge-curve, wallbox, …)
+├── content/                        # demo-article.txt: the article as shortcodes; the QA fixture and the source of the example articles
+├── uninstall.php                   # on delete: the version and example-article options (never the articles)
 ├── languages/                      # .pot translation template
 ├── tests/                          # docker/ (setup, real-Breakdance, media and template checks), playwright/ (qa, interaction-qa, explorer-qa, a11y-qa, layout-qa, breakdance-qa, media-qa, template-qa), php/ (the model grid), contrast-check, css-check, build-zip
 └── docs/
 ```
+
+### 2.2a The example articles (0.7.0)
+
+Activation records the version and *queues* two draft examples (`Setup\ExamplePages::queue()` writes
+`evpx_examples = {pending: true}`); it makes nothing itself, because a bulk activation of Breakdance and this plugin
+runs before Breakdance is loaded. The first admin request after that (`admin_init`, priority 20, by an administrator,
+not ajax, not the network admin) makes what can be made:
+
+- `article`, a post whose content is `content/demo-article.txt`, always;
+- `breakdance`, a page whose `_breakdance_data` is `Native\Tree::fromArticle()` of the same text: one full-width,
+  no-padding Section per top-level shortcode, each holding the native element. `Tree::nodes()` parses the shortcodes;
+  `Controls::propertiesFromAtts()` turns each one's attributes into the properties Breakdance saves (the inverse of
+  `attsFromProperties()`), so what the builder opens is what the shortcode says. It calls no Breakdance function; only
+  writing the meta does, and only where Breakdance is loaded. `NativeElements::WIDGETS` is the one map of element to
+  widget, and `tests/docker/example-pages-check.php` holds it to the element files.
+
+Each kind is attempted once: its id (or 0, if it failed) is recorded *before* it is made, so a fault cannot repeat on
+every admin page, and a deleted example is never brought back. `pending` stays true only while the Breakdance page
+waits for Breakdance. The page differs from the post in two things, both set in `ExamplePages::pageOverrides()`: a
+page has no category, so its Related row lists the latest posts, and its hero is an `h1` only under Breakdance's Zero
+theme (`get_template() === 'breakdance-zero'`), an `h2` elsewhere, where the theme already prints the title. Drafts by
+default (`evpx_example_pages_status`); nothing existing is touched, which the check asserts with a fingerprint of every
+earlier post.
 
 ### 2.3 Namespacing
 

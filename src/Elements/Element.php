@@ -207,6 +207,24 @@ abstract class Element {
 	}
 
 	/**
+	 * The HTML id of a section widget, so a link elsewhere on the page (a hero button, a contents list)
+	 * can point at it: `anchor="decision"` and `href="#decision"`. Letters, digits, hyphens and
+	 * underscores only, which is what an id needs to survive a copy-paste into a URL.
+	 *
+	 * @return array<string, mixed>
+	 */
+	protected static function anchorControl(): array {
+		return array(
+			'key'      => 'anchor',
+			'label'    => __( 'Anchor (HTML id, for links to this section)', 'ev-charging-experience' ),
+			'type'     => 'text',
+			'group'    => 'advanced',
+			'default'  => '',
+			'sanitize' => 'sanitize_html_class',
+		);
+	}
+
+	/**
 	 * WordPress's default `the_content` filter chain runs wpautop() at
 	 * priority 10 and do_shortcode() at priority 11 — meaning wpautop
 	 * mangles a multi-line nested-shortcode block (like our container
@@ -291,6 +309,11 @@ abstract class Element {
 	 * @return mixed
 	 */
 	protected function sanitizeControlValue( array $control, $value ) {
+		// A control that needs more than its type's rule names its own (the anchor's id).
+		if ( isset( $control['sanitize'] ) && is_callable( $control['sanitize'] ) ) {
+			return call_user_func( $control['sanitize'], (string) $value );
+		}
+
 		switch ( $control['type'] ) {
 			case 'toggle':
 				return filter_var( $value, FILTER_VALIDATE_BOOLEAN );

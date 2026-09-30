@@ -106,7 +106,7 @@ for title in "What a utility connection upgrade really involves" "Load managemen
 		--post_content="Placeholder body for QA article ${i}." --porcelain >/dev/null
 done
 
-"${COMPOSE[@]}" cp docs/demo-article.txt wordpress:/tmp/demo-article.txt
+"${COMPOSE[@]}" cp content/demo-article.txt wordpress:/tmp/demo-article.txt
 DEMO_ID="$("${COMPOSE[@]}" exec -T --user www-data wordpress sh -c \
 	'wp post create --post_type=post --post_status=publish --post_category='"$CAT"' --post_title="Choosing AC or DC Charging for Your Site" --post_content="$(cat /tmp/demo-article.txt)" --porcelain')"
 
