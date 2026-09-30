@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+Documentation only; no file the plugin runs has changed since 0.6.1.
+
+- `docs/INSTALLATION.md`: installing from the ZIP, and a first-page walkthrough for Breakdance (Section set-up, which
+  elements go where, dynamic data, one `h1` per page).
+- Corrected two stale lines: `docs/BREAKDANCE.md` listed nine native elements and left out the Charging Explorer;
+  `docs/INSTALLATION.md` said "9 blocks" where there are thirteen (ten widgets and three item blocks).
+
 ## 0.6.1
 
 Two weak spots the 0.6.0 review named, fixed: the Technical Flow was the plainest thing on the page, and the hero's

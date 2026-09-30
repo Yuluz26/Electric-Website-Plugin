@@ -18,8 +18,8 @@ settings produce the same markup (asserted by `tests/docker/breakdance-real-chec
 
 Open the **Add** panel and search "EV", or scroll to the **EV Charging** category:
 
-EV Article Hero · EV Section · EV AC/DC Comparison · EV Scenario Cards · EV Technical Flow ·
-EV Decision Factors · EV FAQ · EV Related Articles · EV CTA
+EV Article Hero · EV Section · EV AC/DC Comparison · EV Charging Explorer · EV Scenario Cards ·
+EV Technical Flow · EV Decision Factors · EV FAQ · EV Related Articles · EV CTA
 
 **Controls.** Every control the widget has (`docs/WIDGETS.md`) is here, grouped into sections in the order
 the PRD asks for: Content, Media, Layout, Visual, Motion, Responsive, Advanced (only the groups a widget

@@ -10,14 +10,40 @@
 
 ## Install
 
-1. Zip the plugin folder (see `docs/PACKAGING.md` for exactly what to
-   include) or use the repository directly as
-   `wp-content/plugins/ev-charging-experience/`.
-2. WordPress Admin → Plugins → **Activate** "EV Charging Experience".
+1. WordPress Admin → Plugins → **Add New → Upload Plugin**, choose `ev-charging-experience-x.y.z.zip`
+   and **Install Now**. (Building the ZIP yourself: `docs/PACKAGING.md`. Or use the repository directly as
+   `wp-content/plugins/ev-charging-experience/`.)
+2. **Activate** "EV Charging Experience".
    Activation only records the installed version in `wp_options` — it
    never touches existing posts, pages, Breakdance data, or theme files.
-3. That's it. No database migration, no setup wizard, no required
+3. That's it. No database migration, no setup wizard, no settings page, no required
    configuration.
+
+## Your first page in Breakdance
+
+With the plugin and Breakdance both active:
+
+1. **New page.** Pages → Add New → *Edit in Breakdance*. For an article that should list its category's
+   other posts under it, use a Post instead of a Page.
+2. **Prepare one Section.** Add a Section and, in its Design settings, set **Width** to *Full* and **Padding** to
+   0 on every side. Duplicate it once per widget. The widgets are full-bleed bands with their own vertical
+   rhythm, so this is what makes the page read as one piece (`docs/BREAKDANCE.md`, "Recommended setup").
+3. **Add the elements.** Click **Add**, search "EV", and drop one element from the **EV Charging** category into
+   each Section. The demo article's order is a good default: Article Hero · Section (three times) · AC/DC
+   Comparison · Charging Explorer · Decision Factors · Scenario Cards · Technical Flow · Section · FAQ · CTA ·
+   Related Articles.
+4. **Edit in the panel.** Content, Media, Layout, Visual, Motion, Responsive and Advanced groups. Scenario
+   Cards, Decision Factors and FAQ take their entries in an **Items** repeater. Hover a text field for
+   Breakdance's dynamic-data button: the Hero's summary can be the post excerpt, and its reading time fills
+   itself when left blank. On a Page, set Related Articles' **Source** to *Latest* or *Manual*; *Category* needs a
+   Post.
+5. **One h1 per page.** The Hero prints the page's `h1`. If the theme or a Breakdance template already prints the
+   title, set the Hero's **Title tag** to `h2`.
+6. **Save and open the page.** The builder shows a static version (no entrance animation, no scroll triggers, no
+   progress bar); the motion runs on the live page.
+
+Rather see everything working first? Create a Post and paste `docs/demo-article.txt` into its editor (a Custom
+HTML block), or load it with WP-CLI: "Trying the demo article", below.
 
 ## Using it without Breakdance
 
@@ -28,7 +54,8 @@ editor, or any `post_content`:
 [evpx_hero title="Choosing AC or DC Charging for Your Site"]
 ```
 
-Or search for "EV" in the block inserter — all 9 blocks live under the
+Or search for "EV" in the block inserter — all thirteen blocks (the ten widgets, and the three item blocks
+that sit inside FAQ, Scenario Cards and Decision Factors) live under the
 **EV Charging Experience** category with full Inspector Controls (organized
 into Content / Media / Layout / Visual / Motion / Responsive / Advanced
 panels) and a live preview.
