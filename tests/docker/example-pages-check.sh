@@ -44,7 +44,7 @@ admin_visit() {
 
 # Every id the plugin recorded, then the record itself.
 forget_examples() {
-	wp eval 'foreach ( (array) get_option( "evpx_examples" ) as $v ) { if ( is_int( $v ) && $v ) { wp_delete_post( $v, true ); } } delete_option( "evpx_examples" ); delete_transient( "evpx_examples_notice" );' >/dev/null 2>&1
+	wp eval '$o = (array) get_option( "evpx_examples" ); foreach ( array_merge( $o, (array) ( $o["site_pages"] ?? array() ) ) as $v ) { if ( is_int( $v ) && $v ) { wp_delete_post( $v, true ); } } delete_option( "evpx_examples" ); delete_transient( "evpx_examples_notice" );' >/dev/null 2>&1
 }
 reactivate() { wp plugin deactivate "$PLUGIN" >/dev/null 2>&1; wp plugin activate "$PLUGIN" >/dev/null 2>&1; }
 count_posts() { wp post list --post_type=post,page --post_status=publish,draft,private,pending,future,trash --format=count; }
@@ -79,7 +79,7 @@ article_id="${ids%% *}"
 page_id="${ids##* }"
 state="$(option)"
 check "the ids the notice links to are the ones the plugin recorded" "$([ -n "$article_id" ] && [ "$(field "$state" article)" = "$article_id" ] && [ "$(field "$state" breakdance)" = "$page_id" ] && [ "$(field "$state" pending)" = false ] && echo 1 || echo 0)" "$ids vs $state"
-check "two pages were added, no more" "$([ "$(count_posts)" = "$((before + 2))" ] && echo 1 || echo 0)" "$before → $(count_posts)"
+check "eight pages were added (the two examples and the six site pages), no more" "$([ "$(count_posts)" = "$((before + 8))" ] && echo 1 || echo 0)" "$before → $(count_posts)"
 
 if [ -n "$article_id" ] && [ -n "$page_id" ]; then
 	node tests/playwright/examples-qa.mjs "$ORIGIN" inspect "$article_id" "$page_id" "$OUT" || status=1
@@ -97,7 +97,7 @@ before="$(count_posts)"
 wp config set WP_DEBUG_DISPLAY false --raw >/dev/null 2>&1
 activated="$(node tests/playwright/examples-qa.mjs "$ORIGIN" activate)" || status=1
 grep -v '^ids ' <<<"$activated"
-check "pressing Activate made the two examples" "$([ "$(count_posts)" = "$((before + 2))" ] && echo 1 || echo 0)" "$before → $(count_posts)"
+check "pressing Activate made the two examples and the site" "$([ "$(count_posts)" = "$((before + 8))" ] && echo 1 || echo 0)" "$before → $(count_posts)"
 wp config set WP_DEBUG_DISPLAY true --raw >/dev/null 2>&1
 forget_examples
 
@@ -122,14 +122,14 @@ reactivate
 before="$(count_posts)"
 html="$(admin_visit)"
 state="$(option)"
-check "without Breakdance the article is made and the Breakdance page waits" "$([ "$(field "$state" article)" != "-" ] && [ "$(field "$state" article)" != 0 ] && [ "$(field "$state" breakdance)" = "-" ] && [ "$(field "$state" pending)" = true ] && [ "$(count_posts)" = "$((before + 1))" ] && echo 1 || echo 0)" "$state, posts $before → $(count_posts)"
+check "without Breakdance the article is made and the Breakdance page waits" "$([ "$(field "$state" article)" != "-" ] && [ "$(field "$state" article)" != 0 ] && [ "$(field "$state" breakdance)" = "-" ] && [ "$(field "$state" pending)" = true ] && [ "$(count_posts)" = "$((before + 7))" ] && echo 1 || echo 0)" "$state, posts $before → $(count_posts)"
 check "the notice says so" "$(grep -q "Once Breakdance is active" <<<"$html" && echo 1 || echo 0)"
 check "and it is a plain edit link, not a builder link, while there is no Breakdance" "$(grep -q "breakdance=builder" <<<"$html" && echo 0 || echo 1)"
 
 wp plugin activate breakdance >/dev/null 2>&1
 html="$(admin_visit)"
 state="$(option)"
-check "when Breakdance is active the next admin request adds the Breakdance page" "$([ "$(field "$state" breakdance)" != "-" ] && [ "$(field "$state" breakdance)" != 0 ] && [ "$(field "$state" pending)" = false ] && [ "$(count_posts)" = "$((before + 2))" ] && echo 1 || echo 0)" "$state, posts $before → $(count_posts)"
+check "when Breakdance is active the next admin request adds the Breakdance page" "$([ "$(field "$state" breakdance)" != "-" ] && [ "$(field "$state" breakdance)" != 0 ] && [ "$(field "$state" pending)" = false ] && [ "$(count_posts)" = "$((before + 8))" ] && echo 1 || echo 0)" "$state, posts $before → $(count_posts)"
 check "its notice says it found Breakdance, and links to the builder" "$(grep -q "found Breakdance" <<<"$html" && grep -q "breakdance=builder" <<<"$html" && echo 1 || echo 0)"
 
 echo

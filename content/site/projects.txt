@@ -1,0 +1,22 @@
+[evpx_header]
+
+[evpx_stage scene="highway" height="compact" eyebrow="Projects" title="Sites we have *built* and still look after" lede="Depots, car parks, hotels and corridors. Each one started with the same question: how long do the cars stay?"]
+
+[evpx_projects eyebrow="Selected work" heading="Six sites" intro="Drag the row, or use the arrows."]
+{{projects}}
+[/evpx_projects]
+
+[evpx_stats eyebrow="Across every site" heading="What they have in common" variant="light"]
+[evpx_stat value="13 weeks" label="Typical programme" note="From the first visit to live bays." symbol="calendar-blank"]
+[evpx_stat value="99.5%" label="Uptime target" note="Measured monthly." fill="99.5"]
+[evpx_stat value="24/7" label="Monitoring" note="Faults are seen before they are reported." symbol="gauge"]
+[evpx_stat value="1" label="Point of contact" note="Named on the contract." symbol="user"]
+[/evpx_stats]
+
+[evpx_quotes eyebrow="What clients say" auto="true"]
+{{quotes}}
+[/evpx_quotes]
+
+[evpx_cta title="Have a site in mind?" body="Send us the address and how the cars use it. We will come back with what we would measure first." button_label="Start the conversation" button_url="/contact/" variant="dark"]
+
+[evpx_footer]

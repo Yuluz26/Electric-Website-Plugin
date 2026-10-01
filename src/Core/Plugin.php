@@ -9,7 +9,9 @@ use EVPX\Breakdance\ElementStudioBridge;
 use EVPX\Breakdance\Native\NativeElements;
 use EVPX\Assets\Loader;
 use EVPX\Elements\Registry;
+use EVPX\Setup\Canvas;
 use EVPX\Setup\ExamplePages;
+use EVPX\Support\ContactForm;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -52,6 +54,8 @@ final class Plugin {
 		( new DynamicData() )->register();
 		( new Loader() )->register();
 		( new Registry() )->register();
+		( new ContactForm() )->register();
+		( new Canvas() )->register();
 
 		if ( is_admin() ) {
 			( new Notices() )->register();

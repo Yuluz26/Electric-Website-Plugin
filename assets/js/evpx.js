@@ -895,6 +895,1039 @@
 	}
 
 	/* ------------------------------------------------------------------
+	   Page hero (Stage): the scene's layers slide against each other with the pointer and the page, a canvas of
+	   weather runs over it, and the figures count up when they are seen. All of it waits for motion: without it
+	   the hero is the finished still, figures included.
+	   ------------------------------------------------------------------ */
+	function clamp01( n ) {
+		return n < 0 ? 0 : n > 1 ? 1 : n;
+	}
+
+	function initStage( root ) {
+		EVPX.each( '[data-evpx-stage]', root, function ( stage ) {
+			if ( ! markBound( stage, 'stage' ) ) {
+				return;
+			}
+
+			if ( ! EVPX.motionAllowed() || stage.getAttribute( 'data-evpx-animate' ) === '0' ) {
+				return;
+			}
+
+			countUp( stage, '.evpx-stage__num' );
+			stageParallax( stage );
+			stageWeather( stage );
+		} );
+	}
+
+	/** "1,250.5" as a counter would set it: the same decimals and grouping the editor typed. */
+	function formatCount( value, sample ) {
+		var decimals = sample.indexOf( '.' ) > -1 ? sample.length - sample.indexOf( '.' ) - 1 : 0;
+		var text = value.toFixed( decimals );
+
+		if ( sample.indexOf( ',' ) > -1 ) {
+			var parts = text.split( '.' );
+			parts[ 0 ] = parts[ 0 ].replace( /\B(?=(\d{3})+(?!\d))/g, ',' );
+			text = parts.join( '.' );
+		}
+
+		return text;
+	}
+
+	/** Counts every [data-count] in `scope` up from zero, once, when it comes into view; `numSelector` is the part that changes. */
+	function countUp( scope, numSelector ) {
+		var counters = scope.querySelectorAll( '[data-count]' );
+
+		if ( ! counters.length || ! ( 'IntersectionObserver' in window ) ) {
+			return;
+		}
+
+		EVPX.each( '[data-count]', scope, function ( el ) {
+			var num = el.querySelector( numSelector );
+			if ( num ) {
+				num.textContent = formatCount( 0, el.getAttribute( 'data-count' ) );
+			}
+		} );
+
+		var watcher = new window.IntersectionObserver( function ( entries ) {
+			entries.forEach( function ( entry ) {
+				if ( ! entry.isIntersecting ) {
+					return;
+				}
+
+				watcher.unobserve( entry.target );
+				var sample = entry.target.getAttribute( 'data-count' );
+				var target = parseFloat( sample.replace( /,/g, '' ) );
+				var num = entry.target.querySelector( numSelector );
+				var began = 0;
+
+				if ( ! num || isNaN( target ) ) {
+					return;
+				}
+
+				var step = function ( now ) {
+					began = began || now;
+					var t = clamp01( ( now - began ) / 1600 );
+					var eased = t === 1 ? 1 : 1 - Math.pow( 2, -10 * t );
+					num.textContent = formatCount( target * eased, sample );
+
+					if ( t < 1 ) {
+						window.requestAnimationFrame( step );
+					}
+				};
+
+				window.requestAnimationFrame( step );
+			} );
+		}, { threshold: 0.6 } );
+
+		EVPX.each( '[data-count]', scope, function ( el ) {
+			watcher.observe( el );
+		} );
+	}
+
+	function stageParallax( stage ) {
+		var layers = stage.querySelectorAll( '.evpx-scene__layer' );
+		var photo = stage.querySelector( '.evpx-stage__image' );
+
+		if ( ! layers.length && ! photo ) {
+			return;
+		}
+
+		var fine = window.matchMedia && window.matchMedia( '(hover: hover) and (pointer: fine)' ).matches;
+		var aim = { x: 0, y: 0 };
+		var now = { x: 0, y: 0, s: 0 };
+		var scroll = 0;
+		var frame = 0;
+		var visible = true;
+
+		var apply = function () {
+			frame = 0;
+			now.x += ( aim.x - now.x ) * 0.08;
+			now.y += ( aim.y - now.y ) * 0.08;
+			now.s += ( scroll - now.s ) * 0.12;
+
+			for ( var i = 0; i < layers.length; i++ ) {
+				var d = parseFloat( layers[ i ].getAttribute( 'data-depth' ) ) || 0;
+				layers[ i ].style.transform = 'translate(' + ( -now.x * d * 46 ).toFixed( 2 ) + 'px,' + ( -now.y * d * 22 + now.s * d * 90 ).toFixed( 2 ) + 'px)';
+			}
+
+			if ( Math.abs( aim.x - now.x ) > 0.002 || Math.abs( aim.y - now.y ) > 0.002 || Math.abs( scroll - now.s ) > 0.002 ) {
+				frame = window.requestAnimationFrame( apply );
+			}
+		};
+
+		var wake = function () {
+			if ( ! frame && visible ) {
+				frame = window.requestAnimationFrame( apply );
+			}
+		};
+
+		if ( fine ) {
+			stage.addEventListener( 'pointermove', function ( event ) {
+				var box = stage.getBoundingClientRect();
+				aim.x = ( event.clientX - box.left ) / box.width - 0.5;
+				aim.y = ( event.clientY - box.top ) / box.height - 0.5;
+				wake();
+			}, { passive: true } );
+		}
+
+		window.addEventListener( 'scroll', function () {
+			var box = stage.getBoundingClientRect();
+			scroll = clamp01( -box.top / Math.max( 1, box.height ) );
+			wake();
+		}, { passive: true } );
+
+		if ( 'IntersectionObserver' in window ) {
+			new window.IntersectionObserver( function ( entries ) {
+				visible = entries[ 0 ].isIntersecting;
+			} ).observe( stage );
+		}
+	}
+
+	/* The weather over each scene, on a canvas the size of the hero. Coordinates are the scene's own (1600 x 900,
+	   scaled the way the SVG is, to cover), so a spark rises from the charger it is drawn beside. */
+	function stageWeather( stage ) {
+		var canvas = stage.querySelector( '.evpx-stage__fx' );
+		var kind = stage.getAttribute( 'data-evpx-scene' );
+
+		if ( ! canvas || ! canvas.getContext ) {
+			return;
+		}
+
+		var ctx = canvas.getContext( '2d' );
+		var w = 0;
+		var h = 0;
+		var k = 1;
+		var ox = 0;
+		var oy = 0;
+		var things = [];
+		var running = false;
+		var last = 0;
+		var visible = true;
+		var rnd = Math.random;
+
+		var pt = function ( x, y ) {
+			return [ ox + x * k, oy + y * k ];
+		};
+
+		var make = {
+			station: function () {
+				return { x: rnd() * w * 1.2 - w * 0.1, y: rnd() * h, len: 10 + rnd() * 16, v: 700 + rnd() * 700, a: 0.1 + rnd() * 0.16 };
+			},
+			highway: function ( i ) {
+				var lanes = [ [ 260, 900, 0 ], [ 560, 900, 0 ], [ 1250, 900, 1 ], [ 1500, 900, 1 ] ];
+				var lane = lanes[ i % 4 ];
+				return { t: rnd(), lane: lane, speed: 0.12 + rnd() * 0.22 };
+			},
+			cabinet: function () {
+				return { x: 1120 + ( rnd() - 0.5 ) * 220, y: 620 + rnd() * 40, vx: ( rnd() - 0.5 ) * 30, vy: -( 30 + rnd() * 70 ), life: rnd() * 3, max: 1.6 + rnd() * 2, r: 0.8 + rnd() * 1.8 };
+			},
+			grid: function () {
+				return { x: rnd() * 1600, y: rnd() * 800, vx: ( rnd() - 0.5 ) * 8, vy: ( rnd() - 0.5 ) * 6, r: 0.6 + rnd() * 1.4, p: rnd() * 6.28 };
+			},
+			plug: function () {
+				return { a: rnd() * 6.28, r: 300 + rnd() * 150, w: ( rnd() < 0.5 ? -1 : 1 ) * ( 0.08 + rnd() * 0.22 ), s: 0.8 + rnd() * 2 };
+			}
+		};
+		make.photo = make.grid;
+
+		var size = function () {
+			var box = canvas.getBoundingClientRect();
+			var dpr = Math.min( window.devicePixelRatio || 1, 1.5 );
+			w = Math.max( 1, Math.round( box.width ) );
+			h = Math.max( 1, Math.round( box.height ) );
+			canvas.width = Math.round( w * dpr );
+			canvas.height = Math.round( h * dpr );
+			ctx.setTransform( dpr, 0, 0, dpr, 0, 0 );
+			k = Math.max( w / 1600, h / 900 );
+			ox = ( w - 1600 * k ) / 2;
+			oy = ( h - 900 * k ) / 2;
+
+			var count = { station: Math.min( 200, Math.round( w * h / 9000 ) ), highway: 30, cabinet: 60, grid: 70, plug: 80, photo: 45 }[ kind ] || 0;
+			var maker = make[ kind ];
+			things = [];
+
+			for ( var i = 0; maker && i < count; i++ ) {
+				things.push( maker( i ) );
+			}
+		};
+
+		var draw = {
+			station: function ( dt ) {
+				ctx.lineWidth = 1;
+				for ( var i = 0; i < things.length; i++ ) {
+					var d = things[ i ];
+					d.y += d.v * dt;
+					d.x -= d.v * dt * 0.22;
+					if ( d.y > h ) {
+						d.y = -d.len;
+						d.x = rnd() * w * 1.2;
+					}
+					ctx.strokeStyle = 'rgba(190,210,255,' + d.a + ')';
+					ctx.beginPath();
+					ctx.moveTo( d.x, d.y );
+					ctx.lineTo( d.x + d.len * 0.22, d.y - d.len );
+					ctx.stroke();
+				}
+			},
+			highway: function ( dt ) {
+				var vp = pt( 900, 526 );
+				for ( var i = 0; i < things.length; i++ ) {
+					var d = things[ i ];
+					d.t += dt * d.speed * ( 0.35 + d.t * 2.2 );
+					if ( d.t > 1 ) {
+						d.t = 0;
+					}
+					var end = pt( d.lane[ 0 ], d.lane[ 1 ] );
+					var x = vp[ 0 ] + ( end[ 0 ] - vp[ 0 ] ) * d.t;
+					var y = vp[ 1 ] + ( end[ 1 ] - vp[ 1 ] ) * d.t;
+					var x0 = vp[ 0 ] + ( end[ 0 ] - vp[ 0 ] ) * Math.max( 0, d.t - 0.06 );
+					var y0 = vp[ 1 ] + ( end[ 1 ] - vp[ 1 ] ) * Math.max( 0, d.t - 0.06 );
+					ctx.strokeStyle = d.lane[ 2 ] ? 'rgba(255,138,61,' + ( 0.25 + d.t * 0.7 ) + ')' : 'rgba(255,255,255,' + ( 0.2 + d.t * 0.7 ) + ')';
+					ctx.lineWidth = 0.8 + d.t * 4;
+					ctx.lineCap = 'round';
+					ctx.beginPath();
+					ctx.moveTo( x0, y0 );
+					ctx.lineTo( x, y );
+					ctx.stroke();
+				}
+			},
+			cabinet: function ( dt ) {
+				ctx.globalCompositeOperation = 'lighter';
+				for ( var i = 0; i < things.length; i++ ) {
+					var d = things[ i ];
+					d.life += dt;
+					if ( d.life > d.max ) {
+						Object.assign( d, make.cabinet(), { life: 0 } );
+					}
+					d.x += d.vx * dt;
+					d.y += d.vy * dt;
+					var p = pt( d.x, d.y );
+					var f = 1 - d.life / d.max;
+					ctx.fillStyle = 'rgba(255,138,61,' + ( f * 0.85 ).toFixed( 3 ) + ')';
+					ctx.beginPath();
+					ctx.arc( p[ 0 ], p[ 1 ], d.r * k * 1.4, 0, 6.283 );
+					ctx.fill();
+				}
+				ctx.globalCompositeOperation = 'source-over';
+			},
+			grid: function ( dt, time ) {
+				for ( var i = 0; i < things.length; i++ ) {
+					var d = things[ i ];
+					d.x += d.vx * dt;
+					d.y += d.vy * dt;
+					if ( d.x < -20 ) { d.x = 1620; } else if ( d.x > 1620 ) { d.x = -20; }
+					if ( d.y < -20 ) { d.y = 820; } else if ( d.y > 820 ) { d.y = -20; }
+					var p = pt( d.x, d.y );
+					ctx.fillStyle = 'rgba(255,224,190,' + ( 0.18 + 0.22 * Math.sin( time * 0.0012 + d.p ) ).toFixed( 3 ) + ')';
+					ctx.beginPath();
+					ctx.arc( p[ 0 ], p[ 1 ], d.r * k * 1.3, 0, 6.283 );
+					ctx.fill();
+				}
+			},
+			plug: function ( dt ) {
+				var c = pt( 1080, 450 );
+				ctx.globalCompositeOperation = 'lighter';
+				for ( var i = 0; i < things.length; i++ ) {
+					var d = things[ i ];
+					var a0 = d.a;
+					d.a += d.w * dt;
+					ctx.strokeStyle = 'rgba(255,138,61,0.42)';
+					ctx.lineWidth = d.s * k;
+					ctx.lineCap = 'round';
+					ctx.beginPath();
+					ctx.arc( c[ 0 ], c[ 1 ], d.r * k, Math.min( a0, d.a ) - Math.abs( d.w ) * 0.55, Math.max( a0, d.a ) );
+					ctx.stroke();
+				}
+				ctx.globalCompositeOperation = 'source-over';
+			}
+		};
+		draw.photo = draw.grid;
+
+		var tick = function ( time ) {
+			if ( ! running ) {
+				return;
+			}
+
+			var dt = Math.min( 0.05, ( time - last ) / 1000 || 0.016 );
+			last = time;
+			ctx.clearRect( 0, 0, w, h );
+
+			if ( draw[ kind ] ) {
+				draw[ kind ]( dt, time );
+			}
+
+			window.requestAnimationFrame( tick );
+		};
+
+		var toggle = function () {
+			var should = visible && ! document.hidden;
+			if ( should && ! running ) {
+				running = true;
+				last = 0;
+				window.requestAnimationFrame( tick );
+			} else if ( ! should ) {
+				running = false;
+			}
+		};
+
+		if ( ! draw[ kind ] ) {
+			return;
+		}
+
+		size();
+
+		if ( 'ResizeObserver' in window ) {
+			new window.ResizeObserver( size ).observe( canvas );
+		}
+
+		if ( 'IntersectionObserver' in window ) {
+			new window.IntersectionObserver( function ( entries ) {
+				visible = entries[ 0 ].isIntersecting;
+				toggle();
+			} ).observe( stage );
+		}
+
+		document.addEventListener( 'visibilitychange', toggle );
+		toggle();
+	}
+
+	/* ------------------------------------------------------------------
+	   Site header: the folded menu, and the search dialog. Ctrl/Cmd + K or / opens it, typing asks the REST search
+	   route (published pages and articles, nothing else), the arrow keys move through what it finds and Enter opens
+	   one. Without a script the button does nothing and the form, in the dialog, is a plain GET.
+	   ------------------------------------------------------------------ */
+	function initHeader( root ) {
+		EVPX.each( '[data-evpx-header]', root, function ( header ) {
+			if ( ! markBound( header, 'header' ) ) {
+				return;
+			}
+
+			var toggle = header.querySelector( '[data-evpx-menu-toggle]' );
+			var menu = header.querySelector( '[data-evpx-menu]' );
+
+			var stick = function () {
+				header.classList.toggle( 'evpx-is-stuck', window.scrollY > 8 );
+			};
+
+			window.addEventListener( 'scroll', stick, { passive: true } );
+			stick();
+
+			if ( toggle && menu ) {
+				var setMenu = function ( open ) {
+					toggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
+					menu.classList.toggle( 'evpx-is-open', open );
+				};
+
+				toggle.addEventListener( 'click', function () {
+					setMenu( toggle.getAttribute( 'aria-expanded' ) !== 'true' );
+				} );
+
+				menu.addEventListener( 'click', function ( event ) {
+					if ( event.target.closest && event.target.closest( 'a' ) ) {
+						setMenu( false );
+					}
+				} );
+
+				header.addEventListener( 'keydown', function ( event ) {
+					if ( event.key === 'Escape' && toggle.getAttribute( 'aria-expanded' ) === 'true' ) {
+						setMenu( false );
+						toggle.focus();
+					}
+				} );
+			}
+
+			var box = header.querySelector( '[data-evpx-searchbox]' );
+
+			if ( box ) {
+				initSearchBox( box, header );
+			}
+		} );
+	}
+
+	function initSearchBox( box, header ) {
+		var input = box.querySelector( '[data-evpx-search-input]' );
+		var list = box.querySelector( '[data-evpx-search-results]' );
+		var status = box.querySelector( '[data-evpx-search-status]' );
+		var idle = status ? status.textContent : '';
+		var openers = header.querySelectorAll( '[data-evpx-search-open]' );
+		var closers = box.querySelectorAll( '[data-evpx-search-close]' );
+		var rest = box.getAttribute( 'data-rest' );
+		var timer = 0;
+		var request = null;
+		var opener = null;
+		var active = -1;
+
+		var isOpen = function () {
+			return box.open || box.hasAttribute( 'open' );
+		};
+
+		var open = function ( from ) {
+			opener = from || document.activeElement;
+
+			if ( isOpen() ) {
+				return;
+			}
+
+			if ( box.showModal ) {
+				box.showModal();
+			} else {
+				box.setAttribute( 'open', '' );
+			}
+
+			input.focus();
+			input.select();
+		};
+
+		var close = function () {
+			if ( box.close ) {
+				box.close();
+			} else {
+				box.removeAttribute( 'open' );
+			}
+
+			if ( opener && opener.focus ) {
+				opener.focus();
+			}
+		};
+
+		var setStatus = function ( text ) {
+			if ( status ) {
+				status.textContent = text;
+			}
+		};
+
+		var select = function ( index ) {
+			var items = list.querySelectorAll( '[role="option"]' );
+
+			if ( ! items.length ) {
+				active = -1;
+				return;
+			}
+
+			active = ( index + items.length ) % items.length;
+
+			for ( var i = 0; i < items.length; i++ ) {
+				items[ i ].setAttribute( 'aria-selected', i === active ? 'true' : 'false' );
+			}
+
+			items[ active ].scrollIntoView( { block: 'nearest' } );
+		};
+
+		var show = function ( hits ) {
+			list.textContent = '';
+			active = -1;
+
+			hits.forEach( function ( hit ) {
+				var li = document.createElement( 'li' );
+				var a = document.createElement( 'a' );
+				var title = document.createElement( 'span' );
+				var kind = document.createElement( 'span' );
+				var tmp = document.createElement( 'textarea' );
+
+				tmp.innerHTML = hit.title || ''; // The route sends titles HTML-encoded (&amp;, &#8217;); this decodes them as text.
+				title.textContent = tmp.value;
+				kind.className = 'evpx-searchbox__kind';
+				kind.textContent = hit.subtype === 'page' ? ( box.getAttribute( 'data-label-page' ) || 'Page' ) : ( box.getAttribute( 'data-label-post' ) || 'Article' );
+				a.className = 'evpx-searchbox__hit';
+				a.href = hit.url;
+				a.setAttribute( 'role', 'option' );
+				a.setAttribute( 'aria-selected', 'false' );
+				a.appendChild( title );
+				a.appendChild( kind );
+				li.setAttribute( 'role', 'presentation' );
+				li.appendChild( a );
+				list.appendChild( li );
+			} );
+		};
+
+		var ask = function () {
+			var text = input.value.trim();
+
+			if ( request && request.abort ) {
+				request.abort();
+			}
+
+			if ( text.length < 2 || ! rest || ! window.fetch ) {
+				list.textContent = '';
+				setStatus( idle );
+				return;
+			}
+
+			setStatus( '…' );
+			request = window.AbortController ? new window.AbortController() : null;
+
+			window.fetch( rest + ( rest.indexOf( '?' ) > -1 ? '&' : '?' ) + 'search=' + encodeURIComponent( text ) + '&per_page=6&_fields=id,title,url,subtype', request ? { signal: request.signal, credentials: 'same-origin' } : { credentials: 'same-origin' } )
+				.then( function ( response ) {
+					if ( ! response.ok ) {
+						throw new Error( 'search ' + response.status );
+					}
+
+					return response.json();
+				} )
+				.then( function ( hits ) {
+					show( hits );
+					setStatus( hits.length ? hits.length + ( hits.length === 1 ? ' result. ' : ' results. ' ) + 'Enter opens all of them.' : 'Nothing found. Enter searches the whole site.' );
+				} )
+				.catch( function ( error ) {
+					if ( error && error.name === 'AbortError' ) {
+						return;
+					}
+
+					list.textContent = '';
+					setStatus( 'Live results are not available here. Enter searches the whole site.' );
+				} );
+		};
+
+		for ( var i = 0; i < openers.length; i++ ) {
+			openers[ i ].addEventListener( 'click', function ( event ) {
+				open( event.currentTarget );
+			} );
+		}
+
+		for ( var j = 0; j < closers.length; j++ ) {
+			closers[ j ].addEventListener( 'click', close );
+		}
+
+		box.addEventListener( 'click', function ( event ) {
+			if ( event.target === box ) {
+				close(); // The backdrop is the dialog's own box.
+			}
+		} );
+
+		input.addEventListener( 'input', function () {
+			window.clearTimeout( timer );
+			timer = window.setTimeout( ask, 180 );
+		} );
+
+		input.addEventListener( 'keydown', function ( event ) {
+			if ( event.key === 'ArrowDown' ) {
+				event.preventDefault();
+				select( active + 1 );
+			} else if ( event.key === 'ArrowUp' ) {
+				event.preventDefault();
+				select( active - 1 );
+			} else if ( event.key === 'Enter' && active > -1 ) {
+				var chosen = list.querySelectorAll( '[role="option"]' )[ active ];
+
+				if ( chosen ) {
+					event.preventDefault();
+					window.location.href = chosen.href;
+				}
+			}
+		} );
+
+		if ( ! EVPX.__searchKeys ) {
+			EVPX.__searchKeys = true;
+
+			document.addEventListener( 'keydown', function ( event ) {
+				var target = event.target;
+				var typing = target && ( target.isContentEditable || /^(input|textarea|select)$/i.test( target.tagName ) );
+				var shortcut = ( event.key === 'k' || event.key === 'K' ) && ( event.ctrlKey || event.metaKey );
+
+				if ( ! ( shortcut || ( event.key === '/' && ! typing ) ) ) {
+					return;
+				}
+
+				var first = document.querySelector( '[data-evpx-searchbox]' );
+
+				if ( first && first.__evpxOpen ) {
+					event.preventDefault();
+					first.__evpxOpen();
+				}
+			} );
+		}
+
+		box.__evpxOpen = open;
+	}
+
+	/* ------------------------------------------------------------------
+	   Content widgets: stats, services, process, projects, quotes,
+	   contact. What a control does (open a panel, move a rail, show the
+	   next quotation) works in every view, the builder canvas included;
+	   what only moves for show (counting up, the rail filling as you
+	   read, the quotations turning on their own) waits for motion.
+	   ------------------------------------------------------------------ */
+	function pad2( n ) {
+		return n < 10 ? '0' + n : String( n );
+	}
+
+	/** Gives each child an index the stylesheet can stagger by. */
+	function setSteps( nodes ) {
+		for ( var i = 0; i < nodes.length; i++ ) {
+			nodes[ i ].style.setProperty( '--evpx-step', String( i ) );
+		}
+	}
+
+	function initStats( root ) {
+		EVPX.each( '.evpx-stats', root, function ( stats ) {
+			if ( ! markBound( stats, 'stats' ) ) {
+				return;
+			}
+
+			setSteps( stats.querySelectorAll( '.evpx-stat' ) );
+
+			if ( EVPX.motionAllowed() && stats.getAttribute( 'data-evpx-animate' ) !== '0' ) {
+				countUp( stats, '.evpx-stat__num' );
+			}
+		} );
+	}
+
+	function initServices( root ) {
+		EVPX.each( '[data-evpx-services]', root, function ( strip ) {
+			if ( ! markBound( strip, 'services' ) ) {
+				return;
+			}
+
+			var items = Array.prototype.slice.call( strip.querySelectorAll( '[data-evpx-service]' ) );
+
+			if ( ! items.length ) {
+				return;
+			}
+
+			var toggles = items.map( function ( item ) {
+				setSteps( item.querySelectorAll( '.evpx-service__body > *' ) );
+				return item.querySelector( '[data-evpx-service-toggle]' );
+			} );
+
+			var open = function ( chosen ) {
+				items.forEach( function ( item, i ) {
+					var on = item === chosen;
+
+					if ( on ) {
+						item.setAttribute( 'data-open', '1' );
+					} else {
+						item.removeAttribute( 'data-open' );
+					}
+
+					toggles[ i ].setAttribute( 'aria-expanded', on ? 'true' : 'false' );
+				} );
+			};
+
+			strip.setAttribute( 'data-evpx-ready', '1' );
+			open( items[ 0 ] );
+
+			items.forEach( function ( item, i ) {
+				toggles[ i ].addEventListener( 'click', function () {
+					open( item );
+				} );
+
+				// A closed panel is a target as a whole, not only its spine.
+				item.addEventListener( 'click', function () {
+					if ( ! item.hasAttribute( 'data-open' ) ) {
+						open( item );
+					}
+				} );
+
+				toggles[ i ].addEventListener( 'keydown', function ( event ) {
+					var to = -1;
+
+					if ( event.key === 'ArrowRight' || event.key === 'ArrowDown' ) {
+						to = ( i + 1 ) % items.length;
+					} else if ( event.key === 'ArrowLeft' || event.key === 'ArrowUp' ) {
+						to = ( i - 1 + items.length ) % items.length;
+					} else if ( event.key === 'Home' ) {
+						to = 0;
+					} else if ( event.key === 'End' ) {
+						to = items.length - 1;
+					}
+
+					if ( to > -1 ) {
+						event.preventDefault();
+						toggles[ to ].focus();
+					}
+				} );
+			} );
+		} );
+	}
+
+	function initProcess( root ) {
+		EVPX.each( '[data-evpx-process]', root, function ( section ) {
+			if ( ! markBound( section, 'process' ) ) {
+				return;
+			}
+
+			if ( ! EVPX.motionAllowed() || section.getAttribute( 'data-evpx-animate' ) === '0' ) {
+				return;
+			}
+
+			var list = section.querySelector( '.evpx-process__steps' );
+			var steps = Array.prototype.slice.call( section.querySelectorAll( '[data-evpx-step]' ) );
+			var now = section.querySelector( '.evpx-process__now' );
+			var of = section.querySelector( '.evpx-process__of' );
+
+			if ( ! list || ! steps.length ) {
+				return;
+			}
+
+			var nodes = steps.map( function ( step ) {
+				return step.querySelector( '.evpx-step__node' );
+			} );
+			var visible = true;
+			var frame = 0;
+
+			var middle = function ( node ) {
+				var box = node.getBoundingClientRect();
+				return box.top + box.height / 2;
+			};
+
+			var update = function () {
+				frame = 0;
+
+				var line = window.innerHeight * 0.55;
+				var top = middle( nodes[ 0 ] );
+				var bottom = middle( nodes[ nodes.length - 1 ] );
+				var current = -1;
+
+				// The rail ends at the last socket, not at the foot of the last paragraph.
+				list.style.setProperty( '--evpx-rail-end', list.getBoundingClientRect().bottom - bottom + 'px' );
+				section.style.setProperty( '--evpx-progress', clamp01( ( line - top ) / Math.max( 1, bottom - top ) ).toFixed( 4 ) );
+
+				steps.forEach( function ( step, i ) {
+					var reached = middle( nodes[ i ] ) <= line;
+
+					step.classList.toggle( 'evpx-is-reached', reached );
+
+					if ( reached ) {
+						current = i;
+					}
+				} );
+
+				steps.forEach( function ( step, i ) {
+					step.classList.toggle( 'evpx-is-current', i === current );
+				} );
+
+				if ( now ) {
+					now.textContent = pad2( Math.max( current, 0 ) + 1 );
+				}
+			};
+
+			var queue = function () {
+				if ( visible && ! frame ) {
+					frame = window.requestAnimationFrame( update );
+				}
+			};
+
+			if ( of ) {
+				of.textContent = '/ ' + pad2( steps.length );
+			}
+
+			section.setAttribute( 'data-evpx-ready', '1' );
+			update();
+
+			window.addEventListener( 'scroll', queue, { passive: true } );
+			window.addEventListener( 'resize', queue );
+
+			if ( 'IntersectionObserver' in window ) {
+				new window.IntersectionObserver( function ( entries ) {
+					visible = entries[ entries.length - 1 ].isIntersecting;
+					queue();
+				} ).observe( section );
+			}
+		} );
+	}
+
+	function initRail( root ) {
+		EVPX.each( '[data-evpx-rail]', root, function ( rail ) {
+			if ( ! markBound( rail, 'rail' ) ) {
+				return;
+			}
+
+			var section = rail.closest( '.evpx-projects' ) || rail.parentNode;
+			var nav = section.querySelector( '[data-evpx-rail-nav]' );
+			var prev = section.querySelector( '[data-evpx-rail-prev]' );
+			var next = section.querySelector( '[data-evpx-rail-next]' );
+			var bar = section.querySelector( '[data-evpx-rail-bar]' );
+			var cards = rail.querySelectorAll( '.evpx-project' );
+			var rtl = window.getComputedStyle( rail ).direction === 'rtl';
+			var sign = rtl ? -1 : 1;
+
+			var update = function () {
+				var max = rail.scrollWidth - rail.clientWidth;
+				var moves = max > 4;
+				var at = Math.abs( rail.scrollLeft );
+
+				if ( moves ) {
+					section.setAttribute( 'data-evpx-ready', '1' );
+				} else {
+					section.removeAttribute( 'data-evpx-ready' );
+				}
+
+				if ( nav ) {
+					nav.hidden = ! moves;
+				}
+
+				if ( prev ) {
+					prev.disabled = at <= 2;
+				}
+
+				if ( next ) {
+					next.disabled = at >= max - 2;
+				}
+
+				if ( bar && moves ) {
+					var size = Math.min( 1, Math.max( 0.06, rail.clientWidth / rail.scrollWidth ) );
+					var pos = clamp01( at / max );
+
+					bar.style.width = ( size * 100 ).toFixed( 2 ) + '%';
+					bar.style.transform = 'translateX(' + ( sign * pos * ( 1 / size - 1 ) * 100 ).toFixed( 2 ) + '%)';
+				}
+			};
+
+			var move = function ( direction ) {
+				var step = cards.length > 1 ? Math.abs( cards[ 1 ].offsetLeft - cards[ 0 ].offsetLeft ) : rail.clientWidth * 0.8;
+
+				rail.scrollBy( { left: direction * sign * step, behavior: EVPX.motionAllowed() ? 'smooth' : 'auto' } );
+			};
+
+			if ( prev ) {
+				prev.addEventListener( 'click', function () {
+					move( -1 );
+				} );
+			}
+
+			if ( next ) {
+				next.addEventListener( 'click', function () {
+					move( 1 );
+				} );
+			}
+
+			// A mouse can drag it; touch and trackpad already scroll it, and a pen or finger must not be caught here.
+			var drag = null;
+
+			rail.addEventListener( 'pointerdown', function ( event ) {
+				if ( event.pointerType === 'mouse' && event.button === 0 ) {
+					drag = { x: event.clientX, left: rail.scrollLeft, moved: false, id: event.pointerId };
+				}
+			} );
+
+			rail.addEventListener( 'pointermove', function ( event ) {
+				if ( ! drag ) {
+					return;
+				}
+
+				var dx = event.clientX - drag.x;
+
+				if ( ! drag.moved && Math.abs( dx ) > 5 ) {
+					drag.moved = true;
+					rail.classList.add( 'evpx-is-dragging' );
+
+					try {
+						rail.setPointerCapture( drag.id );
+					} catch ( e ) {
+						// The pointer is already gone; the drag simply ends.
+					}
+				}
+
+				if ( drag.moved ) {
+					rail.scrollLeft = drag.left - dx;
+				}
+			} );
+
+			var release = function () {
+				drag = null;
+				rail.classList.remove( 'evpx-is-dragging' );
+			};
+
+			rail.addEventListener( 'pointerup', release );
+			rail.addEventListener( 'pointercancel', release );
+
+			rail.addEventListener( 'scroll', update, { passive: true } );
+			window.addEventListener( 'resize', update );
+			update();
+		} );
+	}
+
+	function initQuotes( root ) {
+		EVPX.each( '[data-evpx-quotes]', root, function ( section ) {
+			if ( ! markBound( section, 'quotes' ) ) {
+				return;
+			}
+
+			var quotes = Array.prototype.slice.call( section.querySelectorAll( '[data-evpx-quote]' ) );
+			var stage = section.querySelector( '[data-evpx-quotes-stage]' );
+			var nav = section.querySelector( '[data-evpx-quotes-nav]' );
+			var dotsBox = section.querySelector( '[data-evpx-quotes-dots]' );
+			var prev = section.querySelector( '[data-evpx-quotes-prev]' );
+			var next = section.querySelector( '[data-evpx-quotes-next]' );
+
+			// One quotation has nothing to turn to: it stays as printed.
+			if ( quotes.length < 2 || ! stage || ! nav || ! dotsBox ) {
+				return;
+			}
+
+			var index = 0;
+			var timer = 0;
+			var paused = false;
+			var visible = true;
+			var auto = section.getAttribute( 'data-evpx-auto' ) === '1' && EVPX.motionAllowed();
+			var dots = quotes.map( function ( quote, i ) {
+				var dot = document.createElement( 'button' );
+
+				dot.type = 'button';
+				dot.className = 'evpx-quotes__dot';
+				dot.setAttribute( 'aria-label', ( i + 1 ) + ' / ' + quotes.length );
+				dot.addEventListener( 'click', function () {
+					show( i, true );
+				} );
+				dotsBox.appendChild( dot );
+
+				return dot;
+			} );
+
+			function show( to, byHand ) {
+				index = ( to + quotes.length ) % quotes.length;
+
+				quotes.forEach( function ( quote, i ) {
+					quote.classList.toggle( 'evpx-is-current', i === index );
+					dots[ i ].setAttribute( 'aria-current', i === index ? 'true' : 'false' );
+				} );
+
+				if ( byHand ) {
+					// Someone is reading: a screen reader announces the change, and the rotation stops for good.
+					stage.setAttribute( 'aria-live', 'polite' );
+					auto = false;
+				}
+			}
+
+			stage.setAttribute( 'aria-live', 'off' );
+			section.setAttribute( 'data-evpx-ready', '1' );
+			nav.hidden = false;
+			show( 0, false );
+
+			prev.addEventListener( 'click', function () {
+				show( index - 1, true );
+			} );
+
+			next.addEventListener( 'click', function () {
+				show( index + 1, true );
+			} );
+
+			nav.addEventListener( 'keydown', function ( event ) {
+				if ( event.key === 'ArrowLeft' || event.key === 'ArrowRight' ) {
+					show( index + ( event.key === 'ArrowRight' ? 1 : -1 ), true );
+				}
+			} );
+
+			if ( auto ) {
+				var stop = function () {
+					paused = true;
+				};
+				var go = function () {
+					paused = false;
+				};
+
+				section.addEventListener( 'mouseenter', stop );
+				section.addEventListener( 'mouseleave', go );
+				section.addEventListener( 'focusin', stop );
+				section.addEventListener( 'focusout', go );
+
+				if ( 'IntersectionObserver' in window ) {
+					new window.IntersectionObserver( function ( entries ) {
+						visible = entries[ entries.length - 1 ].isIntersecting;
+					} ).observe( section );
+				}
+
+				timer = window.setInterval( function () {
+					if ( ! auto ) {
+						window.clearInterval( timer );
+					} else if ( visible && ! paused && ! document.hidden ) {
+						show( index + 1, false );
+					}
+				}, 7000 );
+			}
+		} );
+	}
+
+	function initContact( root ) {
+		EVPX.each( '[data-evpx-contact]', root, function ( form ) {
+			if ( ! markBound( form, 'contact' ) ) {
+				return;
+			}
+
+			var button = form.querySelector( '.evpx-contact__submit' );
+
+			form.addEventListener( 'submit', function () {
+				form.classList.add( 'evpx-is-sending' );
+				form.setAttribute( 'aria-busy', 'true' );
+
+				if ( button ) {
+					button.setAttribute( 'aria-disabled', 'true' );
+				}
+			} );
+
+			// Back from the confirmation with the browser's button: the form is a form again.
+			window.addEventListener( 'pageshow', function () {
+				form.classList.remove( 'evpx-is-sending' );
+				form.removeAttribute( 'aria-busy' );
+
+				if ( button ) {
+					button.removeAttribute( 'aria-disabled' );
+				}
+			} );
+		} );
+	}
+
+	/* ------------------------------------------------------------------
 	   Boot
 	   ------------------------------------------------------------------ */
 	function init( root ) {
@@ -904,6 +1937,14 @@
 		initArt( root );
 		initExplorer( root );
 		initSpotlight();
+		initStage( root );
+		initHeader( root );
+		initStats( root );
+		initServices( root );
+		initProcess( root );
+		initRail( root );
+		initQuotes( root );
+		initContact( root );
 
 		if ( ! EVPX.motionAllowed() ) {
 			EVPX.releaseHeroes();

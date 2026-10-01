@@ -68,6 +68,11 @@ final class Icons {
 			'garage'             => __( 'Garage', 'ev-charging-experience' ),
 			'map-pin'            => __( 'Location', 'ev-charging-experience' ),
 			'factory'            => __( 'Industry', 'ev-charging-experience' ),
+			'user'               => __( 'Person', 'ev-charging-experience' ),
+			'calendar-blank'     => __( 'Calendar', 'ev-charging-experience' ),
+			'power'              => __( 'Power', 'ev-charging-experience' ),
+			'phone'              => __( 'Phone', 'ev-charging-experience' ),
+			'envelope-simple'    => __( 'Email', 'ev-charging-experience' ),
 		);
 	}
 

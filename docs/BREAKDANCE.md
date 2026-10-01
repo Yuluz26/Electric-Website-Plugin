@@ -7,7 +7,7 @@ says what that covered and what it didn't). Other versions are untested.
 
 | | What you get | Use it when |
 |---|---|---|
-| **Native elements** | Ten EV elements in the builder's Add panel, under **EV Charging**, with real controls, a repeater for items, Dynamic Data on text fields and live canvas rendering | You build pages in Breakdance. This is the default. |
+| **Native elements** | Twenty EV elements in the builder's Add panel, under **EV Charging**, with real controls, a repeater for items, Dynamic Data on text fields and live canvas rendering | You build pages in Breakdance. This is the default. |
 | **Shortcode element** | Breakdance's own Shortcode element with `[evpx_hero …]` etc. | You already have shortcodes (the demo article, existing content), or want the exact same markup as on a non-Breakdance page |
 | **Element Studio** | A save location, "EV Charging Elements", for elements you design yourself on top of the plugin's CSS | You want a variation the controls don't offer |
 
@@ -30,6 +30,19 @@ Open the **Add** panel and search "EV", or scroll to the **EV Charging** categor
 
 EV Article Hero · EV Section · EV AC/DC Comparison · EV Charging Explorer · EV Scenario Cards ·
 EV Technical Flow · EV Decision Factors · EV FAQ · EV Related Articles · EV CTA
+
+and, for the pages of a site (`docs/WIDGETS.md`, "Site widgets"):
+
+EV Page Hero · EV Site Header · EV Search · EV Site Footer · EV Stats · EV Services · EV Process · EV Projects ·
+EV Quotes · EV Contact
+
+Stats, Services, Process, Projects and Quotes hold their rows (a stat, a panel, a step, a project, a quotation)
+in an **Items** repeater, like the article widgets. Three things differ from a Breakdance element of your own: a
+sticky **Site Header** cannot stay at the top inside its own Section (a Section is its own containing block), so make the
+Section sticky in Breakdance's settings instead and turn the widget's **Sticky** off; the **Page Hero** is an `h1`,
+so a page that has it should not also show its title; and a page can use the plugin's **EV full-width page** template
+(`docs/INSTALLATION.md`, "The site pages") even when Breakdance built it, because Breakdance puts what it built into the
+page's content and the template prints the content.
 
 **Controls.** Every control the widget has (`docs/WIDGETS.md`) is here, grouped into sections in the order
 the PRD asks for: Content, Media, Layout, Visual, Motion, Responsive, Advanced (only the groups a widget
@@ -158,8 +171,8 @@ src/Breakdance/Native/
   | container items | repeater at `content.items.rows` | list of rows |
 
 - **Adding a widget.** Write the widget class and template, add it to `Registry`; add
-  `src/Breakdance/Native/elements/<Name>.php` (copy any) and list the name in `NativeElements::ELEMENTS`;
-  add it to the list in `tests/docker/native-helpers.php`.
+  `src/Breakdance/Native/elements/<Name>.php` (copy any) and list it in `NativeElements::WIDGETS` (name → widget class);
+  the suites read that list, so they cover it without being edited.
 
 ## Verifying it
 

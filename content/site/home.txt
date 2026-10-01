@@ -1,0 +1,31 @@
+[evpx_header]
+
+[evpx_stage scene="station" height="full" eyebrow="EV charging for business sites" title="Chargers that are *ready* when the car arrives" lede="We survey the site, design the load, build it and keep it running. One team, from the grid connection to the last invoice." cta_label="Plan a site" cta_url="/contact/" cta2_label="See our work" cta2_url="/projects/" facts="150 kW | Per DC bay
+13 weeks | Survey to handover
+24/7 | Remote monitoring
+1 | Point of contact"]
+
+[evpx_stats eyebrow="What you can expect" heading="Numbers we put in the contract" intro="Not a track record, a promise: what a typical site gets." variant="light"]
+[evpx_stat value="150 kW" label="Per DC bay" note="CCS2 connectors, with a cooled cable on the high-power bays." symbol="lightning"]
+[evpx_stat value="13 weeks" label="Survey to handover" note="A single site, permits included." symbol="clock"]
+[evpx_stat value="99.5%" label="Uptime target" note="Measured monthly and reported to the site owner." fill="99.5"]
+[evpx_stat value="24/7" label="Remote monitoring" note="An engineer looks at a fault before a driver reports it." symbol="gauge"]
+[/evpx_stats]
+
+[evpx_services eyebrow="What we do" heading="From the grid connection to the bay" intro="Four jobs, done by the same people, so nothing is lost between them."]
+{{services}}
+[/evpx_services]
+
+[evpx_process eyebrow="How a job runs" heading="Five steps, one owner" intro="You deal with one person from the survey to the handover."]
+{{process}}
+[/evpx_process]
+
+[evpx_projects eyebrow="Selected work" heading="Sites that carry a day's traffic" intro="Depots, car parks and corridors. Drag the row, or use the arrows."]
+{{projects}}
+[/evpx_projects]
+
+[evpx_quotes eyebrow="What clients say" auto="true"]
+{{quotes}}
+[/evpx_quotes]
+
+[evpx_footer]

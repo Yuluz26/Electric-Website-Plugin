@@ -10,12 +10,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The example articles: "Choosing AC or DC Charging for Your Site", built from every widget, so a new
- * install has something to open, look at and copy from instead of an empty Pages list.
+ * What a new install starts with, so it has something to open, look at and copy from instead of an empty
+ * Pages list.
  *
- * - `article`: a post with the article as shortcodes (content/demo-article.txt). Works on any WordPress.
+ * - `article`: a post, "Choosing AC or DC Charging for Your Site", built from the article widgets as
+ *   shortcodes (content/demo-article.txt). Works on any WordPress.
  * - `breakdance`: a page with the same article as native Breakdance elements, one full-width Section
  *   each, ready to open in the builder. Made once Breakdance is active.
+ * - `site`: six pages, Home, About, Services, Projects, Contact and Search (content/site/), with the
+ *   header, the page heroes, the interactive sections and the footer. As native elements when Breakdance is
+ *   active; otherwise as shortcodes on the "EV full-width page" template (Setup\Canvas), so they run edge
+ *   to edge in any theme. Their names, figures and quotations are placeholders to replace.
  *
  * Activation only queues them (queue()); they are made on the next admin request, when every plugin is
  * loaded, so activating Breakdance and this plugin together, in either order, gives both. They are drafts:
@@ -28,7 +33,20 @@ final class ExamplePages {
 	public const OPTION = 'evpx_examples';
 	public const NOTICE = 'evpx_examples_notice';
 
-	private const KINDS = array( 'article', 'breakdance' );
+	private const KINDS = array( 'article', 'breakdance', 'site' );
+
+	/** The site pages, in the order they are made and listed: slug => title. */
+	private const SITE = array(
+		'home'     => 'Home',
+		'about'    => 'About',
+		'services' => 'Services',
+		'projects' => 'Projects',
+		'contact'  => 'Contact',
+		'search'   => 'Search',
+	);
+
+	/** @var array<string, int> The site pages made by this request: slug => id. */
+	private array $site = array();
 
 	/** Called on activation. Does nothing on a site that has already had its examples. */
 	public static function queue(): void {
@@ -40,6 +58,7 @@ final class ExamplePages {
 	public function register(): void {
 		add_action( 'admin_init', array( $this, 'createPending' ), 20 );
 		add_action( 'admin_notices', array( $this, 'showNotice' ) );
+		add_action( 'admin_post_evpx_publish_site', array( $this, 'publishSite' ) );
 	}
 
 	/**
@@ -74,6 +93,10 @@ final class ExamplePages {
 				$state[ $kind ] = $id;
 				$made[ $kind ]  = $id;
 			}
+
+			if ( 'site' === $kind && $this->site ) {
+				$state['site_pages'] = $this->site;
+			}
 		}
 
 		// Pending until every kind has been attempted: the Breakdance page waits for Breakdance.
@@ -95,6 +118,14 @@ final class ExamplePages {
 		delete_transient( self::NOTICE );
 
 		$state = get_option( self::OPTION );
+		$site  = isset( $made['site'] ) && is_array( $state ) && ! empty( $state['site_pages'] ) ? (array) $state['site_pages'] : array();
+		unset( $made['site'] );
+
+		if ( ! $made ) {
+			$this->printSiteNotice( $site );
+
+			return;
+		}
 
 		if ( count( $made ) > 1 ) {
 			$lead = __( 'added two example articles so you can see every element in place.', 'ev-charging-experience' );
@@ -129,6 +160,64 @@ final class ExamplePages {
 			$later, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
 			$items // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts above.
 		);
+
+		$this->printSiteNotice( $site );
+	}
+
+	/**
+	 * @param array<string, int> $site slug => id
+	 */
+	private function printSiteNotice( array $site ): void {
+		if ( ! $site ) {
+			return;
+		}
+
+		$publish = wp_nonce_url( admin_url( 'admin-post.php?action=evpx_publish_site' ), 'evpx_publish_site' );
+
+		printf(
+			'<div class="notice notice-success is-dismissible"><p><strong>%1$s</strong> %2$s</p><p><a href="%3$s">%4$s</a> &middot; <a href="%5$s">%6$s</a> &middot; <a href="%7$s">%8$s</a> &middot; <a href="%9$s">%10$s</a></p></div>',
+			esc_html__( 'EV Charging Experience', 'ev-charging-experience' ),
+			esc_html__( 'added a site: Home, About, Services, Projects, Contact and Search, with the header, page heroes and footer. They are drafts. The names, figures and quotations in them are placeholders.', 'ev-charging-experience' ),
+			esc_url( (string) get_preview_post_link( (int) reset( $site ) ) ),
+			esc_html__( 'Preview Home', 'ev-charging-experience' ),
+			esc_url( admin_url( 'edit.php?post_type=page' ) ),
+			esc_html__( 'See the pages', 'ev-charging-experience' ),
+			esc_url( $publish ),
+			esc_html__( 'Publish all six', 'ev-charging-experience' ),
+			esc_url( add_query_arg( 'front', '1', $publish ) ),
+			esc_html__( 'Publish and use Home as the front page', 'ev-charging-experience' )
+		);
+	}
+
+	/** The notice's buttons: publish the site pages, and if asked, make Home the front page. */
+	public function publishSite(): void {
+		if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'publish_pages' ) ) {
+			wp_die( esc_html__( 'You are not allowed to do that.', 'ev-charging-experience' ), '', array( 'response' => 403 ) );
+		}
+
+		check_admin_referer( 'evpx_publish_site' );
+
+		$state = get_option( self::OPTION );
+		$ids   = is_array( $state ) && ! empty( $state['site_pages'] ) ? array_map( 'intval', (array) $state['site_pages'] ) : array();
+
+		foreach ( $ids as $id ) {
+			if ( $id && 'page' === get_post_type( $id ) && 'trash' !== get_post_status( $id ) ) {
+				wp_update_post(
+					array(
+						'ID'          => $id,
+						'post_status' => 'publish',
+					)
+				);
+			}
+		}
+
+		if ( ! empty( $_GET['front'] ) && ! empty( $ids['home'] ) ) {
+			update_option( 'show_on_front', 'page' );
+			update_option( 'page_on_front', $ids['home'] );
+		}
+
+		wp_safe_redirect( admin_url( 'edit.php?post_type=page' ) );
+		exit;
 	}
 
 	private function canMake( string $kind ): bool {
@@ -140,6 +229,10 @@ final class ExamplePages {
 	}
 
 	private function make( string $kind ): int {
+		if ( 'site' === $kind ) {
+			return $this->makeSite();
+		}
+
 		$file    = EVPX_PATH . 'content/demo-article.txt';
 		$article = is_readable( $file ) ? (string) file_get_contents( $file ) : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a file inside the plugin.
 
@@ -185,6 +278,70 @@ final class ExamplePages {
 		}
 
 		return $id;
+	}
+
+	/**
+	 * The six site pages. Returns the id of Home (0 if nothing could be made); all of them are in $this->site.
+	 */
+	private function makeSite(): int {
+		$status    = apply_filters( 'evpx_example_pages_status', 'draft' );
+		$status    = in_array( $status, array( 'draft', 'private', 'publish' ), true ) ? $status : 'draft';
+		$builder   = $this->canMake( 'breakdance' );
+		// Each Breakdance Section is its own containing block, so a sticky bar cannot stay. The page has no theme
+		// title (the template prints only the content), so the hero, an h1 by default, is the page's one.
+		$overrides = array( 'evpx_header' => array( 'sticky' => 'false' ) );
+
+		foreach ( self::SITE as $slug => $title ) {
+			$content = $this->siteContent( $slug );
+
+			if ( '' === $content ) {
+				continue;
+			}
+
+			$id = (int) wp_insert_post(
+				wp_slash(
+					array(
+						'post_type'    => 'page',
+						'post_status'  => $status,
+						'post_title'   => $title,
+						'post_name'    => $slug,
+						'post_content' => $builder ? '' : $content,
+						'meta_input'   => array( '_wp_page_template' => Canvas::SLUG ),
+					)
+				)
+			);
+
+			if ( ! $id ) {
+				continue;
+			}
+
+			if ( $builder ) {
+				\Breakdance\Data\set_meta( $id, '_breakdance_data', array( 'tree_json_string' => wp_json_encode( Tree::fromArticle( $content, $overrides ) ) ) );
+			}
+
+			$this->site[ $slug ] = $id;
+		}
+
+		return $this->site['home'] ?? 0;
+	}
+
+	/** A site page's shortcodes, with each {{name}} replaced by the shared rows in content/site/_name.txt. */
+	private function siteContent( string $slug ): string {
+		$read = static function ( string $name ): string {
+			$file = EVPX_PATH . 'content/site/' . $name . '.txt';
+
+			return is_readable( $file ) ? trim( (string) file_get_contents( $file ) ) : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- a file inside the plugin.
+		};
+
+		$page = $read( $slug );
+
+		return preg_replace_callback(
+			'/\{\{([a-z]+)\}\}/',
+			static function ( array $m ) use ( $read ): string {
+				return $read( '_' . $m[1] );
+			},
+			$page
+		) ?? '';
 	}
 
 	/**

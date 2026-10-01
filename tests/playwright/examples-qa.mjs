@@ -56,7 +56,7 @@ if (mode !== 'inspect') {
 	// Whatever screen this is, it is the first admin request after the plugin was activated.
 	const notice = page.locator('.notice-success', { hasText: 'EV Charging Experience' });
 	const shown = await notice.count();
-	check('the first admin request after activation shows a notice about the example articles', shown === 1, `${shown} notices on ${page.url()}`);
+	check('the first admin request after activation shows two notices: one about the example articles, one about the site', shown === 2, `${shown} notices on ${page.url()}`);
 
 	const text = shown ? (await notice.first().innerText()).replace(/\s+/g, ' ') : '';
 	const links = shown ? await notice.first().locator('a').evaluateAll((as) => as.map((a) => ({ text: a.textContent.trim(), href: a.href }))) : [];

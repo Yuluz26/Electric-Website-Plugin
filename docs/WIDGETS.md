@@ -1,10 +1,12 @@
 # Widget & control reference
 
-Thirteen elements: ten widgets you place on a page, plus three item elements that only make
-sense inside their container (Scenario Card, Decision Factor, FAQ Item).
+Twenty widgets you place on a page, plus eight item elements that only make sense inside their container
+(Scenario Card, Decision Factor, FAQ Item, Stat, Service, Process Step, Project, Quote). The first ten are for
+articles; the other ten (Page Hero, Site Header, Search, Site Footer, Stats, Services, Process, Projects, Quotes,
+Contact) build the pages of a site, and are documented under "Site widgets" below.
 
 Every element works as a shortcode (`[evpx_xxx attr="value"]`) and as a Gutenberg block
-(`EV Charging Experience` category in the block inserter); the ten widgets are also native Breakdance
+(`EV Charging Experience` category in the block inserter); the twenty widgets are also native Breakdance
 elements (**EV Charging** category in the Add panel, see `docs/BREAKDANCE.md`), where the item elements
 become the rows of a repeater. All of them use the exact same PHP renderer — output is identical. The keys
 below are the shortcode and block attributes; a native element has a control for each of them.
@@ -15,7 +17,8 @@ Layout, Visual, Motion, Responsive, Advanced. In Breakdance each group is a sect
 ## Spacing — every section widget
 
 `spacing` (select: default / compact / none, layout) sets the vertical rhythm of a section widget: Section,
-Comparison, Explorer, Scenario Cards, Technical Flow, Decision Factors, FAQ, Related Articles and CTA. `default` is
+Comparison, Explorer, Scenario Cards, Technical Flow, Decision Factors, FAQ, Related Articles, CTA, and the site's
+Stats, Services, Process, Projects, Quotes, Contact and Footer. `default` is
 the full rhythm, `compact` about half, `none` removes it — use `none` inside a Breakdance Section that
 already has its own padding. It sets the `--evpx-section-y` token on the widget, so
 `.evpx-root { --evpx-section-y: 0; }` in your own CSS does the same. The Hero has no rhythm to set: it has its
@@ -207,6 +210,106 @@ its picture beside its text.
 the button on the right (stacked in a narrow box). The `dark` variant is the hero's other end: the same blueprint grid,
 a copper glow and a neon rule along its top edge. `accent` is the flat copper slab.
 
+## Site widgets
+
+These build the pages of a site rather than an article. They are full width (`alignfull`), take their colours from
+the same tokens as the article widgets, and are the widgets the six site pages are made of (see "The site pages" in
+`docs/INSTALLATION.md`). A widget that shows a picture takes a **photograph** where the design calls for one
+(`media`), and until it has one draws a scene of its own: a layered SVG (a night forecourt, a road at dusk, a fast
+charger, pylons, a plug) that moves with the pointer and the scroll. A photograph always replaces the scene. The
+scenes are `station`, `highway`, `cabinet`, `grid` and `plug`; `none` gives the blueprint grid.
+
+A line list is one item per line, `value | label` (Stage facts, Project figures, Contact details, Header links). Keep the
+`|`; anything after it is the label or the address. An address that starts with `/` is looked up as a page of this
+site (`/about/`), so a link survives a change of permalink structure and a move between domains.
+
+### EV Page Hero — `[evpx_stage]` / `evpx/stage`
+
+The full-width opening of a page. `eyebrow`, `title`, `lede`, `cta_label`/`cta_url`, `cta2_label`/`cta2_url`
+(content); `facts` (content, up to four lines of `value | label`: a figure counts up when it arrives, and `24/7` or
+`2 x 150 kW`, which are phrases, do not); `media`/`media_alt` (media: a photograph, which replaces the scene);
+`scene` (media); `height` select (full / tall / compact, layout; full fills the window under a header, compact is for
+an inner page); `overlay` select (light / medium / deep, visual: how much a photograph is darkened behind the type);
+`animate` (motion); `title_tag` select (h1 / h2, advanced: an h1 by default, because a page has one). In `title`,
+`*word*` is set in the accent, in italics: `Power that arrives *first*`.
+
+Motion, when the visitor allows it: the scene's layers slide against one another as the pointer moves and the page
+scrolls; a canvas of weather runs over it (rain on the forecourt, light streaks on the road, sparks at the cabinet,
+motes on the grid, orbits round the plug); the figures count up. Without a script, or with reduced motion, it is
+the finished still.
+
+### EV Site Header — `[evpx_header]` / `evpx/header`
+
+`brand` (blank: the site's name), `brand_url`, `logo` (media, replaces the mark); `links` (one `label | address` per
+line; the page you are on is marked `aria-current`); `cta_label`/`cta_url`; `search` (a search button, and Ctrl/Cmd+K
+or `/` opens it), `search_url` (the search page, default `/search/`; blank uses WordPress's own `?s=`); `sticky`
+(stays at the top; in a Breakdance Section, which is its own containing block, make the Section sticky instead).
+The search is a `<dialog>`: a labelled field, live results from the site's own REST search, arrow keys, Enter for
+the full results page, Escape to close. On a narrow screen the links are behind a menu button.
+
+### EV Search — `[evpx_search]` / `evpx/search`
+
+The search results page. `heading`, `placeholder`, `suggestions` (`label | address` lines shown until something is
+typed, and when nothing matches), `per_page`. Reads `q` (or WordPress's `s`) from the address, lists published pages
+and posts with a count and a filter (all / pages / posts), and pages through them. Everything typed is escaped.
+
+### EV Site Footer — `[evpx_footer]` / `evpx/footer`
+
+`brand`, `blurb`, `links`, `contact` (one per line: an email and a phone number become links, anything else is
+text), `legal` (blank: the copyright line with the year and the site's name), `spacing`.
+
+### EV Stats — `[evpx_stats]` + `[evpx_stat]` / `evpx/stats` + `evpx/stat`
+
+Figures on hairlines, one row when the box is wide and a column when it is not. Container: `eyebrow`, `heading`,
+`intro`, `variant` select (dark / light), `animate`. Each stat: `value` (`150 kW`, `99.5%`, `13 weeks`: the number counts
+up and the unit is set small beside it), `label`, `note`, `fill` (0 to 100; above 0 it draws a ring meter to that
+value instead of an icon), `symbol` (an icon; automatic by default). Use rings or icons on every stat in a row, not
+some of them, so the figures share a line.
+
+### EV Services — `[evpx_services]` + `[evpx_service]` / `evpx/services` + `evpx/service`
+
+A strip of panels, one open at a time: the open one is a picture with the argument over it, the others stand as
+spines (a number, an icon, the name set upright) with their picture dimmed behind. Below 56rem of width it is an accordion
+of full-width rows. Container: `eyebrow`, `heading`, `intro`, `animate`. Each service: `title`, `summary`, `points`
+(one per line, up to six), `link_label`/`link_url`, `symbol`, `media` (a photograph behind the panel), `scene` (behind
+it until there is a photograph). Click a shut panel anywhere to open it; the arrow keys move between the headings and
+Enter opens one. Without a script every panel is open and stacked.
+
+### EV Process — `[evpx_process]` + `[evpx_process_step]` / `evpx/process` + `evpx/process-step`
+
+The steps of a job on a rail. Container: `eyebrow`, `heading`, `intro`, `animate`. Each step: `title`, `description`,
+`duration`, `symbol`. As the page is read down it the rail fills, each socket lights when it is reached, and a running
+count beside the heading (`03 / 05`) follows. The heading and count stay in view on a wide screen. With reduced motion, or
+without a script, the rail is whole and the count is not shown.
+
+### EV Projects — `[evpx_projects]` + `[evpx_project]` / `evpx/projects` + `evpx/project`
+
+Work as a rail that runs off the edge of the page. Container: `eyebrow`, `heading`, `intro`, `animate`. Each
+project: `name`, `place`, `sector`, `summary`, `metrics` (up to three `value | label` lines), `url` (makes the card a
+link), `media` (a photograph, 5:4), `scene` (until there is one). Scroll it, drag it with a mouse, or use the buttons
+(they appear only when there is something to scroll to); a bar shows how far along you are. The rail is a labelled,
+focusable region, so a keyboard scrolls it with the arrow keys.
+
+### EV Quotes — `[evpx_quotes]` + `[evpx_quote]` / `evpx/quotes` + `evpx/quote`
+
+One quotation at a time, large, in the display face; the others wait in the same place so the section never changes
+height. Container: `eyebrow`, `auto` (turn every seven seconds, only when motion is allowed, and never while the
+pointer or focus is on it), `animate`. Each quote: `quote`, `name`, `role`. Arrows, dots (each a 24px target) and
+the arrow keys move between them; once a visitor does, the rotation stops for good and a screen reader is told of each
+change. One quote stays as printed. Without a script they are stacked and all read.
+
+### EV Contact — `[evpx_contact]` / `evpx/contact`
+
+`eyebrow`, `heading`, `intro`, `details` (one `label | value` per line; an email or phone number is a link),
+`topics` (the choices in "About", one per line; blank: no choice), `button_label`, `to_email` (blank: the site's
+admin address), `map` (a drawing of a charging network), `animate`. The form posts to `admin-post.php`; the message is
+mailed with the sender as Reply-To, and the visitor comes back to the form with the outcome in words.
+
+It has no nonce (an anonymous form's would only expire on a cached page). What stops a bot instead: a trap field a person
+never sees; a signed time (sent in under three seconds, or a week after it was printed, is refused); the recipient
+signed into the same token, so a form can only mail the address its widget was given; and five messages an hour from one
+address. `tests/docker/contact-form-check.sh` drives every one of these over HTTP.
+
 ## How many eyebrows?
 
 Every widget that has an `eyebrow` renders it only when it is filled in. The small labelled rule above a
@@ -230,3 +333,7 @@ follow the same pattern.
 In a native Breakdance element there are no child elements: the items are the rows of the **Items**
 repeater, with the same fields as the item widget's controls above. A row is rendered once it has its title
 (the question, for an FAQ item); the empty row the repeater's "Add" button creates is left out.
+
+The site widgets nest the same way: `[evpx_stats]` with `[evpx_stat]`, `[evpx_services]` with `[evpx_service]`,
+`[evpx_process]` with `[evpx_process_step]`, `[evpx_projects]` with `[evpx_project]`, `[evpx_quotes]` with
+`[evpx_quote]`. Each row's fields are the repeater's fields in a native element.

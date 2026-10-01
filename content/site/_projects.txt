@@ -1,0 +1,17 @@
+[evpx_project name="Regional distribution centre" place="Sample site" sector="Fleet depot" summary="Overnight AC for the vans, two DC bays for the lorries that turn round inside the hour." metrics="48 | Bays
+1.2 MW | Peak load
+9 weeks | On site" scene="station"]
+[evpx_project name="Motorway service area" place="Sample site" sector="Highway corridor" summary="Twelve high-power bays behind a new grid connection, open around the clock." metrics="12 | Bays
+350 kW | Per bay
+24/7 | Open" scene="highway"]
+[evpx_project name="Hotel and conference centre" place="Sample site" sector="Hospitality" summary="Slow charging where guests stay overnight, one fast charger by the entrance." metrics="60 | Bays
+22 kW | AC
+1 | DC bay" scene="cabinet"]
+[evpx_project name="Retail park" place="Sample site" sector="Retail" summary="Thirty bays across three car parks, sharing one supply." metrics="30 | Bays
+3 | Car parks
+1 | Supply" scene="grid"]
+[evpx_project name="Council depot" place="Sample site" sector="Public sector" summary="A fleet of refuse vehicles charging overnight on managed load." metrics="24 | Bays
+0 kW | Added to peak" scene="plug"]
+[evpx_project name="Business park" place="Sample site" sector="Workplace" summary="Employee charging on a shared supply, with a fast charger for visitors." metrics="80 | Bays
+7 kW | Per bay
+2 | DC bays" scene="station"]

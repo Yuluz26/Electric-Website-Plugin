@@ -33,6 +33,7 @@ final class Art {
 			'grid-path'    => __( 'Grid to charger', 'ev-charging-experience' ),
 			'wave-ac'      => __( 'Alternating current (a wave)', 'ev-charging-experience' ),
 			'wave-dc'      => __( 'Direct current (a level)', 'ev-charging-experience' ),
+			'network-map'  => __( 'Charging network map', 'ev-charging-experience' ),
 		);
 	}
 

@@ -35,6 +35,10 @@ $max_id       = static function () use ( $wpdb ) {
 $fingerprint  = static function ( int $up_to ) use ( $wpdb ) {
 	return (string) $wpdb->get_var( $wpdb->prepare( "SELECT SUM(CRC32(CONCAT(ID, post_modified_gmt, post_status, post_content))) FROM {$wpdb->posts} WHERE ID <= %d", $up_to ) );
 };
+$ids          = static function ( $state ) {
+	// The article, the Breakdance page, then the six site pages.
+	return array_merge( array( $state['article'] ?? 0, $state['breakdance'] ?? 0 ), array_values( (array) ( $state['site_pages'] ?? array() ) ) );
+};
 $made         = array();
 $cleanup      = static function () use ( &$made ) {
 	foreach ( $made as $id ) {
@@ -82,7 +86,7 @@ $check( 'an ajax request (the heartbeat, say) triggers nothing', $before_max ===
 // ------------------------------------------------------------------ what gets made
 $examples->createPending();
 $state = get_option( ExamplePages::OPTION );
-$made  = array( $state['article'] ?? 0, $state['breakdance'] ?? 0 );
+$made  = $ids( $state );
 $check( 'the next admin request makes both, and records their ids', is_array( $state ) && ! empty( $state['article'] ) && ! empty( $state['breakdance'] ) && false === $state['pending'], wp_json_encode( $state ) );
 
 $post = get_post( (int) ( $state['article'] ?? 0 ) );
@@ -94,7 +98,7 @@ $check( 'the post holds the article exactly as content/demo-article.txt has it',
 $check( 'the page has no post_content of its own: its words live in the Breakdance tree', $page && '' === $page->post_content );
 $check( 'the titles tell the two apart', $post && $page && 'Choosing AC or DC Charging for Your Site' === $post->post_title && 'Choosing AC or DC Charging for Your Site (Breakdance)' === $page->post_title );
 $check( 'nothing that existed before was touched', $before === $fingerprint( $before_max ), 'fingerprint changed' );
-$check( 'a notice is queued for the administrator, once', array_keys( (array) get_transient( ExamplePages::NOTICE ) ) === array( 'article', 'breakdance' ) );
+$check( 'a notice is queued for the administrator, once', array_keys( (array) get_transient( ExamplePages::NOTICE ) ) === array( 'article', 'breakdance', 'site' ) );
 
 // ------------------------------------------------------------------ the Breakdance page
 $tree     = $page ? \Breakdance\Data\get_tree( $page->ID ) : null;
@@ -166,7 +170,7 @@ $hero_tag = static function ( string $theme ) use ( $examples, $cleanup, &$made 
 	$examples->createPending();
 	remove_filter( 'template', $force );
 	$state = get_option( ExamplePages::OPTION );
-	$made  = array( $state['article'] ?? 0, $state['breakdance'] ?? 0 );
+	$made  = $ids( $state );
 	$tree  = \Breakdance\Data\get_tree( (int) ( $state['breakdance'] ?? 0 ) );
 
 	return $tree['root']['children'][0]['children'][0]['data']['properties']['content']['advanced']['title_tag'] ?? '?';
@@ -180,13 +184,13 @@ $cleanup();
 ExamplePages::queue();
 $examples->createPending();
 $state = get_option( ExamplePages::OPTION );
-$made  = array( $state['article'] ?? 0, $state['breakdance'] ?? 0 );
+$made  = $ids( $state );
 $post  = get_post( (int) $state['article'] );
 $page  = get_post( (int) $state['breakdance'] );
 
 // ------------------------------------------------------------------ Breakdance arriving later: only what is missing
 $cleanup();
-update_option( ExamplePages::OPTION, array( 'pending' => true, 'article' => (int) $post->ID ) );
+update_option( ExamplePages::OPTION, array( 'pending' => true, 'article' => (int) $post->ID, 'site' => 0 ) );
 $posts_before = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type IN ('post','page')" );
 $examples->createPending();
 $state        = get_option( ExamplePages::OPTION );
@@ -197,7 +201,7 @@ $cleanup();
 ExamplePages::queue();
 $examples->createPending();
 $state = get_option( ExamplePages::OPTION );
-$made  = array( $state['article'] ?? 0, $state['breakdance'] ?? 0 );
+$made  = $ids( $state );
 $post  = get_post( (int) $state['article'] );
 $page  = get_post( (int) $state['breakdance'] );
 
@@ -207,8 +211,9 @@ $examples->createPending();
 $check( 'a second admin request makes nothing', $posts_now === $max_id() );
 ExamplePages::queue();
 $check( 'activating again does not queue them again', false === get_option( ExamplePages::OPTION )['pending'] );
-wp_delete_post( $post->ID, true );
-wp_delete_post( $page->ID, true );
+foreach ( $made as $made_id ) {
+	wp_delete_post( (int) $made_id, true );
+}
 $examples->createPending();
 ExamplePages::queue();
 $check( 'an example that was deleted stays deleted', $before_max === $max_id() && ! get_post( $post->ID ) && ! get_post( $page->ID ), 'newest post is ' . $max_id() . ', was ' . $before_max );
@@ -220,7 +225,7 @@ add_filter( 'wp_insert_post_empty_content', '__return_true' );
 $examples->createPending();
 remove_filter( 'wp_insert_post_empty_content', '__return_true' );
 $state = get_option( ExamplePages::OPTION );
-$check( 'a kind that fails is recorded as failed, and the request carries on', 0 === ( $state['article'] ?? null ) && 0 === ( $state['breakdance'] ?? null ) && false === $state['pending'], wp_json_encode( $state ) );
+$check( 'a kind that fails is recorded as failed, and the request carries on', 0 === ( $state['article'] ?? null ) && 0 === ( $state['breakdance'] ?? null ) && 0 === ( $state['site'] ?? null ) && false === $state['pending'], wp_json_encode( $state ) );
 $after_failure = $max_id();
 $examples->createPending();
 $check( 'and it is not tried again on every admin page', $after_failure === $max_id() && false === get_option( ExamplePages::OPTION )['pending'] );
@@ -231,16 +236,16 @@ ExamplePages::queue();
 add_filter( 'evpx_example_pages_status', static fn() => 'private' );
 $examples->createPending();
 $state = get_option( ExamplePages::OPTION );
-$made  = array( $state['article'] ?? 0, $state['breakdance'] ?? 0 );
-$check( 'evpx_example_pages_status can make them private', 'private' === get_post_status( $state['article'] ) && 'private' === get_post_status( $state['breakdance'] ) );
+$made  = $ids( $state );
+$check( 'evpx_example_pages_status can make them private', 'private' === get_post_status( $state['article'] ) && 'private' === get_post_status( $state['breakdance'] ) && 6 === count( array_filter( (array) $state['site_pages'], static fn( $id ) => 'private' === get_post_status( $id ) ) ) );
 $cleanup();
 ExamplePages::queue();
 remove_all_filters( 'evpx_example_pages_status' );
 add_filter( 'evpx_example_pages_status', static fn() => 'trash; DROP TABLE' );
 $examples->createPending();
 $state = get_option( ExamplePages::OPTION );
-$made  = array( $state['article'] ?? 0, $state['breakdance'] ?? 0 );
-$check( 'anything else it returns is a draft', 'draft' === get_post_status( $state['article'] ) && 'draft' === get_post_status( $state['breakdance'] ) );
+$made  = $ids( $state );
+$check( 'anything else it returns is a draft', 'draft' === get_post_status( $state['article'] ) && 'draft' === get_post_status( $state['breakdance'] ) && 6 === count( array_filter( (array) $state['site_pages'], static fn( $id ) => 'draft' === get_post_status( $id ) ) ) );
 remove_all_filters( 'evpx_example_pages_status' );
 
 // ------------------------------------------------------------------ uninstall
@@ -249,7 +254,7 @@ update_option( 'evpx_version', '0.0.0-test' );
 ExamplePages::queue();
 $examples->createPending();
 $state = get_option( ExamplePages::OPTION );
-$made  = array( $state['article'] ?? 0, $state['breakdance'] ?? 0 );
+$made  = $ids( $state );
 set_transient( ExamplePages::NOTICE, array( 'article' => 1 ), DAY_IN_SECONDS );
 define( 'WP_UNINSTALL_PLUGIN', EVPX_BASENAME );
 include EVPX_PATH . 'uninstall.php';

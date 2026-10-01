@@ -25,6 +25,16 @@ final class NativeElements {
 	 */
 	public const WIDGETS = array(
 		'Hero'            => Widgets\Hero::class,
+		'Stage'           => Widgets\Stage::class,
+		'Header'          => Widgets\SiteHeader::class,
+		'Search'          => Widgets\Search::class,
+		'Footer'          => Widgets\SiteFooter::class,
+		'Stats'           => Widgets\Stats::class,
+		'Services'        => Widgets\Services::class,
+		'Process'         => Widgets\Process::class,
+		'Projects'        => Widgets\Projects::class,
+		'Quotes'          => Widgets\Quotes::class,
+		'Contact'         => Widgets\Contact::class,
 		'Section'         => Widgets\Section::class,
 		'Comparison'      => Widgets\Comparison::class,
 		'Explorer'        => Widgets\Explorer::class,

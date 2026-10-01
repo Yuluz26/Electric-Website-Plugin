@@ -22,7 +22,7 @@
 ## The example articles
 
 The next admin screen after activation shows a notice and two new **drafts**, so a fresh install has something
-to open, read and copy from:
+to open, read and copy from (and a second notice for the site pages, below):
 
 | Example | Where | What it is |
 |---|---|---|
@@ -46,6 +46,47 @@ to open, read and copy from:
 - **The hero heading.** On the Breakdance page the hero is the page's `h1` under Breakdance's own Zero theme, which
   prints no title of its own, and an `h2` under any other theme, which prints the title as an `h1` above it (see
   "One h1 per page" below).
+
+## The site pages
+
+The same first admin screen also adds a site: six **draft pages** (Home, About, Services, Projects, Contact and
+Search) built from the site widgets, so a new install has a whole, working site to look at and change instead of a
+blank page. They are in `content/site/`, in shortcodes, and made as native Breakdance elements when Breakdance is active.
+
+| Page | What is on it |
+|---|---|
+| Home | Header · full-height hero (a night forecourt) · stats · services strip · process rail · projects rail · quotations · footer |
+| About | Header · hero · editorial section · stats · four working habits · quotations · footer |
+| Services | Header · hero · services strip · how power reaches the car · process · FAQ · call to action · footer |
+| Projects | Header · hero · six projects · stats · quotations · call to action · footer |
+| Contact | Header · hero · contact form and details · quick answers · footer |
+| Search | Header · hero · search page · footer |
+
+- **Full width, in any theme.** The pages use the plugin's own **EV full-width page** template (Page attributes →
+  Template), which prints the page's content and nothing else: no theme header, title, sidebar or footer, because the
+  pages bring their own. A hero has to reach the edges of the window, and how to get a theme's column out of the way is
+  different in every theme; this is the same in all of them. Choose another template on a page to go back to your theme's.
+- **Publish them.** They are drafts, like the examples, and the notice has two buttons: **Publish all six**, and
+  **Publish and use Home as the front page** (which also sets Settings → Reading to a static front page). Neither is
+  done for you, and nothing outside these six pages is touched. The header's links (`/about/`, `/services/`, …) are looked
+  up as pages, so they point at these pages wherever they live. A page that already had one of those addresses keeps it;
+  the new one gets `-2`, and the header links to whichever page owns the plain address.
+- **The words are placeholders.** The company name is your site's name; the figures ("150 kW per DC bay", "13 weeks")
+  are what a typical job is, not a track record; the six projects say "Sample site" and the quotations "Sample client".
+  Replace them before publishing. Every text is a field of a widget: in Breakdance, in the builder; otherwise, in the
+  page's content.
+- **The pictures are drawn, and a photograph replaces each.** Every hero, panel and project card has a scene until it
+  has a photograph, so the site has a look on day one and is not waiting for images. `docs/MEDIA-BRIEF.md`, "The
+  site's photographs", lists what to photograph for each page and how to set it.
+- **Made once, and by an administrator.** The same rules as the examples (the `evpx_examples` option, the
+  `evpx_example_pages_status` filter, nothing existing touched). To have the site made again, delete the six pages and
+  the option and activate.
+- **In Breakdance.** Each page is a Section per element, full width and without padding. The header is not sticky there (a
+  Section is its own containing block, so a bar inside it cannot stay at the top): make the header's Section sticky in
+  Breakdance's own settings.
+- **Contact form.** It mails the site's admin address unless the widget's *Send to* field has one. A form on a site whose
+  server cannot send mail says so to the visitor ("could not be sent from here, please email us"): install an SMTP plugin
+  if `wp_mail()` does not deliver on your host.
 
 ## Your first page in Breakdance
 

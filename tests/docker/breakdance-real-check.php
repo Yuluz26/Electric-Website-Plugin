@@ -183,14 +183,15 @@ if ( $field ) {
 // The EV widgets as elements of their own in the builder's Add panel. Everything about them is
 // derived from the widgets, so these checks are about the seams: what Breakdance is told, and that
 // what it gets back is the same component the shortcode renders.
-$names    = array( 'Hero', 'Section', 'Comparison', 'Explorer', 'ScenarioCards', 'Flow', 'DecisionFactors', 'Faq', 'Related', 'Cta' );
+$names    = array_keys( EVPX\Breakdance\Native\NativeElements::WIDGETS ); // the plugin's own list of what it declares
+$total    = count( $names );
 $declared = array_filter(
 	$names,
 	static function ( $n ) {
 		return class_exists( 'EVPX\\' . $n, false );
 	}
 );
-$check( 'all ten native elements are declared', 10 === count( $declared ), implode( ',', array_diff( $names, $declared ) ) );
+$check( "all {$total} native elements are declared", 20 === $total && $total === count( $declared ), implode( ',', array_diff( $names, $declared ) ) );
 
 $evpx_classes = array_values(
 	array_filter(
@@ -208,7 +209,7 @@ $bad = array_filter(
 );
 // Breakdance instantiates every declared Element subclass to read its definition; an abstract
 // class of ours in that list crashes the builder ("Cannot instantiate abstract class").
-$check( 'Breakdance sees only concrete, instantiable EVPX element classes (no abstract base)', 10 === count( $evpx_classes ) && empty( $bad ), implode( ',', $evpx_classes ) );
+$check( 'Breakdance sees only concrete, instantiable EVPX element classes (no abstract base)', $total === count( $evpx_classes ) && empty( $bad ), implode( ',', $evpx_classes ) );
 
 $defs = array();
 foreach ( \Breakdance\Elements\get_elements_for_builder() as $d ) {
@@ -216,7 +217,7 @@ foreach ( \Breakdance\Elements\get_elements_for_builder() as $d ) {
 		$defs[ $d['slug'] ] = $d;
 	}
 }
-$check( 'the builder is given all ten, in the EV Charging category, in this plugin\'s order', 10 === count( $defs ) && 1 === count( array_unique( array_column( $defs, 'category' ) ) ) && 'evpx' === reset( $defs )['category'] );
+$check( "the builder is given all {$total}, in the EV Charging category", $total === count( $defs ) && 1 === count( array_unique( array_column( $defs, 'category' ) ) ) && 'evpx' === reset( $defs )['category'] );
 
 $categories = array_column( \Breakdance\Elements\get_element_categories(), 'label', 'slug' );
 $check( 'the EV Charging category is registered', 'EV Charging' === ( $categories['evpx'] ?? '' ), wp_json_encode( $categories ) );

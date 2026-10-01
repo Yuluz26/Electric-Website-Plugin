@@ -1,0 +1,12 @@
+[evpx_service title="Site design" summary="We start from how long vehicles stay and what the supply can carry, then choose the chargers to fit." points="Dwell-time and demand study
+Grid capacity and load management
+Layout, permits and phasing" scene="grid" symbol="sliders-horizontal" link_label="Talk to a designer" link_url="/contact/"]
+[evpx_service title="Installation" summary="Trenching, switchgear, chargers and commissioning, delivered as one job with one site manager." points="AC wall boxes and pedestals
+DC fast-charging cabinets
+Commissioning and handover" scene="station" symbol="wrench" link_label="See a finished site" link_url="/projects/"]
+[evpx_service title="Operations" summary="Monitoring, billing and support, so the chargers are working when a driver arrives." points="Remote monitoring and alerts
+Payment and access control
+Maintenance and call-outs" scene="cabinet" symbol="gauge" link_label="Ask about support" link_url="/contact/"]
+[evpx_service title="Upgrades" summary="More bays, more power or new software on a site that is already running." points="Capacity checks
+Retrofit of older chargers
+Software and payment updates" scene="highway" symbol="power" link_label="Check your site" link_url="/contact/"]
