@@ -251,7 +251,9 @@ the full results page, Escape to close. On a narrow screen the links are behind 
 
 The search results page. `heading`, `placeholder`, `suggestions` (`label | address` lines shown until something is
 typed, and when nothing matches), `per_page`. Reads `q` (or WordPress's `s`) from the address, lists published pages
-and posts with a count and a filter (all / pages / posts), and pages through them. Everything typed is escaped.
+and posts with a count and a filter (all / pages / posts), and pages through them. Everything typed is escaped. Password-protected
+and unpublished content is never listed. A page built in Breakdance keeps its words in the builder's data, not in the page's
+content, so a search finds it by its title (and its excerpt, if you give pages one), not by the words inside it.
 
 ### EV Site Footer — `[evpx_footer]` / `evpx/footer`
 

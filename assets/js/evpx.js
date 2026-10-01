@@ -1264,6 +1264,12 @@
 
 			var toggle = header.querySelector( '[data-evpx-menu-toggle]' );
 			var menu = header.querySelector( '[data-evpx-menu]' );
+			var hint = header.querySelector( '.evpx-header__kbd' );
+
+			// The shortcut is Cmd+K on an Apple keyboard, and the hint beside the search should say so.
+			if ( hint && /Mac|iPhone|iPad/.test( window.navigator.platform || '' ) ) {
+				hint.textContent = '\u2318 K';
+			}
 
 			var stick = function () {
 				header.classList.toggle( 'evpx-is-stuck', window.scrollY > 8 );

@@ -129,6 +129,12 @@ It uses WordPress's own REST search (`/wp-json/wp/v2/search`). A security plugin
 or a host that blocks `/wp-json/`, stops it; Enter still opens the results page, which does not use REST. Set the search
 page in the header's **Search results page** control, and `/search/` is the page the plugin made.
 
+**The search does not find words that are on a page I built in Breakdance.**
+Breakdance stores a page's words in its own data, not in the page's content, and WordPress searches the content. Such a page
+is found by its title. To have it found by more than that, give pages an excerpt box
+(`add_post_type_support( 'page', 'excerpt' );` in a must-use plugin or your theme) and write a summary into it: the search
+reads the excerpt as well as the title.
+
 **The contact form says "could not be sent from here".**
 `wp_mail()` returned false: the server cannot send mail. Install an SMTP plugin, or send a test with `wp eval 'var_dump( wp_mail(
 "you@example.com", "test", "test" ) );'`. The visitor is told to email instead; nothing is lost silently. A message that
