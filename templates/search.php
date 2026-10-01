@@ -12,7 +12,8 @@
  * @var int    $pages
  * @var int    $paged
  * @var array  $suggestions [ [label, url], … ]
- * @var string $action      This page's own address, without the search.
+ * @var string $action
+ * @var array  $hidden   Query arguments of the page's own address, sent as hidden fields.      This page's own address, without the search.
  * @var string $base        The current address, without paging.
  */
 
@@ -20,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$link = static function ( array $args ) use ( $base, $query ) {
+$page_link = static function ( array $args ) use ( $base, $query ) {
 	return esc_url( add_query_arg( array_merge( array( 'q' => $query ), $args ), $base ) );
 };
 ?>
@@ -29,6 +30,7 @@ $link = static function ( array $args ) use ( $base, $query ) {
 		<?php if ( $heading ) : ?><h1 class="evpx-heading evpx-search__heading"><?php echo esc_html( $heading ); ?></h1><?php endif; ?>
 
 		<form class="evpx-search__form" role="search" method="get" action="<?php echo esc_url( $action ); ?>">
+			<?php foreach ( $hidden as $hidden_name => $hidden_value ) : ?><input type="hidden" name="<?php echo esc_attr( $hidden_name ); ?>" value="<?php echo esc_attr( $hidden_value ); ?>"><?php endforeach; ?>
 			<label class="evpx-visually-hidden" for="evpx-search-page-q"><?php esc_html_e( 'Search', 'ev-charging-experience' ); ?></label>
 			<?php echo \EVPX\Support\Icons::svg( 'magnifying-glass', 'evpx-search__icon' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?>
 			<input class="evpx-search__input" id="evpx-search-page-q" type="search" name="q" value="<?php echo esc_attr( $query ); ?>" placeholder="<?php echo esc_attr( $placeholder ); ?>" autocomplete="off">
@@ -37,9 +39,9 @@ $link = static function ( array $args ) use ( $base, $query ) {
 
 		<?php if ( $searched ) : ?>
 			<div class="evpx-search__filters" role="group" aria-label="<?php esc_attr_e( 'Filter results', 'ev-charging-experience' ); ?>">
-				<a class="evpx-search__chip" href="<?php echo $link( array() ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"<?php echo '' === $type ? ' aria-current="true"' : ''; ?>><?php esc_html_e( 'All', 'ev-charging-experience' ); ?></a>
-				<a class="evpx-search__chip" href="<?php echo $link( array( 'type' => 'page' ) ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"<?php echo 'page' === $type ? ' aria-current="true"' : ''; ?>><?php esc_html_e( 'Pages', 'ev-charging-experience' ); ?></a>
-				<a class="evpx-search__chip" href="<?php echo $link( array( 'type' => 'post' ) ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"<?php echo 'post' === $type ? ' aria-current="true"' : ''; ?>><?php esc_html_e( 'Articles', 'ev-charging-experience' ); ?></a>
+				<a class="evpx-search__chip" href="<?php echo $page_link( array() ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"<?php echo '' === $type ? ' aria-current="true"' : ''; ?>><?php esc_html_e( 'All', 'ev-charging-experience' ); ?></a>
+				<a class="evpx-search__chip" href="<?php echo $page_link( array( 'type' => 'page' ) ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"<?php echo 'page' === $type ? ' aria-current="true"' : ''; ?>><?php esc_html_e( 'Pages', 'ev-charging-experience' ); ?></a>
+				<a class="evpx-search__chip" href="<?php echo $page_link( array( 'type' => 'post' ) ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"<?php echo 'post' === $type ? ' aria-current="true"' : ''; ?>><?php esc_html_e( 'Articles', 'ev-charging-experience' ); ?></a>
 			</div>
 
 			<p class="evpx-search__count" role="status">
@@ -69,9 +71,9 @@ $link = static function ( array $args ) use ( $base, $query ) {
 
 				<?php if ( $pages > 1 ) : ?>
 					<nav class="evpx-search__pager" aria-label="<?php esc_attr_e( 'Result pages', 'ev-charging-experience' ); ?>">
-						<?php if ( $paged > 1 ) : ?><a class="evpx-search__chip" href="<?php echo $link( array( 'type' => $type, 'pg' => $paged - 1 ) ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"><?php esc_html_e( 'Previous', 'ev-charging-experience' ); ?></a><?php endif; ?>
+						<?php if ( $paged > 1 ) : ?><a class="evpx-search__chip" href="<?php echo $page_link( array( 'type' => $type, 'pg' => $paged - 1 ) ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"><?php esc_html_e( 'Previous', 'ev-charging-experience' ); ?></a><?php endif; ?>
 						<span class="evpx-search__page"><?php echo esc_html( sprintf( /* translators: 1: page, 2: pages */ __( 'Page %1$d of %2$d', 'ev-charging-experience' ), $paged, $pages ) ); ?></span>
-						<?php if ( $paged < $pages ) : ?><a class="evpx-search__chip" href="<?php echo $link( array( 'type' => $type, 'pg' => $paged + 1 ) ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"><?php esc_html_e( 'Next', 'ev-charging-experience' ); ?></a><?php endif; ?>
+						<?php if ( $paged < $pages ) : ?><a class="evpx-search__chip" href="<?php echo $page_link( array( 'type' => $type, 'pg' => $paged + 1 ) ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url() in $link */ ?>"><?php esc_html_e( 'Next', 'ev-charging-experience' ); ?></a><?php endif; ?>
 					</nav>
 				<?php endif; ?>
 			<?php else : ?>

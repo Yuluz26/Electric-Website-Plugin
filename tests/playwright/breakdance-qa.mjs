@@ -244,7 +244,8 @@ if (!postId) {
 			[...document.querySelectorAll('.breakdance-add-panel__element-name')].map((e) => e.textContent.trim()).filter((t) => /^EV /.test(t))
 		);
 		await b.screenshot({ path: path.join(outDir, 'builder-add-panel.png') });
-		check('the Add panel lists all ten EV elements', listed.length === 10, listed.join(', '));
+		const expected = ['EV Article Hero', 'EV Section', 'EV AC/DC Comparison', 'EV Charging Explorer', 'EV Scenario Cards', 'EV Technical Flow', 'EV Decision Factors', 'EV FAQ', 'EV Related Articles', 'EV CTA', 'EV Page Hero', 'EV Site Header', 'EV Search Results', 'EV Site Footer', 'EV Stats', 'EV Services', 'EV Process', 'EV Projects', 'EV Quotes', 'EV Contact'];
+		check('the Add panel lists all twenty EV elements', listed.length === 20 && expected.every((name) => listed.includes(name)), `missing: ${expected.filter((n) => !listed.includes(n)).join(', ') || 'none'}; listed ${listed.length}`);
 
 		// Select each kind of element in the canvas: its panel opens with the Content section and inputs.
 		const kinds = await frame.evaluate(() => [...new Set([...document.querySelectorAll('[class*="evpx-native-"]')].flatMap((e) => [...e.classList].filter((c) => /^evpx-native-[a-z-]+$/.test(c))))]);

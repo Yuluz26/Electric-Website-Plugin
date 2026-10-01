@@ -14,10 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$tag = $url ? 'a' : 'div';
+$wrap = $url ? 'a' : 'div';
 ?>
 <li class="evpx-project">
-	<<?php echo $tag; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- 'a' or 'div' */ ?> class="evpx-project__card"<?php echo $url ? ' href="' . esc_url( $url ) . '"' : ''; ?> data-evpx-spot>
+	<<?php echo $wrap; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- 'a' or 'div' */ ?> class="evpx-project__card"<?php echo $url ? ' href="' . esc_url( $url ) . '"' : ''; ?> data-evpx-spot>
 		<span class="evpx-project__visual" aria-hidden="true">
 			<?php if ( $media_html ) : ?>
 				<?php echo $media_html; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() output */ ?>
@@ -38,5 +38,5 @@ $tag = $url ? 'a' : 'div';
 				</span>
 			<?php endif; ?>
 		</span>
-	</<?php echo $tag; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- 'a' or 'div' */ ?>>
+	</<?php echo $wrap; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- 'a' or 'div' */ ?>>
 </li>

@@ -8,6 +8,7 @@
  * @var string $cta_url
  * @var bool   $search
  * @var string $search_url
+ * @var array  $search_hid  Query arguments of the search page's address, sent as hidden fields.
  * @var string $search_var q (a results page of our own) | s (WordPress's)
  * @var string $rest       REST route for live results.
  * @var bool   $sticky
@@ -32,8 +33,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php if ( $links ) : ?>
 			<nav class="evpx-header__nav" aria-label="<?php echo esc_attr_x( 'Primary', 'navigation label', 'ev-charging-experience' ); ?>">
 				<ul class="evpx-header__links" role="list">
-					<?php foreach ( $links as $link ) : ?>
-						<li><a class="evpx-header__link" href="<?php echo esc_url( $link['url'] ); ?>"<?php echo $link['current'] ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $link['label'] ); ?></a></li>
+					<?php foreach ( $links as $nav_link ) : ?>
+						<li><a class="evpx-header__link" href="<?php echo esc_url( $nav_link['url'] ); ?>"<?php echo $nav_link['current'] ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $nav_link['label'] ); ?></a></li>
 					<?php endforeach; ?>
 				</ul>
 			</nav>
@@ -41,7 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="evpx-header__tools">
 			<?php if ( $search ) : ?>
-				<button type="button" class="evpx-header__search" data-evpx-search-open aria-haspopup="dialog" aria-controls="<?php echo esc_attr( $uid ); ?>-search">
+				<button type="button" class="evpx-header__search" data-evpx-search-open aria-label="<?php esc_attr_e( 'Search', 'ev-charging-experience' ); ?>" aria-haspopup="dialog" aria-controls="<?php echo esc_attr( $uid ); ?>-search">
 					<?php echo \EVPX\Support\Icons::svg( 'magnifying-glass' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?>
 					<span class="evpx-header__search-label"><?php esc_html_e( 'Search', 'ev-charging-experience' ); ?></span>
 					<kbd class="evpx-header__kbd" aria-hidden="true">Ctrl K</kbd>
@@ -63,8 +64,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php if ( $links ) : ?>
 		<nav class="evpx-header__menu" id="<?php echo esc_attr( $uid ); ?>-menu" aria-label="<?php echo esc_attr_x( 'Menu', 'navigation label', 'ev-charging-experience' ); ?>" data-evpx-menu>
 			<ul class="evpx-container" role="list">
-				<?php foreach ( $links as $link ) : ?>
-					<li><a class="evpx-header__menu-link" href="<?php echo esc_url( $link['url'] ); ?>"<?php echo $link['current'] ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $link['label'] ); ?><?php echo \EVPX\Support\Icons::svg( 'arrow-right' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?></a></li>
+				<?php foreach ( $links as $nav_link ) : ?>
+					<li><a class="evpx-header__menu-link" href="<?php echo esc_url( $nav_link['url'] ); ?>"<?php echo $nav_link['current'] ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $nav_link['label'] ); ?><?php echo \EVPX\Support\Icons::svg( 'arrow-right' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?></a></li>
 				<?php endforeach; ?>
 			</ul>
 		</nav>
@@ -74,6 +75,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<?php // Without a script the button does nothing useful, so the form is also a plain link target: the results page or WordPress's own search. ?>
 		<dialog class="evpx-root evpx-searchbox" id="<?php echo esc_attr( $uid ); ?>-search" data-evpx-theme="dark" data-evpx-searchbox data-rest="<?php echo esc_url( $rest ); ?>" data-label-page="<?php echo esc_attr_x( 'Page', 'search result type', 'ev-charging-experience' ); ?>" data-label-post="<?php echo esc_attr_x( 'Article', 'search result type', 'ev-charging-experience' ); ?>" aria-label="<?php esc_attr_e( 'Search the site', 'ev-charging-experience' ); ?>">
 			<form class="evpx-searchbox__form" role="search" method="get" action="<?php echo esc_url( $search_url ); ?>">
+				<?php foreach ( $search_hid as $hidden_name => $hidden_value ) : ?><input type="hidden" name="<?php echo esc_attr( $hidden_name ); ?>" value="<?php echo esc_attr( $hidden_value ); ?>"><?php endforeach; ?>
 				<label class="evpx-visually-hidden" for="<?php echo esc_attr( $uid ); ?>-q"><?php esc_html_e( 'Search', 'ev-charging-experience' ); ?></label>
 				<?php echo \EVPX\Support\Icons::svg( 'magnifying-glass', 'evpx-searchbox__icon' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from the plugin's own icon set */ ?>
 				<input class="evpx-searchbox__input" id="<?php echo esc_attr( $uid ); ?>-q" type="search" name="<?php echo esc_attr( $search_var ); ?>" placeholder="<?php esc_attr_e( 'Search pages and articles', 'ev-charging-experience' ); ?>" autocomplete="off" spellcheck="false" data-evpx-search-input>

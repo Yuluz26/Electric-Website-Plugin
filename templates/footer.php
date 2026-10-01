@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<nav class="evpx-footer__col" aria-label="<?php echo esc_attr_x( 'Footer', 'navigation label', 'ev-charging-experience' ); ?>">
 				<p class="evpx-footer__head"><?php esc_html_e( 'Explore', 'ev-charging-experience' ); ?></p>
 				<ul role="list">
-					<?php foreach ( $links as $link ) : ?><li><a class="evpx-footer__link" href="<?php echo esc_url( $link[1] ); ?>"><?php echo esc_html( $link[0] ); ?></a></li><?php endforeach; ?>
+					<?php foreach ( $links as $footer_link ) : ?><li><a class="evpx-footer__link" href="<?php echo esc_url( $footer_link[1] ); ?>"><?php echo esc_html( $footer_link[0] ); ?></a></li><?php endforeach; ?>
 				</ul>
 			</nav>
 		<?php endif; ?>

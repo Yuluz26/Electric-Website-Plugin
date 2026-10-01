@@ -45,7 +45,7 @@ $u = esc_attr( $uid );
 		</linearGradient>
 		<filter id="<?php echo $u; ?>-bloom" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="7"/></filter>
 		<filter id="<?php echo $u; ?>-soft" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="22"/></filter>
-		<?php include EVPX_PATH . 'templates/art/_scene-parts.php'; ?>
+		<?php require EVPX_PATH . 'templates/art/_scene-parts.php'; ?>
 	</defs>
 
 	<g class="evpx-scene__layer" data-depth="0">

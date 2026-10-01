@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 	</div>
 
-	<div class="evpx-projects__rail" role="region" aria-label="<?php echo esc_attr( $heading ?: __( 'Projects', 'ev-charging-experience' ) ); ?>" tabindex="0" data-evpx-rail>
+	<div class="evpx-projects__rail" role="region" aria-label="<?php echo esc_attr( '' !== $heading ? $heading : __( 'Projects', 'ev-charging-experience' ) ); ?>" tabindex="0" data-evpx-rail>
 		<ul class="evpx-projects__track" role="list">
 			<?php echo $content; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered Project children, already escaped individually */ ?>
 		</ul>

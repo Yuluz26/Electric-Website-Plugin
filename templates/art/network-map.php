@@ -27,7 +27,11 @@ $links = array( array( 0, 1 ), array( 1, 2 ), array( 2, 3 ), array( 3, 4 ), arra
 	</defs>
 	<rect class="evpx-art__fade" width="640" height="400" fill="url(#<?php echo $u; ?>-aura)"/>
 	<g stroke="currentColor" stroke-opacity=".07"><?php for ( $x = 40; $x < 640; $x += 40 ) { printf( '<path d="M%d 20V380"/>', $x ); } for ( $y = 40; $y < 400; $y += 40 ) { printf( '<path d="M20 %dH620"/>', $y ); } ?></g>
-	<?php foreach ( $links as $i => $link ) : $a = $nodes[ $link[0] ]; $b = $nodes[ $link[1] ]; ?>
+	<?php foreach ( $links as $i => $edge ) : ?>
+		<?php
+		$a = $nodes[ $edge[0] ];
+		$b = $nodes[ $edge[1] ];
+		?>
 		<path class="evpx-art__draw" pathLength="1" style="--i:<?php echo (int) $i; ?>" d="M<?php echo (int) $a[0]; ?> <?php echo (int) $a[1]; ?>L<?php echo (int) $b[0]; ?> <?php echo (int) $b[1]; ?>" stroke="currentColor" stroke-opacity=".4" stroke-width="1.4"/>
 		<path class="evpx-art__pulse" d="M<?php echo (int) $a[0]; ?> <?php echo (int) $a[1]; ?>L<?php echo (int) $b[0]; ?> <?php echo (int) $b[1]; ?>" stroke-width="2.4" stroke-linecap="round" pathLength="100" style="--i:<?php echo (int) $i; ?>"/>
 	<?php endforeach; ?>

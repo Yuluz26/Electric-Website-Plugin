@@ -18,8 +18,30 @@ $pylon = static function ( float $x, float $y, float $s ) {
 	$h = 300 * $s;
 	$d = sprintf(
 		'M%1$.1f %2$.1fL%3$.1f %4$.1fL%5$.1f %2$.1f M%6$.1f %7$.1fH%8$.1f M%9$.1f %10$.1fH%11$.1f M%12$.1f %13$.1fH%14$.1f M%15$.1f %16$.1fL%17$.1f %18$.1f M%19$.1f %16$.1fL%17$.1f %18$.1f M%20$.1f %13$.1fH%21$.1f M%22$.1f %23$.1fH%24$.1f',
-		$x - $w / 2, $y, $x, $y - $h, $x + $w / 2, $x - $w * 0.33, $y - $h * 0.3, $x + $w * 0.33, $x - $w * 0.22, $y - $h * 0.55, $x + $w * 0.22,
-		$x - $w * 0.13, $y - $h * 0.8, $x + $w * 0.13, $x - $w * 0.33, $y - $h * 0.3, $x, $y - $h * 0.55, $x + $w * 0.33, $x - $w * 0.7, $x + $w * 0.7, $x - $w * 0.55, $y - $h * 0.86, $x + $w * 0.55
+		$x - $w / 2,
+		$y,
+		$x,
+		$y - $h,
+		$x + $w / 2,
+		$x - $w * 0.33,
+		$y - $h * 0.3,
+		$x + $w * 0.33,
+		$x - $w * 0.22,
+		$y - $h * 0.55,
+		$x + $w * 0.22,
+		$x - $w * 0.13,
+		$y - $h * 0.8,
+		$x + $w * 0.13,
+		$x - $w * 0.33,
+		$y - $h * 0.3,
+		$x,
+		$y - $h * 0.55,
+		$x + $w * 0.33,
+		$x - $w * 0.7,
+		$x + $w * 0.7,
+		$x - $w * 0.55,
+		$y - $h * 0.86,
+		$x + $w * 0.55
 	);
 
 	return '<path d="' . $d . '"/>';
@@ -45,7 +67,10 @@ $pylon = static function ( float $x, float $y, float $s ) {
 			<stop offset="1" stop-color="#030406"/>
 		</linearGradient>
 		<filter id="<?php echo esc_attr( $uid ); ?>-bloom" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="9"/></filter>
-		<?php $u = esc_attr( $uid ); include EVPX_PATH . 'templates/art/_scene-parts.php'; ?>
+		<?php
+		$u = esc_attr( $uid );
+		require EVPX_PATH . 'templates/art/_scene-parts.php';
+		?>
 	</defs>
 
 	<g class="evpx-scene__layer" data-depth="0">
@@ -59,7 +84,11 @@ $pylon = static function ( float $x, float $y, float $s ) {
 	<g class="evpx-scene__layer" data-depth="0.12">
 		<path d="M-60 660C160 610 320 640 520 622S860 590 1060 650 1360 610 1700 640V720H-60z" fill="#0a0d14"/>
 		<g stroke="#07090e" stroke-width="2.4" fill="none" stroke-linecap="round">
-			<?php echo $pylon( 260, 640, 0.6 ); echo $pylon( 470, 634, 0.7 ); echo $pylon( 720, 640, 0.8 ); ?>
+			<?php
+			echo $pylon( 260, 640, 0.6 );
+			echo $pylon( 470, 634, 0.7 );
+			echo $pylon( 720, 640, 0.8 );
+			?>
 			<path d="M226 470C300 490 420 490 470 462S620 486 720 452" stroke-width="1.2"/>
 			<path d="M240 486C320 506 430 504 470 478S630 502 720 468" stroke-width="1.2"/>
 		</g>
@@ -67,7 +96,10 @@ $pylon = static function ( float $x, float $y, float $s ) {
 
 	<g class="evpx-scene__layer" data-depth="0.34">
 		<g stroke="#05070a" stroke-width="4" fill="none" stroke-linecap="round">
-			<?php echo $pylon( 1180, 690, 1.15 ); echo $pylon( 1560, 700, 1.5 ); ?>
+			<?php
+			echo $pylon( 1180, 690, 1.15 );
+			echo $pylon( 1560, 700, 1.5 );
+			?>
 			<path d="M1180 400C1300 470 1440 470 1560 372S1700 396 1760 380" stroke-width="2"/>
 			<path d="M1150 424C1290 494 1430 494 1560 396" stroke-width="2"/>
 			<path d="M-60 300C180 402 380 402 620 330S960 404 1180 400" stroke-width="2" opacity=".85"/>

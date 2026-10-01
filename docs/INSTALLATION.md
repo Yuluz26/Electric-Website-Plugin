@@ -84,7 +84,7 @@ blank page. They are in `content/site/`, in shortcodes, and made as native Break
 - **In Breakdance.** Each page is a Section per element, full width and without padding. The header is not sticky there (a
   Section is its own containing block, so a bar inside it cannot stay at the top): make the header's Section sticky in
   Breakdance's own settings.
-- **Contact form.** It mails the site's admin address unless the widget's *Send to* field has one. A form on a site whose
+- **Contact form.** It mails the site's admin address unless the widget's *Send enquiries to* field has one. A form on a site whose
   server cannot send mail says so to the visitor ("could not be sent from here, please email us"): install an SMTP plugin
   if `wp_mail()` does not deliver on your host.
 

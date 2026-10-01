@@ -35,6 +35,6 @@ check('the address without its nonce is refused', bare.status() === 403 || bare.
 
 // A visitor cannot use it.
 const visitor = await (await browser.newContext()).request.get(`${origin}/wp-admin/admin-post.php?action=evpx_publish_site&_wpnonce=abc`, { maxRedirects: 0 });
-check('a visitor who is not logged in is sent to the login, not given the action', [301, 302].includes(visitor.status()) && /wp-login/.test(visitor.headers().location || ''), `${visitor.status()} ${visitor.headers().location}`);
+check('a visitor who is not logged in is not given the action (WordPress answers a request nobody is allowed to make with 400)', visitor.status() === 400 || [301, 302].includes(visitor.status()) && /wp-login/.test(visitor.headers().location || ''), `${visitor.status()} ${visitor.headers().location}`);
 await browser.close();
 finish();

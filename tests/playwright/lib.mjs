@@ -81,6 +81,8 @@ export const overflowProbe = (page) =>
 				if (el.ownerSVGElement) continue;
 				// The hero's drawing bleeds off the right edge on purpose; the hero clips it.
 				if (el.closest('.evpx-hero__visual')) continue;
+				// A rail is a scroll container: what runs on inside it is meant to, and the rail itself is held to the widget.
+				if (el.closest('.evpx-projects__rail') && !el.classList.contains('evpx-projects__rail')) continue;
 				const cs = getComputedStyle(el);
 				if (cs.display === 'none' || cs.visibility === 'hidden') continue;
 				const r = el.getBoundingClientRect();

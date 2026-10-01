@@ -35,7 +35,7 @@ $u = esc_attr( $uid );
 			<stop offset="1" stop-color="#040507"/>
 		</linearGradient>
 		<filter id="<?php echo $u; ?>-bloom" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="8"/></filter>
-		<?php include EVPX_PATH . 'templates/art/_scene-parts.php'; ?>
+		<?php require EVPX_PATH . 'templates/art/_scene-parts.php'; ?>
 	</defs>
 
 	<g class="evpx-scene__layer" data-depth="0">

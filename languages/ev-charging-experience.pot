@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: EV Charging Experience 0.7.0\n"
+"Project-Id-Version: EV Charging Experience 0.8.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ev-charging-experience\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-30T13:24:17+00:00\n"
+"POT-Creation-Date: 2026-10-01T00:59:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: ev-charging-experience\n"
@@ -18,8 +18,9 @@ msgstr ""
 #: ev-charging-experience.php
 #: src/Admin/Notices.php:39
 #: src/Breakdance/Fields/ReadingTimeField.php:23
-#: src/Elements/Registry.php:47
-#: src/Setup/ExamplePages.php:124
+#: src/Elements/Registry.php:62
+#: src/Setup/ExamplePages.php:157
+#: src/Setup/ExamplePages.php:179
 msgid "EV Charging Experience"
 msgstr ""
 
@@ -30,7 +31,7 @@ msgstr ""
 
 #. Description of the plugin
 #: ev-charging-experience.php
-msgid "Premium, neumorphic, editorial EV-charging article components for WordPress + Breakdance. Adds capabilities to Breakdance; never overrides it."
+msgid "Premium, neumorphic, editorial EV-charging components for WordPress + Breakdance: article widgets, and the pages of a site. Adds capabilities to Breakdance; never overrides it."
 msgstr ""
 
 #. Author of the plugin
@@ -101,7 +102,7 @@ msgstr ""
 msgid "Advanced"
 msgstr ""
 
-#: src/Breakdance/Native/NativeElements.php:66
+#: src/Breakdance/Native/NativeElements.php:76
 msgid "EV Charging"
 msgstr ""
 
@@ -263,24 +264,112 @@ msgstr ""
 msgid "%s kW"
 msgstr ""
 
-#: src/Elements/Widgets/Cta.php:18
-msgid "EV CTA"
+#: src/Elements/Widgets/Contact.php:22
+msgid "EV Contact"
 msgstr ""
 
+#: src/Elements/Widgets/Contact.php:29
 #: src/Elements/Widgets/Cta.php:25
 #: src/Elements/Widgets/DecisionFactors.php:26
 #: src/Elements/Widgets/Explorer.php:39
 #: src/Elements/Widgets/Faq.php:26
+#: src/Elements/Widgets/Process.php:26
+#: src/Elements/Widgets/Projects.php:26
+#: src/Elements/Widgets/Quotes.php:26
 #: src/Elements/Widgets/RelatedArticles.php:30
 #: src/Elements/Widgets/ScenarioCards.php:26
 #: src/Elements/Widgets/Section.php:26
 #: src/Elements/Widgets/Section.php:65
+#: src/Elements/Widgets/Services.php:26
+#: src/Elements/Widgets/Stage.php:29
+#: src/Elements/Widgets/Stats.php:26
 msgid "Eyebrow"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:30
+#: src/Elements/Widgets/DecisionFactors.php:27
+#: src/Elements/Widgets/Explorer.php:40
+#: src/Elements/Widgets/Faq.php:27
+#: src/Elements/Widgets/Process.php:27
+#: src/Elements/Widgets/Projects.php:27
+#: src/Elements/Widgets/RelatedArticles.php:31
+#: src/Elements/Widgets/ScenarioCards.php:27
+#: src/Elements/Widgets/Search.php:27
+#: src/Elements/Widgets/Section.php:27
+#: src/Elements/Widgets/Services.php:27
+#: src/Elements/Widgets/Stats.php:27
+#: src/Elements/Widgets/TechnicalFlow.php:33
+msgid "Heading"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:30
+msgid "Tell us about the site"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:31
+#: src/Elements/Widgets/Explorer.php:41
+#: src/Elements/Widgets/Process.php:28
+#: src/Elements/Widgets/Projects.php:28
+#: src/Elements/Widgets/Services.php:28
+#: src/Elements/Widgets/Stats.php:28
+msgid "Introduction"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:32
+msgid "Details, one per line as \"label | value\" (Address, Phone, Email, Hours)"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:33
+msgid "What the enquiry is about, one per line (blank = no choice)"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:34
+#: src/Elements/Widgets/Cta.php:28
+#: src/Elements/Widgets/SiteHeader.php:29
+#: src/Elements/Widgets/Stage.php:32
+msgid "Button label"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:34
+msgid "Send the message"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:35
+msgid "Send enquiries to (blank = the site's admin email)"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:36
+msgid "Show the network drawing"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:37
+#: src/Elements/Widgets/DecisionFactors.php:29
+#: src/Elements/Widgets/Explorer.php:59
+#: src/Elements/Widgets/Projects.php:29
+#: src/Elements/Widgets/RelatedArticles.php:58
+#: src/Elements/Widgets/ScenarioCards.php:32
+#: src/Elements/Widgets/Section.php:59
+msgid "Enable scroll reveal"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:43
+#: templates/footer.php:33
+msgid "Contact"
+msgstr ""
+
+#: src/Elements/Widgets/Contact.php:44
+msgid "A few lines are enough: where the site is, how many vehicles, and what you have in mind. We reply within a working day."
+msgstr ""
+
+#: src/Elements/Widgets/Cta.php:18
+msgid "EV CTA"
 msgstr ""
 
 #: src/Elements/Widgets/Cta.php:26
 #: src/Elements/Widgets/Hero.php:26
+#: src/Elements/Widgets/ProcessStep.php:25
 #: src/Elements/Widgets/ScenarioCard.php:26
+#: src/Elements/Widgets/Service.php:27
 msgid "Title"
 msgstr ""
 
@@ -293,14 +382,11 @@ msgid "Body"
 msgstr ""
 
 #: src/Elements/Widgets/Cta.php:28
-msgid "Button label"
-msgstr ""
-
-#: src/Elements/Widgets/Cta.php:28
 msgid "Start the conversation"
 msgstr ""
 
 #: src/Elements/Widgets/Cta.php:29
+#: src/Elements/Widgets/Stage.php:33
 msgid "Button URL"
 msgstr ""
 
@@ -333,6 +419,7 @@ msgid "Factor"
 msgstr ""
 
 #: src/Elements/Widgets/DecisionFactor.php:26
+#: src/Elements/Widgets/ProcessStep.php:26
 #: src/Elements/Widgets/ScenarioCard.php:27
 msgid "Description"
 msgstr ""
@@ -342,7 +429,10 @@ msgid "Question to ask"
 msgstr ""
 
 #: src/Elements/Widgets/DecisionFactor.php:28
+#: src/Elements/Widgets/ProcessStep.php:28
 #: src/Elements/Widgets/ScenarioCard.php:28
+#: src/Elements/Widgets/Service.php:32
+#: src/Elements/Widgets/Stat.php:30
 msgid "Icon"
 msgstr ""
 
@@ -387,26 +477,8 @@ msgstr ""
 msgid "EV Decision Factors"
 msgstr ""
 
-#: src/Elements/Widgets/DecisionFactors.php:27
-#: src/Elements/Widgets/Explorer.php:40
-#: src/Elements/Widgets/Faq.php:27
-#: src/Elements/Widgets/RelatedArticles.php:31
-#: src/Elements/Widgets/ScenarioCards.php:27
-#: src/Elements/Widgets/Section.php:27
-#: src/Elements/Widgets/TechnicalFlow.php:33
-msgid "Heading"
-msgstr ""
-
 #: src/Elements/Widgets/DecisionFactors.php:28
 msgid "Intro"
-msgstr ""
-
-#: src/Elements/Widgets/DecisionFactors.php:29
-#: src/Elements/Widgets/Explorer.php:59
-#: src/Elements/Widgets/RelatedArticles.php:58
-#: src/Elements/Widgets/ScenarioCards.php:32
-#: src/Elements/Widgets/Section.php:59
-msgid "Enable scroll reveal"
 msgstr ""
 
 #: src/Elements/Widgets/DecisionFactors.php:39
@@ -431,10 +503,6 @@ msgstr ""
 
 #: src/Elements/Widgets/Explorer.php:40
 msgid "What does your dwell time buy?"
-msgstr ""
-
-#: src/Elements/Widgets/Explorer.php:41
-msgid "Introduction"
 msgstr ""
 
 #: src/Elements/Widgets/Explorer.php:41
@@ -551,6 +619,7 @@ msgid "Output FAQPage schema (disable if an SEO plugin already handles FAQ schem
 msgstr ""
 
 #: src/Elements/Widgets/Faq.php:29
+#: src/Elements/Widgets/Services.php:29
 msgid "Enable panel animation"
 msgstr ""
 
@@ -646,6 +715,8 @@ msgid "Dark (cinematic)"
 msgstr ""
 
 #: src/Elements/Widgets/Hero.php:43
+#: src/Elements/Widgets/Stage.php:66
+#: src/Elements/Widgets/Stats.php:37
 #: src/Elements/Widgets/TechnicalFlow.php:67
 msgid "Light"
 msgstr ""
@@ -675,15 +746,230 @@ msgid "Title heading level (use h2 if your theme already prints the page title a
 msgstr ""
 
 #: src/Elements/Widgets/Hero.php:66
+#: src/Elements/Widgets/Stage.php:79
 msgid "h1"
 msgstr ""
 
 #: src/Elements/Widgets/Hero.php:67
+#: src/Elements/Widgets/Stage.php:80
 msgid "h2"
 msgstr ""
 
 #: src/Elements/Widgets/Hero.php:70
 msgid "Show reading progress bar"
+msgstr ""
+
+#: src/Elements/Widgets/Process.php:19
+msgid "EV Process"
+msgstr ""
+
+#: src/Elements/Widgets/Process.php:29
+msgid "Fill the line as the page scrolls"
+msgstr ""
+
+#: src/Elements/Widgets/Process.php:39
+msgid "How it works"
+msgstr ""
+
+#: src/Elements/Widgets/Process.php:40
+msgid "One team from the first call to the first charge"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:20
+msgid "EV Process Step"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:27
+msgid "How long it takes"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:34
+msgid "Survey"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:34
+msgid "We visit the site, read the supply and count how long vehicles stay."
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:34
+msgid "1 to 2 weeks"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:35
+msgid "Design"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:35
+msgid "Charger mix, layout, load management and a costed plan you can decide on."
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:35
+msgid "2 to 4 weeks"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:36
+msgid "Build"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:36
+msgid "Groundwork, switchgear and chargers, installed and tested."
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:36
+msgid "4 to 12 weeks"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:37
+msgid "Run"
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:37
+msgid "Monitoring, billing and support from the day the first car plugs in."
+msgstr ""
+
+#: src/Elements/Widgets/ProcessStep.php:37
+msgid "Ongoing"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:21
+msgid "EV Project"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:26
+#: src/Elements/Widgets/Quote.php:25
+msgid "Name"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:27
+msgid "Place"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:28
+msgid "Sector label"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:29
+#: src/Elements/Widgets/Service.php:28
+#: src/Elements/Widgets/Stage.php:31
+msgid "Summary"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:30
+msgid "Figures, one per line as \"value | label\" (up to three)"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:31
+#: src/Elements/Widgets/Service.php:31
+msgid "Link address"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:32
+msgid "Scene (used when there is no photograph)"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:33
+msgid "Photograph"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:39
+msgid "Regional distribution centre"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:39
+#: src/Elements/Widgets/Project.php:40
+#: src/Elements/Widgets/Project.php:41
+msgid "Sample site"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:39
+msgid "Fleet depot"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:39
+msgid "Overnight AC for the vans, two DC bays for the trucks that turn around inside the hour."
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:40
+msgid "Motorway service area"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:40
+#: src/Elements/Widgets/ScenarioCard.php:54
+msgid "Highway corridor"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:40
+msgid "Twelve high-power bays behind a new grid connection, open around the clock."
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:41
+msgid "Hotel and conference centre"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:41
+msgid "Hospitality"
+msgstr ""
+
+#: src/Elements/Widgets/Project.php:41
+msgid "Slow charging where guests stay overnight, one fast charger at the entrance."
+msgstr ""
+
+#: src/Elements/Widgets/Projects.php:19
+msgid "EV Projects"
+msgstr ""
+
+#: src/Elements/Widgets/Projects.php:39
+msgid "Selected work"
+msgstr ""
+
+#: src/Elements/Widgets/Projects.php:40
+msgid "Sites we have put on the map"
+msgstr ""
+
+#: src/Elements/Widgets/Quote.php:19
+msgid "EV Quote"
+msgstr ""
+
+#: src/Elements/Widgets/Quote.php:24
+msgid "Quotation"
+msgstr ""
+
+#: src/Elements/Widgets/Quote.php:26
+msgid "Role and organisation"
+msgstr ""
+
+#: src/Elements/Widgets/Quote.php:32
+msgid "Replace this with something a customer actually said about the work. A sentence or two is plenty."
+msgstr ""
+
+#: src/Elements/Widgets/Quote.php:32
+#: src/Elements/Widgets/Quote.php:33
+msgid "Customer name"
+msgstr ""
+
+#: src/Elements/Widgets/Quote.php:32
+#: src/Elements/Widgets/Quote.php:33
+msgid "Role, organisation"
+msgstr ""
+
+#: src/Elements/Widgets/Quote.php:33
+msgid "A second quotation, ideally about something different: the install, the running of it, the support."
+msgstr ""
+
+#: src/Elements/Widgets/Quotes.php:19
+msgid "EV Quotes"
+msgstr ""
+
+#: src/Elements/Widgets/Quotes.php:27
+msgid "Advance by itself (paused while hovered or focused)"
+msgstr ""
+
+#: src/Elements/Widgets/Quotes.php:28
+msgid "Fade between quotations"
+msgstr ""
+
+#: src/Elements/Widgets/Quotes.php:37
+msgid "In their words"
 msgstr ""
 
 #: src/Elements/Widgets/RelatedArticles.php:23
@@ -804,10 +1090,6 @@ msgstr ""
 msgid "DC fast charging"
 msgstr ""
 
-#: src/Elements/Widgets/ScenarioCard.php:54
-msgid "Highway corridor"
-msgstr ""
-
 #: src/Elements/Widgets/ScenarioCard.php:55
 msgid "Trip charging"
 msgstr ""
@@ -834,6 +1116,43 @@ msgstr ""
 
 #: src/Elements/Widgets/ScenarioCards.php:43
 msgid "How this plays out by site type"
+msgstr ""
+
+#: src/Elements/Widgets/Search.php:20
+msgid "EV Search Results"
+msgstr ""
+
+#: src/Elements/Widgets/Search.php:27
+#: templates/header.php:45
+#: templates/header.php:47
+#: templates/header.php:79
+#: templates/search.php:34
+#: templates/search.php:37
+msgid "Search"
+msgstr ""
+
+#: src/Elements/Widgets/Search.php:28
+msgid "Search box hint"
+msgstr ""
+
+#: src/Elements/Widgets/Search.php:28
+msgid "What are you looking for?"
+msgstr ""
+
+#: src/Elements/Widgets/Search.php:29
+msgid "Suggestions before a search, one per line as \"label | address\""
+msgstr ""
+
+#: src/Elements/Widgets/Search.php:30
+msgid "Results per page"
+msgstr ""
+
+#: src/Elements/Widgets/Search.php:69
+msgid "Page"
+msgstr ""
+
+#: src/Elements/Widgets/Search.php:69
+msgid "Article"
 msgstr ""
 
 #: src/Elements/Widgets/Section.php:19
@@ -896,6 +1215,275 @@ msgstr ""
 msgid "Say the point in a sentence or two. Replace this copy in the Content tab."
 msgstr ""
 
+#: src/Elements/Widgets/Service.php:22
+msgid "EV Service"
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:29
+msgid "Points, one per line"
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:30
+msgid "Link label"
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:33
+msgid "Scene behind the panel (used when there is no picture)"
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:34
+msgid "Picture behind the panel"
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:40
+msgid "Site design"
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:40
+msgid "We start from how long vehicles stay and what the supply can carry, then choose the chargers."
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:41
+#: src/Support/Icons.php:54
+msgid "Installation"
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:41
+msgid "Trenching, switchgear, chargers and commissioning, delivered as one job."
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:42
+msgid "Operations"
+msgstr ""
+
+#: src/Elements/Widgets/Service.php:42
+msgid "Monitoring, billing and support, so the chargers are working when a driver arrives."
+msgstr ""
+
+#: src/Elements/Widgets/Services.php:19
+msgid "EV Services"
+msgstr ""
+
+#: src/Elements/Widgets/Services.php:39
+msgid "What we do"
+msgstr ""
+
+#: src/Elements/Widgets/Services.php:40
+msgid "From the grid connection to the last bay"
+msgstr ""
+
+#: src/Elements/Widgets/SiteFooter.php:20
+msgid "EV Site Footer"
+msgstr ""
+
+#: src/Elements/Widgets/SiteFooter.php:26
+#: src/Elements/Widgets/SiteHeader.php:25
+msgid "Brand name (blank = the site title)"
+msgstr ""
+
+#: src/Elements/Widgets/SiteFooter.php:27
+msgid "A line about the brand"
+msgstr ""
+
+#: src/Elements/Widgets/SiteFooter.php:27
+msgid "Charging that is planned around the site, installed once and looked after."
+msgstr ""
+
+#: src/Elements/Widgets/SiteFooter.php:28
+#: src/Elements/Widgets/SiteHeader.php:28
+msgid "Links, one per line as \"label | address\""
+msgstr ""
+
+#: src/Elements/Widgets/SiteFooter.php:29
+msgid "How to reach you, one per line (an address, a phone number, an email)"
+msgstr ""
+
+#: src/Elements/Widgets/SiteFooter.php:30
+msgid "Small print (blank = © year and the site title)"
+msgstr ""
+
+#: src/Elements/Widgets/SiteHeader.php:20
+msgid "EV Site Header"
+msgstr ""
+
+#: src/Elements/Widgets/SiteHeader.php:26
+msgid "Brand link (blank = the home page)"
+msgstr ""
+
+#: src/Elements/Widgets/SiteHeader.php:27
+msgid "Logo (blank = the brand mark)"
+msgstr ""
+
+#: src/Elements/Widgets/SiteHeader.php:29
+msgid "Get in touch"
+msgstr ""
+
+#: src/Elements/Widgets/SiteHeader.php:30
+msgid "Button address"
+msgstr ""
+
+#: src/Elements/Widgets/SiteHeader.php:31
+msgid "Show the search"
+msgstr ""
+
+#: src/Elements/Widgets/SiteHeader.php:32
+msgid "Search results page (blank = WordPress's own search)"
+msgstr ""
+
+#: src/Elements/Widgets/SiteHeader.php:33
+msgid "Stay at the top while scrolling"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:24
+msgid "EV Page Hero"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:30
+msgid "Headline (put *asterisks* around a word to set it in copper)"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:30
+msgid "Power that arrives *before* you do"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:34
+msgid "Second button label"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:35
+msgid "Second button URL"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:36
+msgid "Figures, one per line as \"value | label\" (a number counts up)"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:37
+msgid "Photograph (replaces the scene)"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:38
+msgid "Photograph alt text"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:41
+msgid "Scene (shown when there is no photograph)"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:49
+msgid "Height"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:54
+msgid "Fills the window"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:55
+msgid "Tall"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:56
+msgid "Compact (an inner page)"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:61
+msgid "Darkening over a photograph"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:67
+msgid "Medium"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:68
+msgid "Deep (busy or bright photographs)"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:71
+msgid "Move: parallax, particles, counting figures"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:74
+msgid "Headline level (h1 unless the theme already prints the page title)"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:88
+msgid "Charging, built around your site"
+msgstr ""
+
+#: src/Elements/Widgets/Stage.php:89
+msgid "We plan, install and run charging for sites that need it to work every day."
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:21
+msgid "EV Stat"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:26
+msgid "Figure (a number counts up; keep units as typed: 150 kW, 99.5%, 1,250+)"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:27
+msgid "Label"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:28
+msgid "Note"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:29
+msgid "Meter: how full the ring is, 0 to 100 (0 = no ring)"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:36
+msgid "Per bay"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:36
+msgid "DC fast, CCS2"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:37
+msgid "Uptime target"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:37
+msgid "Monitored around the clock"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:38
+msgid "Remote monitoring"
+msgstr ""
+
+#: src/Elements/Widgets/Stat.php:38
+msgid "With a person to call"
+msgstr ""
+
+#: src/Elements/Widgets/Stats.php:19
+msgid "EV Stats"
+msgstr ""
+
+#: src/Elements/Widgets/Stats.php:31
+#: src/Elements/Widgets/TechnicalFlow.php:61
+msgid "Look"
+msgstr ""
+
+#: src/Elements/Widgets/Stats.php:36
+#: src/Elements/Widgets/TechnicalFlow.php:66
+msgid "Dark (blueprint band)"
+msgstr ""
+
+#: src/Elements/Widgets/Stats.php:40
+msgid "Count up and fill when seen"
+msgstr ""
+
+#: src/Elements/Widgets/Stats.php:50
+msgid "In numbers"
+msgstr ""
+
+#: src/Elements/Widgets/Stats.php:51
+msgid "What we run"
+msgstr ""
+
 #: src/Elements/Widgets/TechnicalFlow.php:20
 msgid "EV Technical Flow"
 msgstr ""
@@ -952,14 +1540,6 @@ msgstr ""
 msgid "Compact mode"
 msgstr ""
 
-#: src/Elements/Widgets/TechnicalFlow.php:61
-msgid "Look"
-msgstr ""
-
-#: src/Elements/Widgets/TechnicalFlow.php:66
-msgid "Dark (blueprint band)"
-msgstr ""
-
 #: src/Elements/Widgets/TechnicalFlow.php:70
 msgid "Show icons (otherwise step numbers)"
 msgstr ""
@@ -968,40 +1548,69 @@ msgstr ""
 msgid "Enable sequence animation"
 msgstr ""
 
-#: src/Setup/ExamplePages.php:98
+#: src/Setup/Canvas.php:33
+msgid "EV full-width page (no theme header or footer)"
+msgstr ""
+
+#: src/Setup/ExamplePages.php:131
 msgid "added two example articles so you can see every element in place."
 msgstr ""
 
-#: src/Setup/ExamplePages.php:100
+#: src/Setup/ExamplePages.php:133
 msgid "found Breakdance and added an example article built with its elements."
 msgstr ""
 
-#: src/Setup/ExamplePages.php:102
+#: src/Setup/ExamplePages.php:135
 msgid "added an example article so you can see every element in place."
 msgstr ""
 
-#: src/Setup/ExamplePages.php:111
+#: src/Setup/ExamplePages.php:144
 msgid "Preview"
 msgstr ""
 
-#: src/Setup/ExamplePages.php:113
+#: src/Setup/ExamplePages.php:146
 msgid "Edit in Breakdance"
 msgstr ""
 
-#: src/Setup/ExamplePages.php:113
+#: src/Setup/ExamplePages.php:146
 msgid "Edit"
 msgstr ""
 
-#: src/Setup/ExamplePages.php:119
+#: src/Setup/ExamplePages.php:152
 msgid "Once Breakdance is active, a page built in it is added too."
 msgstr ""
 
-#: src/Setup/ExamplePages.php:126
+#: src/Setup/ExamplePages.php:159
 msgid "They are drafts: nothing is public until you publish."
 msgstr ""
 
+#: src/Setup/ExamplePages.php:180
+msgid "added a site: Home, About, Services, Projects, Contact and Search, with the header, page heroes and footer. They are drafts. The names, figures and quotations in them are placeholders."
+msgstr ""
+
+#: src/Setup/ExamplePages.php:182
+msgid "Preview Home"
+msgstr ""
+
+#: src/Setup/ExamplePages.php:184
+msgid "See the pages"
+msgstr ""
+
+#: src/Setup/ExamplePages.php:186
+msgid "Publish all six"
+msgstr ""
+
+#: src/Setup/ExamplePages.php:188
+msgid "Publish and use Home as the front page"
+msgstr ""
+
+#: src/Setup/ExamplePages.php:195
+msgid "You are not allowed to do that."
+msgstr ""
+
 #: src/Support/Art.php:29
-#: src/Support/Icons.php:83
+#: src/Support/Icons.php:88
+#: src/Support/Scene.php:26
 msgid "None"
 msgstr ""
 
@@ -1014,6 +1623,7 @@ msgid "AC wall box"
 msgstr ""
 
 #: src/Support/Art.php:32
+#: src/Support/Scene.php:29
 msgid "DC fast charger"
 msgstr ""
 
@@ -1027,6 +1637,21 @@ msgstr ""
 
 #: src/Support/Art.php:35
 msgid "Direct current (a level)"
+msgstr ""
+
+#: src/Support/Art.php:36
+msgid "Charging network map"
+msgstr ""
+
+#. translators: 1: site name, 2: topic, 3: sender's name
+#: src/Support/ContactForm.php:108
+#, php-format
+msgid "[%1$s] %2$s: %3$s"
+msgstr ""
+
+#. translators: 1: site name, 2: topic, 3: sender's name
+#: src/Support/ContactForm.php:108
+msgid "Enquiry"
 msgstr ""
 
 #: src/Support/Icons.php:39
@@ -1085,10 +1710,6 @@ msgstr ""
 msgid "Flow"
 msgstr ""
 
-#: src/Support/Icons.php:54
-msgid "Installation"
-msgstr ""
-
 #: src/Support/Icons.php:55
 msgid "Cost"
 msgstr ""
@@ -1145,7 +1766,28 @@ msgstr ""
 msgid "Industry"
 msgstr ""
 
-#: src/Support/Icons.php:82
+#: src/Support/Icons.php:71
+msgid "Person"
+msgstr ""
+
+#: src/Support/Icons.php:72
+msgid "Calendar"
+msgstr ""
+
+#: src/Support/Icons.php:73
+msgid "Power"
+msgstr ""
+
+#: src/Support/Icons.php:74
+msgid "Phone"
+msgstr ""
+
+#: src/Support/Icons.php:75
+#: templates/contact.php:64
+msgid "Email"
+msgstr ""
+
+#: src/Support/Icons.php:87
 msgid "Automatic"
 msgstr ""
 
@@ -1156,6 +1798,22 @@ msgid "%d min read"
 msgid_plural "%d min read"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Support/Scene.php:27
+msgid "Night forecourt with chargers"
+msgstr ""
+
+#: src/Support/Scene.php:28
+msgid "Highway at dusk"
+msgstr ""
+
+#: src/Support/Scene.php:30
+msgid "Pylons and the grid"
+msgstr ""
+
+#: src/Support/Scene.php:31
+msgid "The plug, close up"
+msgstr ""
 
 #: templates/art/grid-path.php:106
 msgid "Transformer"
@@ -1169,6 +1827,10 @@ msgstr ""
 msgid "State of charge"
 msgstr ""
 
+#: templates/canvas.php:20
+msgid "Skip to content"
+msgstr ""
+
 #: templates/comparison.php:35
 msgid "Charging type"
 msgstr ""
@@ -1179,6 +1841,42 @@ msgstr ""
 
 #: templates/comparison.php:105
 msgid "Best for"
+msgstr ""
+
+#: templates/contact.php:24
+msgid "Thank you. Your message is on its way, and we will reply within a working day."
+msgstr ""
+
+#: templates/contact.php:25
+msgid "Something is missing: a name, a valid email address and a few words about the site."
+msgstr ""
+
+#: templates/contact.php:26
+msgid "That form was open for too long, or was sent too quickly. Please try again."
+msgstr ""
+
+#: templates/contact.php:27
+msgid "That is a lot of messages from one place. Please try again in an hour."
+msgstr ""
+
+#: templates/contact.php:28
+msgid "The message could not be sent from here. Please email us instead."
+msgstr ""
+
+#: templates/contact.php:63
+msgid "Your name"
+msgstr ""
+
+#: templates/contact.php:67
+msgid "Phone (optional)"
+msgstr ""
+
+#: templates/contact.php:69
+msgid "About"
+msgstr ""
+
+#: templates/contact.php:76
+msgid "How can we help?"
 msgstr ""
 
 #: templates/decision-factor.php:24
@@ -1201,6 +1899,63 @@ msgstr ""
 msgid "Range"
 msgstr ""
 
+#: templates/footer.php:23
+msgctxt "navigation label"
+msgid "Footer"
+msgstr ""
+
+#: templates/footer.php:24
+msgid "Explore"
+msgstr ""
+
+#: templates/footer.php:51
+msgid "Back to top"
+msgstr ""
+
+#: templates/header.php:34
+msgctxt "navigation label"
+msgid "Primary"
+msgstr ""
+
+#: templates/header.php:59
+msgid "Menu"
+msgstr ""
+
+#: templates/header.php:65
+msgctxt "navigation label"
+msgid "Menu"
+msgstr ""
+
+#: templates/header.php:76
+msgctxt "search result type"
+msgid "Page"
+msgstr ""
+
+#: templates/header.php:76
+msgctxt "search result type"
+msgid "Article"
+msgstr ""
+
+#: templates/header.php:76
+msgid "Search the site"
+msgstr ""
+
+#: templates/header.php:81
+msgid "Search pages and articles"
+msgstr ""
+
+#: templates/header.php:82
+msgid "Close search"
+msgstr ""
+
+#: templates/header.php:84
+msgid "Results"
+msgstr ""
+
+#: templates/header.php:85
+msgid "Type to search. Enter opens all results."
+msgstr ""
+
 #: templates/hero.php:63
 msgctxt "article byline caption"
 msgid "Author"
@@ -1216,12 +1971,79 @@ msgctxt "article length caption"
 msgid "Reading time"
 msgstr ""
 
+#: templates/projects.php:24
+msgid "Previous project"
+msgstr ""
+
+#: templates/projects.php:25
+msgid "Next project"
+msgstr ""
+
+#: templates/projects.php:29
+msgid "Projects"
+msgstr ""
+
+#: templates/quotes.php:22
+msgid "Previous quotation"
+msgstr ""
+
+#: templates/quotes.php:24
+msgid "Next quotation"
+msgstr ""
+
 #: templates/related-empty.php:10
 msgid "Related articles will appear here once other published posts match. Visitors see nothing until then."
 msgstr ""
 
 #: templates/scenario-card.php:44
 msgid "Recommended approach"
+msgstr ""
+
+#: templates/search.php:41
+msgid "Filter results"
+msgstr ""
+
+#: templates/search.php:42
+msgid "All"
+msgstr ""
+
+#: templates/search.php:43
+msgid "Pages"
+msgstr ""
+
+#: templates/search.php:44
+msgid "Articles"
+msgstr ""
+
+#. translators: 1: number of results, 2: the words searched for
+#: templates/search.php:51
+#, php-format
+msgid "%1$s result for “%2$s”"
+msgid_plural "%1$s results for “%2$s”"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/search.php:73
+msgid "Result pages"
+msgstr ""
+
+#: templates/search.php:74
+msgid "Previous"
+msgstr ""
+
+#. translators: 1: page, 2: pages
+#: templates/search.php:75
+#, php-format
+msgid "Page %1$d of %2$d"
+msgstr ""
+
+#. translators: 1: page, 2: pages
+#: templates/search.php:76
+msgid "Next"
+msgstr ""
+
+#: templates/search.php:80
+msgid "Nothing matches that. Try fewer words, or start from one of these."
 msgstr ""
 
 #: assets/js/block-editor.js:133

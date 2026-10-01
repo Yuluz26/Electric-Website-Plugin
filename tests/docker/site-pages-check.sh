@@ -17,7 +17,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 COMPOSE=(docker compose -f tests/docker/docker-compose.yml)
-wp() { "${COMPOSE[@]}" exec -T --user www-data wordpress wp "$@"; }
+wp() { "${COMPOSE[@]}" exec -T --user www-data wordpress wp "$@" 2>/dev/null; } # a PHP warning from WordPress.org being out of reach would land in the output
 ORIGIN="http://localhost:8080"
 PLUGIN="${EVPX_PLUGIN_DIR:-ev-charging-experience}"
 OUT="${EVPX_SITE_OUT:-qa-site-output}"
@@ -26,7 +26,7 @@ check() { if [ "$2" = 1 ]; then echo "PASS — $1"; else echo "FAIL — $1${3:+ 
 
 SLUGS='"home", "about", "services", "projects", "contact", "search"'
 forget_site() {
-	wp eval 'foreach ( array( '"$SLUGS"' ) as $s ) { foreach ( get_posts( array( "name" => $s, "post_type" => "page", "post_status" => "any", "numberposts" => -1 ) ) as $p ) { wp_delete_post( $p->ID, true ); } } $o = (array) get_option( "evpx_examples" ); foreach ( array( "article", "breakdance" ) as $k ) { if ( ! empty( $o[ $k ] ) ) { wp_delete_post( (int) $o[ $k ], true ); } } delete_option( "evpx_examples" ); delete_transient( "evpx_examples_notice" ); update_option( "show_on_front", "posts" ); update_option( "page_on_front", 0 );' >/dev/null 2>&1
+	wp eval 'global $wpdb; foreach ( $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type = \"page\" AND post_name REGEXP \"^(home|about|services|projects|contact|search)(-[0-9]+)?$\"" ) as $id ) { wp_delete_post( (int) $id, true ); } $o = (array) get_option( "evpx_examples" ); foreach ( array( "article", "breakdance" ) as $k ) { if ( ! empty( $o[ $k ] ) ) { wp_delete_post( (int) $o[ $k ], true ); } } delete_option( "evpx_examples" ); delete_transient( "evpx_examples_notice" ); update_option( "show_on_front", "posts" ); update_option( "page_on_front", 0 );' >/dev/null 2>&1
 }
 make_site() { # prints slug=id,…
 	wp eval 'wp_set_current_user( 1 ); add_option( "evpx_examples", array( "pending" => true ) ); ( new EVPX\Setup\ExamplePages() )->createPending(); $o = get_option( "evpx_examples" ); echo implode( ",", array_map( function ( $k, $v ) { return "$k=$v"; }, array_keys( (array) ( $o["site_pages"] ?? array() ) ), (array) ( $o["site_pages"] ?? array() ) ) );' 2>/dev/null | tail -1
@@ -60,7 +60,7 @@ run_mode() { # run_mode <label> <expects native: 1|0>
 	echo "$out" | grep -v '^$'
 
 	home_html="$(curl -s "$ORIGIN/?page_id=$(sed 's/.*home=\([0-9]*\).*/\1/' <<<"$ids")")"
-	check "$label: the page is a bare document: the theme's own header, title and footer are not on it" "$(grep -q 'id="evpx-main"' <<<"$home_html" && ! grep -qi 'wp-site-blocks\|site-header\|Designed with' <<<"$home_html" && echo 1 || echo 0)"
+	check "$label: the page is a bare document: the theme's own header, title and footer are not on it" "$(grep -q 'id="evpx-main"' <<<"$home_html" && ! grep -qE 'class="wp-site-blocks|wp-block-template-part|Designed with' <<<"$home_html" && echo 1 || echo 0)"
 }
 
 # ---------------------------------------------------------------- A. Breakdance

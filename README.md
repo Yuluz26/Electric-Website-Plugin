@@ -1,7 +1,7 @@
 # EV Charging Experience
 
 A WordPress plugin that adds a premium, neumorphic, editorial set of
-EV-charging article components — native elements in Breakdance's Add panel, built to extend
+EV-charging components for articles and for whole sites — native elements in Breakdance's Add panel, built to extend
 Breakdance without ever overriding it, and plain WordPress shortcodes/blocks that work with no
 page builder at all.
 
@@ -19,6 +19,14 @@ that nest inside the container widgets. Each is a shortcode, a Gutenberg block *
 Breakdance element (category **EV Charging**), same renderer, same output. Full control
 reference: `docs/WIDGETS.md`.
 
+Ten more build the pages of a site: **EV Page Hero** (a full-width, cinematic opening: a photograph, or one of five
+layered SVG scenes that move with the pointer and the scroll, with a canvas of weather over them), **EV Site Header**
+(with a search that opens on Ctrl/Cmd+K and lists results as you type), **EV Search** (the results page), **EV Site
+Footer**, **EV Stats** (counters and ring meters), **EV Services** (a strip of panels, one open at a time),
+**EV Process** (a rail that fills as you read down it), **EV Projects** (a rail you can drag), **EV Quotes**, and
+**EV Contact** (a form with a signed token, a trap field and a rate limit). Every one has a scene or a drawing until
+it has a photograph, so a page has a look before the pictures exist.
+
 The look is dark instrument panels and light editorial pages, with copper drawn as light (a thin line and a
 soft halo, never a fill) and neumorphic depth used where something is pressed or raised. Two things carry it:
 one icon family (Phosphor Regular, MIT, inline SVG) and a small set of built-in drawings (a car on a charger,
@@ -31,10 +39,12 @@ grounded in independently-verified AC/DC charging facts, not copied from any ref
 in `content/demo-article.txt` and is the end-to-end QA fixture (`docs/QA-REPORT.md`). It ships
 without photography; `docs/MEDIA-BRIEF.md` is the shot list.
 
-**Activating the plugin makes it for you:** two draft examples, so a new install has something to open instead
-of an empty Pages list. One is a post with the article as shortcodes; the other, made once Breakdance is
-active, is a page with the same article as native elements in full-width Sections, ready for the builder.
-Nothing is public until you publish, and nothing that already exists is touched (`docs/INSTALLATION.md`).
+**Activating the plugin makes it for you:** draft examples, so a new install has something to open instead
+of an empty Pages list. One is a post with the article as shortcodes; one, made once Breakdance is
+active, is a page with the same article as native elements in full-width Sections, ready for the builder; and six
+are the pages of a site (Home, About, Services, Projects, Contact, Search), full width in any theme on the plugin's own
+**EV full-width page** template. Nothing is public until you publish (the notice has a button for it), and nothing that
+already exists is touched (`docs/INSTALLATION.md`).
 
 ## Quick start
 
@@ -42,8 +52,8 @@ Nothing is public until you publish, and nothing that already exists is touched 
 wp plugin activate ev-charging-experience
 ```
 
-Then open the two example articles it adds under Posts and Pages (drafts; the notice after activation links
-to them). Or search "EV" in Breakdance's Add panel, drop `[evpx_hero]` (etc.) into any post/page
+Then open the examples it adds under Posts and Pages (drafts; the notice after activation links
+to them, and has a button that publishes the six site pages). Or search "EV" in Breakdance's Add panel, drop `[evpx_hero]` (etc.) into any post/page
 content, or search "EV" in the block inserter. Full setup: `docs/INSTALLATION.md`; everything about
 Breakdance: `docs/BREAKDANCE.md`.
 
@@ -88,7 +98,10 @@ bash tests/docker/builder-save-check.sh         # the builder round-trip: dropdo
 bash tests/docker/media-pages.sh                # generated pictures, then: node tests/playwright/media-qa.mjs …
 bash tests/docker/template-check.sh             # footers and templates under a block, the Zero and a classic theme
 bash tests/docker/isolation-check.sh            # unrelated pages are pixel-identical with the plugin on and off
-bash tests/docker/example-pages-check.sh        # the example articles made on activation: what, once, as drafts, Breakdance arriving later
+bash tests/docker/example-pages-check.sh        # the examples made on activation: what, once, as drafts, Breakdance arriving later
+bash tests/docker/site-render-check.sh          # what the site widgets print: hero, header, search, footer, stats, services, process, projects, quotes, contact, the token
+bash tests/docker/site-pages-check.sh           # the six site pages, made both ways and driven in a browser (320 to 1920px, axe, every control with pointer and keyboard)
+bash tests/docker/contact-form-check.sh         # the contact form over HTTP: too fast, trap field, forged recipient, off-site return, the rate limit, what is mailed
 ```
 
 The browser scripts need `playwright` (and optionally `axe-core`) installed in

@@ -322,6 +322,9 @@
 	}
 }
 
+/* The widget's own box too: a theme that has no border-box reset (a bare page, the "EV full-width page" template)
+   would otherwise add the hero's padding to its minimum height and push its figures below the first screen. */
+.evpx-root,
 .evpx-root *,
 .evpx-root *::before,
 .evpx-root *::after {
@@ -3865,7 +3868,7 @@
 /* Once the page has moved under it, the bar lets the page show through, softened. */
 @supports (backdrop-filter: blur(1px)) {
 	.evpx-root.evpx-header.evpx-is-stuck {
-		background: rgba(15, 18, 22, 0.7);
+		background: rgba(15, 18, 22, 0.9); /* any lighter and the links fail 4.5:1 over a light section */
 		backdrop-filter: saturate(1.3) blur(16px);
 	}
 }
@@ -5579,7 +5582,7 @@
 
 /* ----------------------------------------------------------------------
    28. Contact. What we need to know on a raised panel, where to find us on the other side. The fields are wells
-   with a real edge (a shadow alone is not a border); the trap field is moved off the page, not hidden, because a
+   with a real edge (a shadow alone is not a border); the trap field is clipped to nothing, not display: none, because a
    robot skips a field that is display: none.
    -------------------------------------------------------------------- */
 
@@ -5735,11 +5738,13 @@
 
 .evpx-root .evpx-contact__trap {
 	position: absolute;
-	inset-inline-start: -9999px;
 	width: 1px;
 	height: 1px;
-	margin: 0;
+	margin: -1px;
+	padding: 0;
 	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
 }
 
 .evpx-root .evpx-contact__notice {

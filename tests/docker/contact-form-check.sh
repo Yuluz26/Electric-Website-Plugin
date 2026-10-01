@@ -22,6 +22,7 @@ reset_limit() { wp eval 'global $wpdb; $wpdb->query( "DELETE FROM {$wpdb->option
 cleanup() {
 	"${COMPOSE[@]}" exec -T wordpress rm -f "$MU" "$MAIL" >/dev/null 2>&1
 	[ -n "${PAGE:-}" ] && wp post delete "$PAGE" --force >/dev/null 2>&1
+	wp option delete evpx_test_limit >/dev/null 2>&1
 	reset_limit
 }
 trap cleanup EXIT
@@ -30,6 +31,8 @@ trap cleanup EXIT
 <?php
 // Test only: catch every wp_mail() call instead of sending it.
 add_filter( 'pre_wp_mail', function ( $null, $atts ) { file_put_contents( '/tmp/evpx-mail.json', wp_json_encode( $atts ) . "\n", FILE_APPEND ); return true; }, 10, 2 );
+// Test only: let the check set the limit through an option, to prove the filter is read.
+add_filter( 'evpx_contact_limit', function ( $n ) { return (int) get_option( 'evpx_test_limit', $n ); } );
 PHP
 "${COMPOSE[@]}" exec -T wordpress rm -f "$MAIL"
 reset_limit
@@ -86,6 +89,15 @@ for i in 1 2 3 4 5 6; do last="$(post "${valid[@]}")"; done
 check "the sixth message within the hour is refused" "$([[ "$last" == *evpx_sent=limit* ]] && echo 1 || echo 0)" "$last"
 sent="$("${COMPOSE[@]}" exec -T wordpress sh -c "wc -l < $MAIL" | tr -d '\r ')"
 check "and five were mailed" "$(ok "$sent" 5)" "$sent"
+
+wp option update evpx_test_limit 2 >/dev/null 2>&1
+reset_limit
+"${COMPOSE[@]}" exec -T wordpress rm -f "$MAIL"
+for i in 1 2 3; do last="$(post "${valid[@]}")"; done
+sent="$("${COMPOSE[@]}" exec -T wordpress sh -c "wc -l < $MAIL" | tr -d '\r ')"
+check "the evpx_contact_limit filter changes the limit (two allowed: the third is refused, two were mailed)" "$([[ "$last" == *evpx_sent=limit* && "$sent" = 2 ]] && echo 1 || echo 0)" "$last / $sent"
+wp option delete evpx_test_limit >/dev/null 2>&1
+reset_limit
 
 for state in 1 invalid expired limit failed; do
 	page="$(curl -s "$URL&evpx_sent=$state")"

@@ -53,15 +53,15 @@ for (const name of Object.keys(pages)) {
 			const facts = await page.evaluate(() => ({
 				h1: document.querySelectorAll('h1').length,
 				main: document.querySelectorAll('main').length,
-				header: document.querySelectorAll('header').length,
-				footer: document.querySelectorAll('footer').length,
+				header: document.querySelectorAll('header.evpx-header').length,
+				footer: document.querySelectorAll('footer.evpx-footer').length,
 				navs: [...document.querySelectorAll('nav')].map((n) => n.getAttribute('aria-label') || ''),
 				skip: !!document.querySelector('.evpx-canvas__skip[href="#evpx-main"]') && !!document.getElementById('evpx-main'),
 				motion: document.querySelectorAll('[data-evpx-motion="on"]').length,
 				noAlt: [...document.querySelectorAll('.evpx-root img:not([alt])')].length,
 				stuckBars: document.querySelectorAll('.evpx-root.evpx-header').length,
 			}));
-			check(`${name}: one h1, one main, one header and one footer`, facts.h1 === 1 && facts.main === 1 && facts.header === 1 && facts.footer === 1, JSON.stringify(facts));
+			check(`${name}: one h1, one main, one site header and one site footer`, facts.h1 === 1 && facts.main === 1 && facts.header === 1 && facts.footer === 1, JSON.stringify(facts));
 			check(`${name}: every navigation has its own name (screen readers list them by it)`, facts.navs.every(Boolean) && new Set(facts.navs).size === facts.navs.length, facts.navs.join(' / '));
 			check(`${name}: the skip link has something to skip to`, facts.skip);
 			check(`${name}: with reduced motion nothing is marked as moving, and every picture has an alt`, facts.motion === 0 && facts.noAlt === 0, JSON.stringify(facts));
@@ -124,6 +124,13 @@ await home.keyboard.press('Enter');
 await home.waitForTimeout(900);
 st = await state();
 check('services: Enter opens the one that has the focus', st[3][0] && st.filter(([o]) => o).length === 1, JSON.stringify(st));
+const onTop = (page) => page.evaluate(() => {
+	const text = document.querySelector('.evpx-service[data-open] .evpx-service__summary');
+	const b = text.getBoundingClientRect();
+	const hit = document.elementFromPoint(b.left + Math.min(40, b.width / 2), b.top + b.height / 2);
+	return !!hit && text.contains(hit);
+});
+check('services: the open panel\'s words are on top of its picture (the picture never paints over them)', await onTop(home));
 const openLink = await home.$$eval('.evpx-service[data-open] .evpx-service__link', (els) => els.map((a) => getComputedStyle(a).visibility + ':' + new URL(a.href).pathname.length));
 check('services: the link in the open panel can be reached', openLink.length === 1 && openLink[0].startsWith('visible'), JSON.stringify(openLink));
 
@@ -199,10 +206,10 @@ await home.waitForTimeout(300);
 check('header: "/" opens it too', await home.evaluate(() => document.querySelector('dialog.evpx-searchbox').open));
 await home.keyboard.type('about');
 await home.waitForTimeout(1500);
-const results = await home.$$eval('.evpx-searchbox__list a', (as) => as.map((a) => a.textContent.trim().slice(0, 40)));
+const results = await home.$$eval('.evpx-searchbox__results [role="option"]', (as) => as.map((a) => a.textContent.trim().slice(0, 40)));
 check('header: typing lists matching pages from the site as you go', results.length >= 1, JSON.stringify(results));
 await home.keyboard.press('ArrowDown');
-const active = await home.evaluate(() => document.querySelector('.evpx-searchbox__list [aria-selected="true"], .evpx-searchbox__list .is-active, .evpx-searchbox__list a[data-active]') !== null || document.activeElement?.closest?.('.evpx-searchbox__list') !== null);
+const active = await home.evaluate(() => document.querySelectorAll('.evpx-searchbox__results [aria-selected="true"]').length === 1);
 check('header: the arrow keys move through the results', active);
 await home.keyboard.press('Escape');
 await home.evaluate(() => window.scrollTo(0, 900));
@@ -214,7 +221,7 @@ await home.close();
 const home2 = await open(live, 'home');
 await home2.keyboard.press('Control+k');
 await home2.keyboard.type('services');
-await home2.keyboard.press('Enter');
+await Promise.all([home2.waitForURL(/q=services/), home2.keyboard.press('Enter')]);
 await home2.waitForLoadState('load');
 const landed = await home2.evaluate(() => ({ url: location.href, q: document.querySelector('.evpx-search__input')?.value, hits: document.querySelectorAll('.evpx-search__hit').length }));
 check('header: Enter goes to the search page with the words in its field and the matches listed', /q=services/.test(landed.url) && landed.q === 'services' && landed.hits >= 1, JSON.stringify(landed));
@@ -250,6 +257,7 @@ await narrow.waitForTimeout(500);
 await narrow.locator('.evpx-service__toggle').nth(1).click();
 await narrow.waitForTimeout(900);
 const acc = await narrow.$$eval('.evpx-service', (els) => els.map((e) => [e.hasAttribute('data-open'), Math.round(e.getBoundingClientRect().width), Math.round(e.getBoundingClientRect().height)]));
+check('services: on a phone the open row\'s words are on top of its picture', await narrow.evaluate(() => { const t = document.querySelector('.evpx-service[data-open] .evpx-service__summary'); const b = t.getBoundingClientRect(); const hit = document.elementFromPoint(b.left + 30, b.top + b.height / 2); return !!hit && t.contains(hit); }));
 check('services: on a phone it is an accordion of full-width rows, one open', acc.filter(([o]) => o).length === 1 && acc[1][0] && acc.every(([, w]) => w >= 380) && acc[1][2] > acc[0][2], JSON.stringify(acc));
 await narrow.close();
 await live.close();
@@ -259,8 +267,8 @@ const ctx2 = await browser.newContext({ viewport: { width: 1440, height: 900 } }
 const contact = await open(ctx2, 'contact');
 const labels = await contact.$$eval('.evpx-contact__form input:not([type=hidden]):not([name=evpx_website]), .evpx-contact__form select, .evpx-contact__form textarea', (els) => els.map((e) => e.labels.length));
 check('contact: every field the visitor fills has exactly one label', labels.length === 5 && labels.every((n) => n === 1), JSON.stringify(labels));
-const tabOrder = await contact.evaluate(() => { const t = document.querySelector('.evpx-contact__trap input'); return t.tabIndex === -1 && t.getBoundingClientRect().right < 0; });
-check('contact: the trap field is off the page and out of the tab order', tabOrder);
+const tabOrder = await contact.evaluate(() => { const t = document.querySelector('.evpx-contact__trap'); const b = t.getBoundingClientRect(); return document.querySelector('.evpx-contact__trap input').tabIndex === -1 && b.width <= 1 && b.height <= 1; });
+check('contact: the trap field takes no room and is out of the tab order', tabOrder);
 await contact.fill('#evpx-c-name', 'Ada Lovelace');
 await contact.fill('#evpx-c-email', 'ada@example.com');
 await contact.fill('#evpx-c-message', 'We have a car park with forty bays.');

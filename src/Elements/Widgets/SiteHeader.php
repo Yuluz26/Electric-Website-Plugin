@@ -48,6 +48,7 @@ final class SiteHeader extends Element {
 		}
 
 		$search_url = '' === $atts['search_url'] ? '' : Lines::url( $atts['search_url'] );
+		$target     = Lines::target( '' !== $search_url ? $search_url : home_url( '/' ) );
 
 		return $this->view(
 			'header',
@@ -59,7 +60,8 @@ final class SiteHeader extends Element {
 				'cta_label'  => $atts['cta_label'],
 				'cta_url'    => '' === $atts['cta_url'] ? '' : Lines::url( $atts['cta_url'] ),
 				'search'     => $atts['search'],
-				'search_url' => '' !== $search_url ? $search_url : esc_url( home_url( '/' ) ),
+				'search_url' => $target['action'],
+				'search_hid' => $target['fields'],
 				'search_var' => '' !== $search_url ? 'q' : 's',
 				'rest'       => esc_url_raw( rest_url( 'wp/v2/search' ) ),
 				'sticky'     => $atts['sticky'],

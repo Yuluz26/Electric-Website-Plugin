@@ -20,7 +20,9 @@ final class Lines {
 		$text = (string) preg_replace( '/<br\s*\/?>/i', "\n", $text );
 		$out  = array();
 
-		foreach ( preg_split( '/\R/', $text ) ?: array() as $line ) {
+		$lines = preg_split( '/\R/', $text );
+
+		foreach ( false === $lines ? array() : $lines as $line ) {
 			$parts = array_map( static fn( $part ) => trim( wp_strip_all_tags( $part ) ), explode( '|', $line, 2 ) );
 
 			if ( '' === $parts[0] ) {
@@ -56,6 +58,33 @@ final class Lines {
 	}
 
 	/**
+	 * What a form that submits with GET needs from an address. The browser replaces the query string of the
+	 * form's action with the form's own fields, so an address that has one (a site on plain permalinks:
+	 * `?page_id=12`) would lose it, and the form would land on the home page. The query goes in as hidden fields instead.
+	 *
+	 * @return array{action: string, fields: array<string, string>}
+	 */
+	public static function target( string $url ): array {
+		$fields = array();
+		$query  = wp_parse_url( $url, PHP_URL_QUERY );
+
+		if ( is_string( $query ) && '' !== $query ) {
+			wp_parse_str( $query, $parsed );
+
+			foreach ( $parsed as $name => $value ) {
+				if ( is_scalar( $value ) ) {
+					$fields[ (string) $name ] = (string) $value;
+				}
+			}
+		}
+
+		return array(
+			'action' => (string) strtok( $url, '?#' ),
+			'fields' => $fields,
+		);
+	}
+
+		/**
 	 * A figure split for a counter: "$1,250+" is a prefix, the number that counts up, and a suffix that stays.
 	 *
 	 * @return array{prefix: string, number: string, suffix: string}

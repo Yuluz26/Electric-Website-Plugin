@@ -55,22 +55,22 @@ Electric-Website-Plugin/
 ├── phpcs.xml.dist                  # WordPress coding standards ruleset (exclusions explained inline)
 ├── src/
 │   ├── Core/                       # Plugin, Activation, Deactivation
-│   ├── Setup/                      # ExamplePages: the two draft example articles made after activation
+│   ├── Setup/                      # ExamplePages: the draft examples and the six site pages made after activation; Canvas: the full-width page template
 │   ├── Breakdance/                 # Compatibility, ElementStudioBridge, DynamicData (+ Fields/)
 │   │   └── Native/                 # NativeElements, NativeElement (trait), Controls, Tree, elements/ (one class per element)
 │   ├── Elements/                   # Element (shared contract), Registry, Widgets/ (one class each)
 │   ├── Assets/                     # Loader — conditional CSS/JS, GSAP source filters
 │   ├── Admin/                      # Notices (informational only; no settings screen)
-│   └── Support/                    # ReadingTime, Icons (+ icons-data.php), Art, ChargingModel
+│   └── Support/                    # ReadingTime, Icons (+ icons-data.php), Art, Scene, Lines, ContactForm, ChargingModel
 ├── assets/
 │   ├── css/evpx.css                # tokens + every component, one file, everything under .evpx-*
 │   ├── js/                         # evpx.js (vanilla core: FAQ, tabs, the explorer, art), motion.js (GSAP), block-editor.js
 │   ├── fonts/                      # Spectral, Geist, Geist Mono woff2 (SIL OFL) + licence
 │   └── icons/                      # the Phosphor licence (MIT); the outlines themselves are in src/Support/icons-data.php
 ├── templates/                      # one PHP view partial per element
-│   └── art/                        # the built-in drawings: one inline SVG per file (hero-schematic, charge-curve, wallbox, …)
-├── content/                        # demo-article.txt: the article as shortcodes; the QA fixture and the source of the example articles
-├── uninstall.php                   # on delete: the version and example-article options (never the articles)
+│   └── art/                        # the built-in drawings (hero-schematic, charge-curve, wallbox, …) and the page scenes (scene-station, scene-highway, …)
+├── content/                        # demo-article.txt: the article as shortcodes (QA fixture, source of the examples); site/: the six site pages and their shared rows
+├── uninstall.php                   # on delete: the version and example options (never the pages they made)
 ├── languages/                      # .pot translation template
 ├── tests/                          # docker/ (setup, real-Breakdance, media and template checks), playwright/ (qa, interaction-qa, explorer-qa, a11y-qa, layout-qa, breakdance-qa, media-qa, template-qa), php/ (the model grid), contrast-check, css-check, build-zip
 └── docs/
@@ -108,6 +108,41 @@ earlier post.
 - Block namespace: `evpx/*` (e.g. `evpx/hero`)
 - DB options / postmeta prefix: `evpx_`
 
+### 2.2b The site (0.8.0)
+
+Ten more widgets build the pages of a site, on the same contract as the article widgets (`Element` subclass, one
+template, `controls()` as the single source of the shortcode, block and native element; `NativeElements::WIDGETS`
+and `Registry::all()` list them). What is different:
+
+- **`Support\Scene`** draws five full-bleed scenes as layered inline SVG (`templates/art/scene-*.php`, 1600 × 900, sliced
+  to fit), each layer a `<g class="evpx-scene__layer" data-depth>`. `evpx.js` slides a layer by its depth with the
+  pointer and the scroll (it sets `style.transform` on the layer, so a layer's own content must not carry a `transform`
+  attribute: wrap it in an inner `<g>`), and runs a canvas of weather per scene. Nothing moves unless the widget is
+  marked `data-evpx-motion="on"`. A photograph replaces a scene; a page has a look before it has pictures. Every
+  scene is decoration: `aria-hidden`, no text, ids unique per instance.
+- **`Support\Lines`** reads the multi-line text controls (`value | label`, one per line). WordPress's `wpautop` turns a
+  newline inside a shortcode attribute into `<br />`, so the parser undoes it; `Lines::url()` looks a `/slug/` up as a
+  page of this site (so links survive permalink changes), and `Lines::figure()` splits `150 kW` into what comes before
+  the number, the number and the unit, which is how a counter knows what to count (`24/7` is a phrase and does not).
+- **`Support\ContactForm`** is the contact form's server side: a `POST` to `admin-post.php` (anonymous, so there is no
+  nonce, which would only expire on a cached page). Its defences are a signed token `time.recipient.hash` (refused
+  under three seconds or after a week, and the recipient cannot be changed), a trap field, five messages an hour from
+  one address (a hash of it, never stored in the clear), and `wp_safe_redirect` for the way back. The recipient is only in the
+  token, never in the page.
+- **`Setup\Canvas`** registers the **EV full-width page** template. It prints the content and nothing else, so a hero
+  reaches the window's edges in any theme. Breakdance puts a page it built into the content, so the template works for
+  those too. The site pages' header and footer are widgets, so the template needs no theme part.
+- **`Setup\ExamplePages`** has a third kind, `site`: six pages from `content/site/*.txt` (`{{name}}` is replaced by the
+  shared rows in `_name.txt`), as native elements if Breakdance is active, otherwise as shortcodes, both on the template.
+  The ids are recorded under `site_pages`, which is what the notice's two buttons (`admin-post.php?action=evpx_publish_site`,
+  nonce-checked, `manage_options` and `publish_pages`) publish. Nothing outside those six pages is touched.
+
+The page styles are sections 19 to 28 of `assets/css/evpx.css`. A few rules are worth knowing before changing them:
+a control that needs a script (the services strip, the rails, the quotations' buttons) is a finished, readable block
+without one and is marked `data-evpx-ready` by the script; what only moves for show waits for `data-evpx-motion="on"`;
+and every grid that holds a form field or a rail has `minmax(0, 1fr)` tracks, because an implicit track is as wide as its
+widest child's minimum and a 20-character field pushes a phone's page sideways.
+
 ## 3. Element inventory
 
 | # | Element | Shortcode | Block | Notes |
@@ -122,11 +157,21 @@ earlier post.
 | 8 | EV FAQ | `[evpx_faq]` | `evpx/faq` | container; children are `[evpx_faq_item]`; optional FAQPage JSON-LD |
 | 9 | EV Related Articles | `[evpx_related]` | `evpx/related` | lists real published posts; nothing for visitors when empty; a drawing for an article without a picture |
 | 10 | EV CTA | `[evpx_cta]` | `evpx/cta` | dark / accent / media variants |
+| 11 | EV Page Hero | `[evpx_stage]` | `evpx/stage` | full-width page opening: a photograph or a layered scene, facts that count up; §2.2b |
+| 12 | EV Site Header | `[evpx_header]` | `evpx/header` | brand, links, button, a search dialog (Ctrl/Cmd+K) with live results, a menu on narrow boxes |
+| 13 | EV Search | `[evpx_search]` | `evpx/search` | the results page: reads `q` or `s`, published pages and posts |
+| 14 | EV Site Footer | `[evpx_footer]` | `evpx/footer` | |
+| 15 | EV Stats | `[evpx_stats]` | `evpx/stats` | container; children are `[evpx_stat]`; counters and ring meters |
+| 16 | EV Services | `[evpx_services]` | `evpx/services` | container; children are `[evpx_service]`; a strip of panels, one open |
+| 17 | EV Process | `[evpx_process]` | `evpx/process` | container; children are `[evpx_process_step]`; a rail that fills as it is read |
+| 18 | EV Projects | `[evpx_projects]` | `evpx/projects` | container; children are `[evpx_project]`; a draggable rail |
+| 19 | EV Quotes | `[evpx_quotes]` | `evpx/quotes` | container; children are `[evpx_quote]`; one at a time |
+| 20 | EV Contact | `[evpx_contact]` | `evpx/contact` | the form and its details; §2.2b |
 
 Each element declares its controls once (`Element::controls()`); defaults, sanitization, the
 shortcode attribute set, the block attribute schema, the block-editor Inspector panels and the native
 Breakdance element's controls are all derived from that one list. `docs/WIDGETS.md` is the human-readable
-reference. The nine section widgets also share one `spacing` control (default / compact / none).
+reference. The section widgets also share one `spacing` control (default / compact / none).
 
 Not built, deliberately: separate Article Meta / Intro / Infrastructure Panel widgets (Hero,
 Section and Technical Flow already cover them) and a Media Showcase (it would need real

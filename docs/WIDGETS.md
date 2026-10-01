@@ -308,7 +308,7 @@ mailed with the sender as Reply-To, and the visitor comes back to the form with 
 It has no nonce (an anonymous form's would only expire on a cached page). What stops a bot instead: a trap field a person
 never sees; a signed time (sent in under three seconds, or a week after it was printed, is refused); the recipient
 signed into the same token, so a form can only mail the address its widget was given; and five messages an hour from one
-address. `tests/docker/contact-form-check.sh` drives every one of these over HTTP.
+address (the `evpx_contact_limit` filter changes the five). `tests/docker/contact-form-check.sh` drives every one of these over HTTP.
 
 ## How many eyebrows?
 

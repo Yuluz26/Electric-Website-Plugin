@@ -111,6 +111,35 @@ it only adds its own elements, shortcodes and blocks and, separately, an Element
 see a regression, please check whether it reproduces with the plugin deactivated before reporting it as
 caused by this plugin.
 
+**The six site pages (Home, About, …) were not made, or are not public.**
+They are made on the same admin screen as the examples, as drafts, by an administrator, once (`wp option get
+evpx_examples` shows `site` and the six ids under `site_pages`). The notice has **Publish all six**; or publish them
+from Pages. To have them made again, delete the six pages, `wp option delete evpx_examples`, and activate again. If a page
+already had one of the addresses (`/about/`, `/contact/`, …) the new one was given `-2`, and the header's `/about/`
+link goes to the page that owns the plain address.
+
+**A site page shows my theme's header and title as well as its own.**
+Page attributes → Template should say *EV full-width page (no theme header or footer)*. A page made by the plugin has it;
+a page you made yourself does not until you choose it. A block theme that adds its header to every page ignores no
+template: if the template is chosen and the theme still shows a header, something is replacing the template after the
+plugin (a `template_include` filter at a higher priority than 99).
+
+**The header's Ctrl/Cmd+K search finds nothing.**
+It uses WordPress's own REST search (`/wp-json/wp/v2/search`). A security plugin that blocks the REST API for visitors,
+or a host that blocks `/wp-json/`, stops it; Enter still opens the results page, which does not use REST. Set the search
+page in the header's **Search results page** control, and `/search/` is the page the plugin made.
+
+**The contact form says "could not be sent from here".**
+`wp_mail()` returned false: the server cannot send mail. Install an SMTP plugin, or send a test with `wp eval 'var_dump( wp_mail(
+"you@example.com", "test", "test" ) );'`. The visitor is told to email instead; nothing is lost silently. A message that
+is refused ("something is missing", "open for too long", "a lot of messages") never reached `wp_mail()`: those are the form's own checks
+(`docs/WIDGETS.md`, EV Contact). If several people share one address (an office network), the limit of five an hour is per
+address; raise it with `add_filter( 'evpx_contact_limit', fn() => 20 );`.
+
+**A sticky Site Header does not stay at the top inside Breakdance.**
+Each Breakdance Section is its own containing block, so a `position: sticky` bar cannot outlast its Section. Make the Section
+sticky in Breakdance and turn the widget's *Sticky* off (`docs/BREAKDANCE.md`).
+
 **A widget inside a Breakdance column shows its phone layout on a wide screen.**
 That's intended: widgets follow the width of the box they sit in, not the viewport. A widget in a
 narrow column gets the narrow layout (single-column cards, stacked decision list, vertical flow).

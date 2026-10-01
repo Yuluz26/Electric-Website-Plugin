@@ -28,6 +28,10 @@ $check( 'lines: an address on this site stays on this site, an outside one is ke
 $check( 'lines: a figure splits into what comes before, the number, and what follows', array( '£', '1,250', 'k' ) === array_values( Lines::figure( '£1,250k' ) ) && array( '', '150', ' kW' ) === array_values( Lines::figure( '150 kW' ) ) );
 $check( 'lines: "24/7" is a phrase, not a number that can count up', '' === Lines::figure( '24/7' )['number'] );
 
+$target = Lines::target( 'http://x.test/dir/?page_id=12&a=b#frag' );
+$check( 'lines: an address with a query goes to a GET form as hidden fields, because the browser would drop it from the action', 'http://x.test/dir/' === $target['action'] && array( 'page_id' => '12', 'a' => 'b' ) === $target['fields'], wp_json_encode( $target ) );
+$check( 'lines: an address with no query has no hidden fields', array() === Lines::target( 'http://x.test/search/' )['fields'] && 'http://x.test/search/' === Lines::target( 'http://x.test/search/' )['action'] );
+
 // ------------------------------------------------------------------ scenes
 $check( 'scene: every scene a control offers exists, and "none" renders nothing', 5 === count( array_filter( array_keys( Scene::options() ), array( Scene::class, 'has' ) ) ) && '' === Scene::render( 'none' ) && '' === Scene::render( '../x' ) );
 $two = Scene::render( 'station' ) . Scene::render( 'station' );
@@ -55,6 +59,9 @@ $check( 'header: sticky is on by default and can be turned off', str_contains( $
 $check( 'header: an address that is a script is not a link', ! str_contains( do_shortcode( '[evpx_header links="X | javascript:alert(1)"]' ), 'javascript:' ) );
 $check( 'header: with no brand given it is the site\'s name', str_contains( do_shortcode( '[evpx_header]' ), esc_html( get_bloginfo( 'name' ) ) ) );
 
+$plain = do_shortcode( '[evpx_header search_url="' . home_url( '/?page_id=7' ) . '"]' );
+$check( 'header: a search page on a plain-permalink address (?page_id=7) keeps that argument as a hidden field, so a search lands on it and not on the home page', 1 === preg_match( '/<form class="evpx-searchbox__form"[^>]*action="[^"?]*"[^>]*>\s*<input type="hidden" name="page_id" value="7">/', $plain ), 'no hidden field' );
+
 // ------------------------------------------------------------------ the search page
 $author = (int) get_users( array( 'role' => 'administrator', 'number' => 1, 'fields' => 'ID' ) )[0];
 $made   = array();
@@ -63,6 +70,11 @@ foreach ( array( 'Zyxwv charging guide' => 'post', 'Zyxwv about page' => 'page' 
 }
 $_GET['q'] = 'zyxwv';
 $found     = do_shortcode( '[evpx_search]' );
+$was_uri   = $_SERVER['REQUEST_URI'] ?? '';
+$_SERVER['REQUEST_URI'] = '/?page_id=9&q=zyxwv&pg=2';
+$own = do_shortcode( '[evpx_search]' );
+$_SERVER['REQUEST_URI'] = $was_uri;
+$check( 'search: its own form keeps the page it is on (?page_id=9) as a hidden field and does not repeat the old words or page', str_contains( $own, 'name="page_id" value="9"' ) && ! str_contains( $own, 'name="pg"' ) && 1 === substr_count( $own, 'name="q"' ), 'hidden fields wrong' );
 $check( 'search: a query lists the published pages and posts it matches, with a count', 2 === $count( 'class="evpx-search__hit"', $found ) && str_contains( $found, 'class="evpx-search__count"' ), (string) $count( 'class="evpx-search__hit"', $found ) );
 $_GET['type'] = 'page';
 $check( 'search: a filter narrows it to one kind', 1 === $count( 'class="evpx-search__hit"', do_shortcode( '[evpx_search]' ) ) );
@@ -118,7 +130,7 @@ $check( 'quotes: the rotation is asked for, the buttons wait for the script', st
 $contact = do_shortcode( '[evpx_contact details="Email | hello@example.com' . "\n" . 'Phone | +44 20 7946 0000" to_email="me@example.com"]' );
 $check( 'contact: the form posts to admin-post.php with its action, its return address and a signed token', str_contains( $contact, 'admin-post.php' ) && str_contains( $contact, 'name="action" value="evpx_contact"' ) && str_contains( $contact, 'name="evpx_token"' ) && str_contains( $contact, 'name="evpx_return"' ) );
 $check( 'contact: every field has a label, and the required ones say so', 4 <= $count( '<label for="evpx-c-', $contact ) && str_contains( $contact, 'name="evpx_email" required' ) && str_contains( $contact, 'name="evpx_message" rows="6" required' ) );
-$check( 'contact: the trap field is there, off the page and out of the tab order', str_contains( $contact, 'name="evpx_website" tabindex="-1"' ) && str_contains( $contact, 'class="evpx-contact__trap" aria-hidden="true"' ) );
+$check( 'contact: the trap field is there, takes no room and is out of the tab order', str_contains( $contact, 'name="evpx_website" tabindex="-1"' ) && str_contains( $contact, 'class="evpx-contact__trap" aria-hidden="true"' ) );
 $check( 'contact: an email and a phone number in the details are links (the address is obscured from harvesters)', str_contains( html_entity_decode( $contact ), 'href="mailto:hello@example.com"' ) && str_contains( $contact, 'href="tel:' ) );
 $check( 'contact: the recipient is not in the page as text (only inside the signed token)', ! str_contains( $contact, 'me@example.com' ) );
 $check( 'contact: with the map off there is no map', ! str_contains( do_shortcode( '[evpx_contact map="false"]' ), 'evpx-contact__map' ) );

@@ -77,7 +77,8 @@ final class Search extends Element {
 			$suggestions[] = array( $pair[0], Lines::url( $pair[1] ) );
 		}
 
-		$base = remove_query_arg( array( 'pg', 'type', 's' ) );
+		$base   = remove_query_arg( array( 'pg', 'type', 's' ) );
+		$target = Lines::target( remove_query_arg( array( 'q', 's', 'pg', 'type' ), $base ) );
 
 		return $this->view(
 			'search',
@@ -94,7 +95,8 @@ final class Search extends Element {
 				'pages'       => $found ? (int) $found->max_num_pages : 0,
 				'paged'       => $paged,
 				'suggestions' => $suggestions,
-				'action'      => esc_url( remove_query_arg( array( 'q', 's', 'pg', 'type' ), $base ) ),
+				'action'      => $target['action'],
+				'hidden'      => $target['fields'],
 				'base'        => $base,
 			)
 		);

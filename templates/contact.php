@@ -28,7 +28,7 @@ $messages = array(
 	'failed'  => __( 'The message could not be sent from here. Please email us instead.', 'ev-charging-experience' ),
 );
 ?>
-<section class="evpx-root alignfull evpx-contact" id="<?php echo esc_attr( $anchor ?: 'evpx-contact' ); ?>" data-evpx-theme="dark" data-evpx-animate="<?php echo $animate ? '1' : '0'; ?>" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
+<section class="evpx-root alignfull evpx-contact" id="<?php echo esc_attr( '' !== $anchor ? $anchor : 'evpx-contact' ); ?>" data-evpx-theme="dark" data-evpx-animate="<?php echo $animate ? '1' : '0'; ?>" data-evpx-spacing="<?php echo esc_attr( $spacing ); ?>">
 	<div class="evpx-container evpx-contact__grid">
 		<div class="evpx-contact__info" <?php echo esc_attr( $animate ? 'data-evpx-reveal' : '' ); ?>>
 			<?php if ( $eyebrow ) : ?><p class="evpx-eyebrow"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>

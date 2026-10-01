@@ -98,7 +98,10 @@ final class ContactForm {
 		$key   = 'evpx_contact_' . md5( isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- hashed, never output.
 		$count = (int) get_transient( $key );
 
-		if ( $count >= self::LIMIT ) {
+		// Several people behind one address (an office) may need more than five an hour.
+		$limit = max( 1, (int) apply_filters( 'evpx_contact_limit', self::LIMIT ) );
+
+		if ( $count >= $limit ) {
 			$done( 'limit' );
 		}
 

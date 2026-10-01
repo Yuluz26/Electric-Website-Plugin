@@ -1,5 +1,61 @@
 # Changelog
 
+## 0.8.0
+
+The plugin builds a site now, not only articles. Activating it makes six draft pages (Home, About, Services, Projects,
+Contact, Search) out of ten new widgets, each of which draws a scene of its own until it has a photograph, so a new install
+has a full, working, cinematic site on day one. They are full width in any theme.
+
+**Added**
+- **Ten widgets** (shortcode, block and native Breakdance element, same renderer): **Page Hero** (a photograph, or one of
+  five layered SVG scenes that slide against each other with the pointer and the scroll, with a canvas of weather over
+  it, and figures that count up), **Site Header** (a search dialog on Ctrl/Cmd+K or `/` with live results from the site's
+  own REST search, arrow keys, a menu on narrow boxes), **Search** (the results page), **Site Footer**, **Stats**
+  (counters, ring meters), **Services** (a strip of panels, one open at a time, an accordion on a phone), **Process**
+  (a rail that fills as the page is read, with a running count), **Projects** (a rail that scrolls, drags and has buttons and
+  a position bar), **Quotes** (one at a time, arrows, dots, optional rotation that stops for good once a visitor takes over)
+  and **Contact**; plus the item elements Stat, Service, Process Step, Project and Quote. Docs: `docs/WIDGETS.md`,
+  "Site widgets".
+- **Six site pages on activation** (`Setup\ExamplePages`, a third kind beside the two examples): `content/site/*.txt`, as
+  native Breakdance elements when Breakdance is active and otherwise as shortcodes. Drafts, made once, nothing existing
+  touched, like the examples; the notice has **Publish all six** and **Publish and use Home as the front page**
+  (nonce-checked, administrators only).
+- **EV full-width page template** (`Setup\Canvas`): prints a page's content and nothing else, so a hero reaches the window's
+  edges whatever the theme does. Works for pages Breakdance built too.
+- **Contact form** (`Support\ContactForm`): anonymous, so no nonce; a signed time and recipient token (refused under three
+  seconds and after a week; the recipient cannot be changed), a trap field, five messages an hour per address, a
+  same-site return only. Mail goes out with the sender as Reply-To.
+- `Support\Scene` (five scenes), `Support\Lines` (the `value | label` line lists, `/slug/` addresses, figure splitting, and the
+  hidden fields a GET form needs when its address has a query), a `network-map` drawing, five more icons offered
+  (person, calendar, power, phone, email).
+- Docs: the site pages and the template in `docs/INSTALLATION.md`, the site widgets in `docs/WIDGETS.md`, `docs/BREAKDANCE.md`,
+  the architecture (§2.2b) and a per-page photograph shot list in `docs/MEDIA-BRIEF.md`.
+
+**Changed**
+- Activation also queues the site (see above); the first admin screen after it shows two notices.
+- The widget's own box is `border-box` (the reset covered its descendants only). A theme without a reset, such as the
+  full-width template, added the hero's padding to its minimum height and pushed its figures below the first screen.
+- A sticky header over a light section is 90% opaque, not 70%: at 70% its links dropped under 4.5:1 there.
+
+**Fixed (found by the new browser suite, before release)**
+- Services: the scene sat on top of the open panel's text on a phone (a positioned image painting over a static body).
+- Projects: the first card snapped to 24px from the edge instead of the page's own left edge (`scroll-margin` on the
+  card, where `scroll-padding` on the rail was needed), and the rail opened already scrolled.
+- Quotes: the one-at-a-time state selector never matched (the state is on the section itself).
+- Stats: a figure like `24/7` was split into a number and a unit and counted up to 24; "150 kW" wrapped onto two lines.
+- Search and Process and Contact: a grid track as wide as its widest child's minimum pushed a phone's page 83px sideways.
+- Header: the search button had no name on a phone (its label is hidden there); a GET search form dropped the search page's
+  `?page_id=` on a plain-permalink site and landed on the home page.
+- Contact: the trap field was parked at `-9999px`, which an overflow audit (rightly) reads as something poking out of its widget.
+
+**Added tests**
+- `tests/docker/site-render-check.sh` (what each site widget prints, 60-odd checks), `contact-form-check.sh` (the form over HTTP:
+  too fast, trap field, forged recipient, bad address, off-site return, the rate limit, what is mailed and to whom),
+  `site-pages-check.sh` with `tests/playwright/site-qa.mjs` and `site-publish-qa.mjs` (the six pages made both ways and
+  driven in a browser: 320 to 1920px, axe-core, one h1 and named landmarks, every control by pointer and by keyboard) and the
+  example-page checks extended to the third kind.
+- `overflowProbe` treats the projects rail as the scroll container it is.
+
 ## 0.7.0
 
 Activating the plugin now makes the pages. A new install used to open onto an empty Pages list, ten elements and a

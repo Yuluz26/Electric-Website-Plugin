@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$tag = tag_escape( $title_tag );
+$heading_tag = tag_escape( $title_tag );
 ?>
 <header
 	class="evpx-root alignfull evpx-stage evpx-stage--<?php echo esc_attr( $height ); ?><?php echo $photo ? ' evpx-stage--photo' : ''; ?>"
@@ -45,7 +45,7 @@ $tag = tag_escape( $title_tag );
 	<div class="evpx-container evpx-stage__inner">
 		<?php if ( $eyebrow ) : ?><p class="evpx-eyebrow evpx-stage__eyebrow"><?php echo esc_html( $eyebrow ); ?></p><?php endif; ?>
 
-		<<?php echo $tag; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag_escape() */ ?> class="evpx-heading evpx-stage__title"><?php echo $title; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html() first, then the only tag we add */ ?></<?php echo $tag; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag_escape() */ ?>>
+		<<?php echo $heading_tag; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag_escape() */ ?> class="evpx-heading evpx-stage__title"><?php echo $title; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html() first, then the only tag we add */ ?></<?php echo $heading_tag; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag_escape() */ ?>>
 
 		<?php if ( $lede ) : ?><p class="evpx-stage__lede"><?php echo esc_html( $lede ); ?></p><?php endif; ?>
 
