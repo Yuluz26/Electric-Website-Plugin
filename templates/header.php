@@ -19,6 +19,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
+<style>
+/* Critical, inline: the header's collapsed-mobile state, so it never flashes open/unstyled while a
+   caching or optimisation plugin holds up, combines or rewrites the main stylesheet. evpx.css carries
+   the same rules; this is only insurance for the instant before it applies. */
+.evpx-header__nav{display:none}.evpx-header__links{margin:0;padding:0;list-style:none}
+.evpx-header__cta,.evpx-header__search-label,.evpx-header__kbd{display:none}
+.evpx-header__toggle-close,.evpx-header__toggle[aria-expanded='true'] .evpx-header__toggle-open{display:none}
+.evpx-header__toggle[aria-expanded='true'] .evpx-header__toggle-close{display:block}
+.evpx-header__menu{display:none}.evpx-header__menu.evpx-is-open{display:block}
+@container (min-width:56rem){.evpx-header__nav{display:block}.evpx-header__cta{display:inline-flex}.evpx-header__search-label,.evpx-header__kbd{display:inline}.evpx-header__toggle,.evpx-header__menu{display:none}}
+</style>
 <header class="evpx-root alignfull evpx-header" data-evpx-theme="dark" data-evpx-header data-evpx-sticky="<?php echo $sticky ? '1' : '0'; ?>">
 	<div class="evpx-container evpx-header__bar">
 		<a class="evpx-header__brand" href="<?php echo esc_url( $brand_url ); ?>">

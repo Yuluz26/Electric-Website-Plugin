@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.8.2
+
+**Fixed**
+- **The site header could flash open and unstyled on a phone — raw bulleted links, both the menu and close
+  icons showing at once, the folded menu open with nothing clicked.** The header's collapsed-mobile state
+  (links hidden behind the menu button, the menu itself shut) lived only in `evpx.css`; if anything on the
+  live site delayed, combined or rewrote that stylesheet before the header painted — a caching or
+  speed-optimisation plugin is the usual cause — the header rendered in its raw, un-collapsed markup until
+  the real styles caught up. `templates/header.php` now carries the same collapsed state as a small inline
+  `<style>` block next to the markup, so the header is never more than an instant from correct regardless of
+  when (or whether) the main stylesheet applies. Confirmed by loading the header with `evpx.css` blocked
+  outright: before, raw links and both icons; after, the same collapsed header a normal load shows.
+
 ## 0.8.1
 
 **Fixed**
