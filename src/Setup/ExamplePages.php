@@ -294,6 +294,17 @@ final class ExamplePages {
 		$overrides = array( 'evpx_header' => array( 'sticky' => 'false' ) );
 
 		foreach ( self::SITE as $slug => $title ) {
+			// A page at this slug, on this template, is this plugin's own from an earlier install: the record of it
+			// (evpx_examples) can be lost (the site was deleted and reinstalled; a multisite copied the database) while
+			// the page itself survives, since uninstall.php never removes content. Adopt it rather than clone it — a
+			// second "Home" would confuse whoever next opens Pages, and would overwrite nothing of theirs only by luck.
+			$existing = get_page_by_path( $slug, OBJECT, 'page' );
+
+			if ( $existing && Canvas::SLUG === get_page_template_slug( $existing->ID ) ) {
+				$this->site[ $slug ] = $existing->ID;
+				continue;
+			}
+
 			$content = $this->siteContent( $slug );
 
 			if ( '' === $content ) {

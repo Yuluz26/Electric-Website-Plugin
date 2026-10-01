@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.8.1
+
+**Fixed**
+- **Deleting the plugin and reinstalling it duplicated the six site pages.** `evpx_examples` (the record of which pages
+  are this plugin's) is what `uninstall.php` removes; the pages themselves never are, because by then they are the
+  site's own content. The next activation, finding no record, could not tell the Home it was about to make from the
+  Home already live, and made a second one — a new draft "Home", "About", and so on, sitting beside the published
+  originals. The site itself kept working (nothing about the published pages changed), but Pages now showed two of
+  each, and publishing the wrong one would have been easy to do by mistake. `ExamplePages::makeSite()` now looks for a
+  page at each slug on the plugin's own "EV full-width page" template before creating one, and adopts it — same id,
+  content and status untouched — rather than cloning it. Guarded by a test watched failing first: reinstalling onto a
+  live, published site produced two "home" pages and a new, unrelated id for every one of the six; with the fix, the
+  same ids, the same published pages, come back.
+
 ## 0.8.0
 
 The plugin builds a site now, not only articles. Activating it makes six draft pages (Home, About, Services, Projects,

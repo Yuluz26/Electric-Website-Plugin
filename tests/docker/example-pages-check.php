@@ -262,6 +262,38 @@ $check( 'deleting the plugin removes what it stored: the version, the record of 
 $check( 'and leaves the examples themselves: by then they are the site’s content', get_post( $made[0] ) && get_post( $made[1] ) );
 update_option( 'evpx_version', EVPX_VERSION );
 
+// ------------------------------------------------------------------ the site survives a real delete-and-reinstall
+// uninstall.php only ever removes evpx_version/evpx_examples/the notice (see above); it never touches the six site
+// pages, which are by then the site's own content. A real "delete the plugin, upload it again" does the same: the
+// files come back unchanged, nothing about the pages does. The record of them must not be rebuilt from nothing.
+$cleanup();
+ExamplePages::queue();
+$examples->createPending();
+$state_before   = get_option( ExamplePages::OPTION );
+$pages_before   = (array) $state_before['site_pages'];
+foreach ( $pages_before as $page_id ) {
+	wp_update_post( array( 'ID' => $page_id, 'post_status' => 'publish' ) ); // the site is live, as a client's would be
+}
+// The article and the Breakdance example are not part of what is under test here (their own duplication on a lost
+// record is pre-existing, documented behaviour); delete this cycle's pair now, before forcing a second cycle makes
+// another, so only one pair of them is ever left for the final cleanup below to find.
+wp_delete_post( (int) $state_before['article'], true );
+wp_delete_post( (int) $state_before['breakdance'], true );
+delete_option( ExamplePages::OPTION ); // what uninstall.php does; the site pages above are untouched by it
+delete_transient( ExamplePages::NOTICE );
+ExamplePages::queue();
+$examples->createPending(); // the first admin screen after the plugin is put back
+$state_after = get_option( ExamplePages::OPTION );
+$pages_after = (array) $state_after['site_pages'];
+$made        = $ids( $state_after ); // this cycle's own, fresh article/breakdance; site_pages are the same, adopted, ids
+global $wpdb;
+$homes = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'page' AND post_name = 'home'" );
+$check(
+	'a site whose record was lost (the plugin was deleted and put back) is recognised, not rebuilt: the same six pages, still published',
+	$pages_after === $pages_before && 1 === $homes && 'publish' === get_post_status( $pages_after['home'] ),
+	wp_json_encode( array( 'before' => $pages_before, 'after' => $pages_after, 'homes' => $homes ) )
+);
+
 $cleanup();
 $check( 'the check leaves the site as it found it', $before === $fingerprint( $before_max ) && $before_max === $max_id() );
 
