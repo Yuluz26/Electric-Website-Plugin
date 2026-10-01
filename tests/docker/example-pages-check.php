@@ -162,7 +162,7 @@ foreach ( NativeElements::WIDGETS as $name => $widget_class ) {
 $check( 'the map Tree reads (NativeElements::WIDGETS) agrees with each element class’s own widget', ! $mismatch, implode( ', ', $mismatch ) );
 
 // ------------------------------------------------------------------ the hero’s heading follows the theme
-$hero_tag = static function ( string $theme ) use ( $examples, $cleanup, &$made ) {
+$hero_tag = static function ( string $theme ) use ( $examples, $cleanup, $ids, &$made ) {
 	$cleanup();
 	ExamplePages::queue();
 	$force = static fn() => $theme;

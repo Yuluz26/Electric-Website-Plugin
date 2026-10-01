@@ -1,4 +1,4 @@
-# QA report — v0.7.0
+# QA report — v0.8.0
 
 Everything below was run, not reasoned about. Every command is in the repo, so it can be
 re-run: see "Reproducing" at the end.
@@ -17,6 +17,18 @@ overflow sweep). Three (52–54) were found by looking at every widget at four w
 is the argument for looking. Each of these (a light that never painted, a label under the copy, a gauge faded to a
 ghost, a floor that ended in a line, a unit in the wrong case, a card left alone in a row) now has a check that was
 watched failing on the code it guards.
+
+0.8.0 builds the site: ten widgets for the pages of a site (a page hero, a header with a search, a search page, a
+footer, stats, services, a process rail, a projects rail, quotations, a contact form) and six draft pages made on
+activation, full width in any theme on the plugin's own template. Two things in the brief could not be done as asked, and
+neither is hidden: the reference site could not be opened from this environment (so the copy is original and written in the
+structure a site like it would have, not mirrored), and no image host was reachable (so the pictures are drawn scenes with a
+slot for a photograph, and `docs/MEDIA-BRIEF.md` is the shot list). The new browser suite found eight defects in the new
+work before release (60–67 below). Four of them (60–63) were found by looking at screenshots, before any check existed for
+them; four (64–67) were found by checks written for something else (the 320 px sweep, axe, the first-screen check, the
+Enter key in the search). It also found that a scratch script of mine had deleted WordPress's own "Hello world" post, which
+two older suites depend on, and that three of my own test edits were wrong; those are test-side, and are listed after 67 so
+they are not mistaken for product bugs.
 
 0.7.0 makes the pages: activating the plugin adds two draft example articles (a post with the article as shortcodes,
 and, once Breakdance is active, the same article as a Breakdance page of native elements), so a new install has
@@ -56,7 +68,7 @@ Chromium, and a site running your caching stack. Details under "Not verified".
 | Colour contrast | `tests/contrast-check.mjs` reads the real tokens out of `evpx.css` and asserts 15 pairings, light and dark (30 checks), including the lit and shaded faces of a raised surface and white type on the button's hover fill | all pass |
 | What the widgets print | `tests/docker/widget-render-check.sh`, inside WordPress, no browser: the comparison's power scale (ranges, points, thousands separators, decimals, and six inputs that must *not* draw a ruler) and its key, the section's key figure, the hero's captions, icon and drawing, every icon (inline, decorative, one family; a name that is not there renders nothing; the words of the demo article find their icons), every drawing (decoration, unique ids, a stale key renders nothing), the scenario, flow and decision icons and their rules, Related's drawing for an article with no picture, the CTA's default, the explorer (its numbers as JSON, its answer worked out on the server, numbers held in range), the flow's look, the anchor (the id on the root of every section widget, cleaned to letters, digits, `-` and `_`, absent when empty), that typed-in text is escaped | 62/62 |
 | Activation / deactivation | WP-CLI, `WP_DEBUG` + `WP_DEBUG_LOG` + `WP_DEBUG_DISPLAY` | clean; the only `debug.log` entries across activation, rendering of every widget and every suite below are core's own wordpress.org update check failing on the sandbox network |
-| **Real Breakdance 2.8.3 — integration** | `tests/docker/breakdance-real-check.sh`: 24 assertions against the running plugin (save locations reach Breakdance; Dynamic Data field; reading time; the ten native elements are declared, concrete, in their own category, with control paths that match their controls, repeaters, dynamic-data paths, the spacing and anchor attributes, toggle semantics, and the **same markup as the shortcode** for all thirteen widgets of the demo article) plus a behavioural probe: an element file saved in the plugin's Element Studio folder — declaring a class with a native element's name — must be loaded by a *fresh* PHP process | 26/26 |
+| **Real Breakdance 2.8.3 — integration** | `tests/docker/breakdance-real-check.sh`: 24 assertions against the running plugin (save locations reach Breakdance; Dynamic Data field; reading time; the twenty native elements are declared, concrete, in their own category, with control paths that match their controls, repeaters, dynamic-data paths, the spacing and anchor attributes, toggle semantics, and the **same markup as the shortcode** for all thirteen widgets of the demo article) plus a behavioural probe: an element file saved in the plugin's Element Studio folder — declaring a class with a native element's name — must be loaded by a *fresh* PHP process | 26/26 |
 | **Real Breakdance — front end and builder** | `tests/playwright/breakdance-qa.mjs`: a page designed in Breakdance from the demo article, once with Shortcode elements and once with native elements; front end (assets, typography, hover colours, reading time, interactions, motion, overflow at six widths, axe) and the builder itself: server-side renders, canvas, and, for native elements, the Add panel, selecting each element, editing a control (one render), a toggle (saved as `false`), and choosing a picture in the media library | 16/16 on the Shortcode page · 24/24 on the native page · 24/24 on the native page in full-width Sections without padding · 24/24 on the native page with pictures |
 | **Builder round-trip** | `tests/docker/builder-save-check.sh`, on scratch pages it deletes: a dropdown lists the widget's options and re-renders the canvas; Save answers 200; the front end and a reopened builder show the edit; an element added from the Add panel to an empty page renders with its starting copy, brings its stylesheet into the canvas with it, and saves | 6/6 |
 | **Pictures** | `tests/docker/media-pages.sh` generates six test images (GD gradients with a frame at the edges, one of them a near-white sky), imports them, and builds a shortcode post, a native page and a mixed Related row; `tests/playwright/media-qa.mjs` at 1440 and 390 px | 49/49 |
@@ -69,6 +81,9 @@ Chromium, and a site running your caching stack. Details under "Not verified".
 | **Composition** | `tests/playwright/layout-qa.mjs`, Chromium: the hero's gauge is as bright as its type, no drawing paints with a gradient on an empty box, units keep their case, the floor reaches the drawing's edges, a wrapped byline is the author over the pair, the flow's rail joins its sockets and fits a narrow column, a Related row ends square (below) | 12/12 |
 | Breakdance contract stub | `tests/docker/breakdance-stub.php` + `breakdance-contract-check.php` — kept for CI without a licence; the real check above is authoritative | 11/11 in 0.4.0; not re-run since. 0.6.0 adds the explorer to `src/Breakdance`, and the real-Breakdance checks above cover the same ground with the real thing |
 | **Example articles** | `tests/docker/example-pages-check.sh`: the logic in WordPress (`example-pages-check.php`), then a browser as an administrator (`examples-qa.mjs`) after a scripted activation, and once more through the Plugins screen's Activate link; then a second request, a deleted example, and Breakdance arriving after the plugin. Cleans up after itself | 75/75 |
+| **Site widgets, printed** | `tests/docker/site-render-check.sh`, inside WordPress, no browser: the lines parser (a `<br />` from `wpautop`, `/slug/` addresses, a figure split into number and unit, `24/7` as a phrase, the hidden fields a GET form needs), the five scenes (unique ids, decoration only), the page hero, header and its search dialog, the search page (a query, a filter, escaping, no match), the footer, stats, services, process, projects, quotes, the contact form's markup and its signed token (a changed recipient breaks it), the anchor on the new sections, the full-width template | 60/60 |
+| **The contact form, over HTTP** | `tests/docker/contact-form-check.sh`, mail caught by a must-use plugin that is removed again: refused when sent at once, accepted a few seconds later and sent back to the form's own page, mailed to the widget's recipient with the sender as Reply-To, a filled trap field told it worked and nothing sent, a bad address, no name, a two-letter message, a changed recipient, garbage, an off-site return address not followed, the sixth message in an hour refused (five were mailed), the `evpx_contact_limit` filter, every outcome shown in words, markup in the outcome not printed | 23/23 |
+| **The six site pages, in a browser** | `tests/docker/site-pages-check.sh` with `tests/playwright/site-qa.mjs`: the pages made as activation makes them, **once as native Breakdance elements and once as shortcodes**, published, then driven in Chromium: nothing scrolls sideways or pokes out of its widget at 320, 390, 768, 1024, 1366, 1440 and 1920 px; axe-core on every page at 1440 and 390; one h1, one main, named navigations, a skip link; no script error; the hero marked as moving, its layers sliding with the pointer and its figures on the first screen; the counters ending on their values; the services strip by pointer and by keyboard; the process rail and its counter; the projects rail (buttons, drag, position bar, first card on the page's edge); the quotations (arrows, dots, aria-live, a stable height, dots of 24 px); the header's search (Ctrl+K, `/`, Escape, live results, Enter) and the phone menu; the contact form (labels, the trap, the busy state, the outcome); the search page; then the notice's publish buttons (nonce, administrators only, the front page) | 233/233 |
 | The shipped artifact | the built ZIP installed as a separate plugin directory and the suites run against *that* | 0.7.0: the integration check 26/26, the render check 62/62, the composition suite 12/12 and the example-article check 75/75 against the ZIP (128 entries, 388 KB), installed as a plugin of its own. The last is the one that needs the ZIP to carry `content/demo-article.txt`, `uninstall.php` and the new classes: a ZIP without the article would activate cleanly and make nothing. The tree it was built from differs from the committed one in this file only. The full pass (browser suite, both Breakdance pages, pictures, unrelated pages, templates) was run on 0.6.0's ZIP; the packaging script has not changed since |
 | Motion | real GSAP **3.12.5** (the version the plugin loads by default), served locally because this sandbox blocks cdnjs | verified below |
 
@@ -177,6 +192,52 @@ near-white sky, the worst case for white type — each line of type (eyebrow, ti
 measured against the brightest 5% of the picture behind it, at 1280 and 390 px: 4.5:1, or 3:1 for large type.
 With the 0.4.0 template and stylesheet the mixed-row check and both meta checks fail, and ten of the
 fourteen legibility checks fail (the eyebrow at 1.2–1.5:1, the title at 1.6–1.9:1).
+
+60. **The services panel's words sat under its picture on a phone.** In the accordion layout the scene (an absolutely
+    positioned layer) painted over the open row's summary and points, which were static; the link, which is positioned,
+    showed, so the row looked like a picture with a button on it. Found by looking at a 390 px screenshot after the layout
+    checks were green: nothing measured what was on top. The body is positioned and above the picture now. *Guard: the
+    browser checks that the element at the centre of the open panel's summary is the summary, on a wide screen and on a
+    phone, once its transition has finished (a text still fading in is painted above what is behind it, which is how the
+    first version of the check passed on the broken code). Watched failing with the body left unpositioned.*
+61. **The projects rail opened already scrolled, and its first card sat 24 px from the window's edge instead of the page's
+    own left edge.** The snap used `scroll-margin` on each card; the rail needed `scroll-padding` equal to its own padding,
+    or the first card snaps 128 px along. *Guard: "the rail starts at 0 and the first card lines up with the page's left
+    edge". Watched failing with the rail snapping by `scroll-margin`: it opened 128 px along, the first card at 24 px
+    where 152 was wanted.*
+62. **Only the first quotation could ever be shown on its own.** The state that stacks them in one place was written as a
+    descendant (`.evpx-root .evpx-quotes[data-evpx-ready]`) of an element that is both: the section carries both classes
+    and the attribute. All three quotations printed one under another with the buttons beside them. Found in the first
+    screenshot. *Guard: exactly one quotation is visible (computed `visibility` and `opacity`, not the class the script
+    sets, which was right all along), its dot is current, the height does not change between them. The first version
+    of the check read the class and passed on the broken code; it was watched failing, three shown at once, only after it
+    read what the browser paints.*
+63. **A phrase counted as a number.** `24/7` was split into the number 24 and the unit "/7" and counted up to 24;
+    `150 kW` wrapped onto two lines in a four-column row. A value with a second number is a phrase now, and a unit is set
+    small beside its number. *Guard: the parser's checks, and the counters ending on their real values.*
+64. **Three grids pushed a phone's page sideways** (the search page by 83 px). A grid with no explicit track is as wide as
+    its widest child's minimum, and a search field's is about 200 px. The tracks are `minmax(0, 1fr)` now. *Guard: the 320
+    and 390 px sweep over all six pages, which caught it.*
+65. **Two accessibility defects in the header, both caught by axe.** The search button had no name on a phone (its label
+    is hidden there; it has an `aria-label` now), and the translucent bar the page scrolls under failed 4.5:1 for its links
+    over a light section (six nodes; at 90% opacity they pass). *Guard: axe over every page at 1440 and 390 px.*
+66. **A GET search form forgot the page it was posting to.** On plain permalinks the search page's address is
+    `?page_id=7`, and a browser replaces an action's query with the form's own fields, so Enter landed on the home page. The
+    address's query goes in as hidden fields now (`Lines::target()`), in the header's dialog and on the search page itself.
+    *Guard: the browser's Enter test, and render checks for both forms.*
+67. **A hero outside a theme's reset ran off the first screen.** The widget's own box was not `border-box` (the reset
+    covered its descendants), so on the full-width template the hero's padding was added to its minimum height and its
+    figures fell below a 900 px window. *Guard: the figures are on the first screen at 1440 × 900, on the shortcode pages
+    too.*
+
+Test-side, in the same pass, so they are not mistaken for plugin bugs: a scratch script of mine seeded the examples'
+option with a default id of 1 and a later clean-up deleted WordPress's "Hello world" post, which the template and media
+suites need (restored, and the media fixtures rebuilt); the examples check's PHP half had a closure that lost a variable
+and aborted half-way, leaving a page made under a forced theme to be inspected later (every "failure" after it was
+that); and `ExamplePages` kept the pages of an earlier call on the object, so a call that made none still returned
+the earlier home page (fixed, and the failure test now covers it). A full Chromium also asks for `/favicon.ico`, which a
+site on plain permalinks does not serve, and reported the 404 as a console error on every page; the QA site has a 1 × 1
+icon now (`setup.sh`). The contact-form submit check aborted the request and raced the error page; it answers 204.
 
 ### The checks in `example-pages-check.sh`
 
@@ -614,6 +675,20 @@ Plugins screen after logging in, but the login had already landed on the dashboa
   The Breakdance example on a theme that constrains content width (Twenty Twenty-Five's 645 px column) sits in that
   column; under Zero, or a Breakdance template, its Sections run edge to edge.
 
+- **The site, in the ways not tried.** The six pages were driven in Chromium, as native Breakdance elements and as
+  shortcodes, under Twenty Twenty-Five. Not run: under Breakdance's Zero theme or a classic theme (the template does not
+  depend on one, but it was not exercised there), multisite, a site that already has pages at `/about/` and the rest (the
+  addresses are looked up, which the render checks cover, but the header of such a site was not driven), and the builder
+  canvas for the ten new elements (the Add panel lists all twenty and the elements render in it; editing each of the new ones
+  in the builder was not done).
+- **Mail.** The contact form was proved up to `wp_mail()` (caught by a test plugin): who it is sent to, from whom, with what.
+  Whether a given host delivers it is the host's; the form tells the visitor when `wp_mail()` says no.
+- **The scenes and the weather on a phone in a hand.** The pointer parallax needs a fine pointer and is withheld on touch;
+  the canvas weather is measured only for not erroring. How the five scenes feel on a real phone's GPU, and what they cost on
+  a low-end one, was not measured.
+- **`<dialog>`, `scroll-snap` and `clip-path` in Safari and Firefox.** The header's search is a native `<dialog>` and the
+  rails snap; both were seen in Chromium only.
+
 - **The reference the design was meant to beat.** The site the brief points at could not be opened from this
   environment (its host is blocked), so it was never seen. "More beautiful than the reference" is a judgement about
   the running pages against the brief's own terms (effects, hover states, type), not a side-by-side. Send
@@ -678,8 +753,12 @@ node tests/playwright/media-qa.mjs "$(cat tests/docker/.media-url)" "$(cat tests
      "$(cat tests/docker/.media-mixed-url)" "$(cat tests/docker/.media-bright-url)"
 bash tests/docker/template-check.sh                                                    # three themes
 bash tests/docker/isolation-check.sh                                                   # two themes
-bash tests/docker/example-pages-check.sh                                               # the example articles made on activation
+bash tests/docker/example-pages-check.sh                                               # the examples made on activation
 EVPX_PLUGIN_DIR=evpx-zip bash tests/docker/example-pages-check.sh                      # the same against the built ZIP, installed as evpx-zip
+bash tests/docker/site-render-check.sh                                                 # what the site widgets print
+bash tests/docker/contact-form-check.sh                                                # the contact form over HTTP
+bash tests/docker/site-pages-check.sh                                                  # the six site pages, both ways, in a browser
+EVPX_QA_ONLY=live node tests/playwright/site-qa.mjs out home=URL about=URL …            # one part of the browser suite (still, live, contact, search)
 
 composer install && composer lint
 bash tests/build-zip.sh

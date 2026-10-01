@@ -76,6 +76,10 @@ fi
 
 wp plugin activate ev-charging-experience
 
+# The site is on plain permalinks, which do not route /favicon.ico to WordPress, and a full Chromium asks for it on every
+# page: without a file the browser suites would report a 404 on each page as if it were the plugin's. A 1x1 transparent icon.
+"${COMPOSE[@]}" exec -T wordpress sh -c "echo AAABAAEAAQEAAAEAIAAwAAAAFgAAACgAAAABAAAAAgAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA== | base64 -d > /var/www/html/favicon.ico"
+
 if [ -n "${EVPX_GSAP_DIR:-}" ]; then
 	"${COMPOSE[@]}" exec -T wordpress mkdir -p /var/www/html/wp-content/uploads/evpx-test /var/www/html/wp-content/mu-plugins
 	docker cp "${EVPX_GSAP_DIR}/gsap.min.js" "${WP_CID}:/var/www/html/wp-content/uploads/evpx-test/gsap.min.js"

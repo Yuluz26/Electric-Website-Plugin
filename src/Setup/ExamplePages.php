@@ -284,6 +284,8 @@ final class ExamplePages {
 	 * The six site pages. Returns the id of Home (0 if nothing could be made); all of them are in $this->site.
 	 */
 	private function makeSite(): int {
+		$this->site = array(); // this object may be asked more than once; what an earlier call made is not this call's
+
 		$status    = apply_filters( 'evpx_example_pages_status', 'draft' );
 		$status    = in_array( $status, array( 'draft', 'private', 'publish' ), true ) ? $status : 'draft';
 		$builder   = $this->canMake( 'breakdance' );

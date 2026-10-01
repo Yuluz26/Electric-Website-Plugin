@@ -24,7 +24,7 @@ has a full, working, cinematic site on day one. They are full width in any theme
   edges whatever the theme does. Works for pages Breakdance built too.
 - **Contact form** (`Support\ContactForm`): anonymous, so no nonce; a signed time and recipient token (refused under three
   seconds and after a week; the recipient cannot be changed), a trap field, five messages an hour per address, a
-  same-site return only. Mail goes out with the sender as Reply-To.
+  same-site return only. Mail goes out with the sender as Reply-To. `evpx_contact_limit` changes the five an hour.
 - `Support\Scene` (five scenes), `Support\Lines` (the `value | label` line lists, `/slug/` addresses, figure splitting, and the
   hidden fields a GET form needs when its address has a query), a `network-map` drawing, five more icons offered
   (person, calendar, power, phone, email).
@@ -47,6 +47,7 @@ has a full, working, cinematic site on day one. They are full width in any theme
 - Header: the search button had no name on a phone (its label is hidden there); a GET search form dropped the search page's
   `?page_id=` on a plain-permalink site and landed on the home page.
 - Contact: the trap field was parked at `-9999px`, which an overflow audit (rightly) reads as something poking out of its widget.
+- `ExamplePages` kept the pages an earlier call had made on the object, so a call that made none returned that call's home page.
 
 **Added tests**
 - `tests/docker/site-render-check.sh` (what each site widget prints, 60-odd checks), `contact-form-check.sh` (the form over HTTP:
@@ -54,7 +55,11 @@ has a full, working, cinematic site on day one. They are full width in any theme
   `site-pages-check.sh` with `tests/playwright/site-qa.mjs` and `site-publish-qa.mjs` (the six pages made both ways and
   driven in a browser: 320 to 1920px, axe-core, one h1 and named landmarks, every control by pointer and by keyboard) and the
   example-page checks extended to the third kind.
-- `overflowProbe` treats the projects rail as the scroll container it is.
+- `overflowProbe` treats the projects rail as the scroll container it is, and `site-qa.mjs` can run one part of itself
+  (`EVPX_QA_ONLY=live`), which is how its new checks were watched failing on deliberate faults: the services words under their
+  picture, the quotations stacked, the projects rail snapping from the wrong edge.
+- The QA site has a favicon (`setup.sh`): a full Chromium asks for `/favicon.ico`, which plain permalinks do not serve, and a
+  404 on every page was reported as a console error.
 
 ## 0.7.0
 
