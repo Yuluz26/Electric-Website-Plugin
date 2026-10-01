@@ -1,0 +1,23 @@
+<?php
+/**
+ * The Breakdance element for the Page Hero widget (see Hero.php for why the class lives in the plain EVPX namespace).
+ */
+
+namespace EVPX;
+
+use Breakdance\Elements\Element;
+use EVPX\Breakdance\Native\NativeElement;
+use EVPX\Elements\Element as Widget;
+use EVPX\Elements\Widgets;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+final class Stage extends Element {
+	use NativeElement;
+
+	protected static function widget(): Widget {
+		return new Widgets\Stage();
+	}
+}

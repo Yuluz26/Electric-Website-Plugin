@@ -1,0 +1,3 @@
+[evpx_quote quote="They told us what the supply could carry before they sold us a single charger. That is why the site still works." name="Sample client" role="Facilities manager"]
+[evpx_quote quote="One point of contact from the survey to the handover. We never had to chase anyone." name="Sample client" role="Operations director"]
+[evpx_quote quote="The bays were live a week before the date we were given." name="Sample client" role="Site owner"]

@@ -1,0 +1,5 @@
+[evpx_process_step title="Survey" description="We walk the site, read the supply and count how long vehicles stay." duration="Week 1" symbol="map-pin"]
+[evpx_process_step title="Design" description="A layout, a load plan and a fixed price, before anything is ordered." duration="Weeks 2 to 3" symbol="sliders-horizontal"]
+[evpx_process_step title="Permits" description="The grid application, planning and any landlord consents, handled by us." duration="Weeks 3 to 8" symbol="seal-check"]
+[evpx_process_step title="Build" description="Groundworks, switchgear and chargers, with as little disruption to the site as we can manage." duration="Weeks 8 to 12" symbol="wrench"]
+[evpx_process_step title="Handover" description="Commissioning, training for your team and, if you want it, a monitoring contract." duration="Week 13" symbol="plug-charging"]

@@ -1,0 +1,24 @@
+[evpx_header]
+
+[evpx_stage scene="cabinet" height="compact" eyebrow="Services" title="Everything between the *grid* and the bay" lede="Design, installation, operation and upgrades for depots, car parks, hotels and highway sites."]
+
+[evpx_services eyebrow="What we do" heading="Four jobs, one team" intro="Choose one, or hand us the whole thing."]
+{{services}}
+[/evpx_services]
+
+[evpx_flow heading="How power reaches the car" step1_label="Grid" step2_label="Site infrastructure" step3_label="Charger" step4_label="Vehicle" step5_label="Battery" direction="horizontal" compact="false" animate="true"]
+
+[evpx_process eyebrow="How a job runs" heading="Five steps, one owner" intro="Timings are for a typical single site. A larger one takes longer, and we say so at the start."]
+{{process}}
+[/evpx_process]
+
+[evpx_faq eyebrow="Questions" heading="What people ask before they call" schema_output="true" animate="true"]
+[evpx_faq_item question="Do you supply the chargers as well as install them?" answer="Yes. We are not tied to one manufacturer, so we choose the charger that suits the site and the supply, then supply, install and commission it."]
+[evpx_faq_item question="Can you work on a site that is already open?" answer="Most of our jobs are on working sites. We phase the groundworks, keep the entrances clear and agree the noisy work with you beforehand."]
+[evpx_faq_item question="What happens if a charger breaks after handover?" answer="Under a support contract we monitor it and fix it within the agreed time. Without one, you can still call us; we charge for the visit and the parts."]
+[evpx_faq_item question="How much power does my site need?" answer="It depends on how long vehicles stay and how many there are, not on the number of bays. That is the first thing the survey answers."]
+[/evpx_faq]
+
+[evpx_cta title="Tell us about the site." body="A few lines are enough to start. We will tell you what we would want to measure and roughly how long it would take." button_label="Start the conversation" button_url="/contact/" variant="dark"]
+
+[evpx_footer]

@@ -1,0 +1,9 @@
+[evpx_header]
+
+[evpx_stage scene="none" height="compact" eyebrow="Search" title="Find a *page* or a project" lede="Type a word from the page you are looking for."]
+
+[evpx_search heading="" placeholder="What are you looking for?" suggestions="DC fast charging | /services/
+Recent projects | /projects/
+Talk to us | /contact/"]
+
+[evpx_footer]

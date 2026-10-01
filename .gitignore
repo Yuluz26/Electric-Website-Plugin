@@ -1,0 +1,18 @@
+/dist/
+/vendor/
+node_modules/
+.DS_Store
+*.log
+/tests/docker/.demo-url
+/tests/docker/.breakdance-url
+/tests/docker/.breakdance-native-url
+/tests/docker/.breakdance-full-url
+/tests/docker/.media-url
+/tests/docker/.media-native-url
+/tests/docker/.media-mixed-url
+/tests/docker/.media-bright-url
+composer.lock
+# Screenshots and reports the browser suites write when run from the repository root
+/qa-output/
+/qa-*-output/
+__pycache__/

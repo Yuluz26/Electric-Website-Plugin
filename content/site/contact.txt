@@ -1,0 +1,16 @@
+[evpx_header]
+
+[evpx_stage scene="plug" height="compact" eyebrow="Contact" title="Tell us about the *site*" lede="Where it is, how many vehicles use it and when. A few lines are enough."]
+
+[evpx_contact eyebrow="Get in touch" heading="We reply within a working day" intro="If you already have a supply figure or a drawing, send it. If not, we will help you find it." details="Address | 12 Example Road, Sample Town
+Phone | +44 20 7946 0000
+Email | hello@example.com
+Hours | Monday to Friday, 8 to 6" button_label="Send the message" map="true" animate="true"]
+
+[evpx_faq eyebrow="Before you write" heading="Quick answers" schema_output="false" animate="true"]
+[evpx_faq_item question="Do you charge for the survey?" answer="A first call and a desk review are free. A site survey with a logger on the supply is charged, and the fee comes off the price if you go ahead."]
+[evpx_faq_item question="Do you work outside the city?" answer="Yes. Highway and rural sites are some of our favourites, because the grid connection is usually the whole story."]
+[evpx_faq_item question="I only need a few chargers. Is that too small?" answer="No. A few well-placed AC bays is often the right answer, and the survey is quick."]
+[/evpx_faq]
+
+[evpx_footer]

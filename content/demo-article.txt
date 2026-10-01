@@ -1,0 +1,51 @@
+[evpx_hero category="EV Infrastructure" title="Choosing AC or DC Charging for Your Site" excerpt="The right charging technology depends less on what a charger can do and more on how people actually use your site. Here's how to think it through." author="EV Charging Experience Editorial" date="September 2026" cta_label="Jump to the decision framework" cta_url="#decision" visual_mode="dark" animate="true" title_tag="h2"]
+
+[evpx_section heading="The charger is the easy part" body="Most site owners start by comparing charger specs. Kilowatts, connector types, brand reputations. That's the wrong starting point.
+
+The right starting point is dwell time: how long a vehicle actually sits on your site. A charger chosen around dwell time will feel effortless to the people using it. A charger chosen around specs alone often gets underused, oversized, or replaced within a few years." layout="media-right" artwork="charge-curve" surface="flat" animate="true"]
+
+[evpx_section heading="How AC charging works" figure="7–22 kW" figure_label="Typical AC power" body="AC (alternating current) is the power that already runs through your building. An AC charger doesn't convert anything itself. It delivers grid power to the vehicle, and the car's own onboard charger converts it to DC before it reaches the battery.
+
+That onboard converter is physically small, so it can only handle so much power. In practice, AC charging tops out around 7–22 kW depending on the vehicle and the circuit. That's slow by fast-charging standards, but it's also simple, inexpensive to install, and gentle on the battery over the long run." layout="media-right" artwork="wallbox" surface="flat" animate="true"]
+
+[evpx_section heading="How DC fast charging works" figure="50–350+ kW" figure_label="Typical DC power" body="DC (direct current) charging moves the conversion hardware out of the car and into the charging station itself. Because a stationary charger isn't limited by what fits under a hood, it can push far more power, commonly 50 to 350+ kW, depending on the station and the vehicle's own charging curve.
+
+The result is dramatically faster charging: many vehicles can recover a meaningful amount of range in well under 30 minutes. The tradeoff is cost. DC hardware, installation, and grid capacity requirements are all substantially higher than AC." layout="media-left" artwork="dc-cabinet" surface="flat" animate="true"]
+
+[evpx_comparison ac_title="AC Charging" ac_description="Grid power, converted by the vehicle. Straightforward to install, gentle on batteries, and inexpensive to run at scale." ac_power_range="7–22 kW" ac_dwell_label="Best for 2+ hour stays" ac_best_for="Workplaces, hotels, residential" dc_title="DC Fast Charging" dc_description="Power converted at the station. Built for speed, at a higher upfront and infrastructure cost." dc_power_range="50–350+ kW" dc_dwell_label="Best for under 45 minutes" dc_best_for="Highway corridors, fleet depots, retail" mode="toggle" accent_treatment="split" animation_intensity="standard" mobile_mode="tabs"]
+
+[evpx_explorer eyebrow="Try it" heading="What does your dwell time buy?" intro="Move the slider to how long cars stay on your site, then try each charger. Notice where more power stops helping." dwell="120" charger="ac-22" animate="true"]
+
+[evpx_decision_factors anchor="decision" eyebrow="The decision framework" heading="What decides the choice" intro="Seven factors decide this. Dwell time and site capacity come first; the rest follow from them." animate="true"]
+[evpx_decision_factor title="Dwell time" description="How long a vehicle realistically stays on site. It caps how much energy a session can deliver, and it is the input that most often decides between AC and DC." question="How long does a typical vehicle stay, and does that change by time of day?"]
+[evpx_decision_factor title="Required energy" description="The energy each vehicle needs per visit, which is not the same as the size of its battery." question="How much range does a driver actually need to add before leaving?"]
+[evpx_decision_factor title="Site capacity" description="The electrical supply available at the site, and what it would take to increase it. Capacity often limits the choice before preference does." question="What spare capacity does the site's connection have today?"]
+[evpx_decision_factor title="Turnover" description="How many different vehicles use each bay in a day. High turnover rewards speed; low turnover rewards a lower cost per bay." question="How many vehicles should each bay serve in a day?"]
+[evpx_decision_factor title="Installation complexity" description="Trenching, switchgear, permits and lead times differ widely between AC and DC, and they decide both cost and how soon bays open." question="What civil and electrical work does each option need on this site?"]
+[evpx_decision_factor title="Operating model" description="Free amenity, paid access, fleet-only, or shared with tenants. The model decides how power, billing and uptime are managed." question="Who pays for the energy, and who is accountable when a charger is down?"]
+[evpx_decision_factor title="Future growth" description="Reserving capacity and running conduit now is usually cheaper than reopening the ground later." question="What would we need if the number of EV drivers on site doubled?"]
+[/evpx_decision_factors]
+
+[evpx_scenarios heading="How this plays out by site type" columns="3"]
+[evpx_scenario_card scenario="Workplace" title="Employees, all day" description="Cars sit for 6–9 hours. AC charging comfortably fills most batteries overnight-equivalent, at a fraction of DC's install cost." requirement="Enough AC ports for shift overlap" recommendation="AC across the lot"]
+[evpx_scenario_card scenario="Hotel" title="Overnight guests" description="Long dwell time again favors AC, but a small number of DC ports near the entrance serve guests who arrive low and need a quick top-up." requirement="Predictable overnight capacity" recommendation="AC primary, DC as a convenience option"]
+[evpx_scenario_card scenario="Residential" title="Apartments and condos" description="Dwell time is the longest of any site type. AC is almost always the right call, sized to the building's actual electrical headroom." requirement="Panel capacity assessment" recommendation="AC, load-managed across units"]
+[evpx_scenario_card scenario="Fleet depot" title="Scheduled turnaround" description="Vehicles return on a schedule and need to be ready for the next shift. Charging speed is often driven by the schedule, not by convenience." requirement="Predictable charge windows" recommendation="Mixed AC/DC based on shift length"]
+[evpx_scenario_card scenario="Retail" title="Shoppers, under an hour" description="Short, unpredictable dwell time. AC charging simply can't deliver meaningful range in the time available." requirement="Fast, unattended charging" recommendation="DC fast charging"]
+[evpx_scenario_card scenario="Highway corridor" title="Trip charging" description="Drivers are traveling, not staying. Speed is the whole point here; nothing else matters as much." requirement="High uptime, high power" recommendation="DC fast charging"]
+[/evpx_scenarios]
+
+[evpx_flow heading="How charging reaches the vehicle" step1_label="Grid" step2_label="Site Infrastructure" step3_label="Charger" step4_label="Vehicle" step5_label="Battery" direction="horizontal" compact="false" animate="true"]
+
+[evpx_section heading="What's behind the charger matters as much as the charger" body="A charger is only as capable as the electrical infrastructure feeding it. DC fast charging in particular can require a utility service upgrade, dedicated transformers, and demand-charge planning that most site owners don't budget for up front. Involve your utility and an electrical engineer early, before the charger is selected, not after." layout="media-right" artwork="grid-path" surface="recessed" animate="true"]
+
+[evpx_faq eyebrow="FAQ" heading="Common questions" schema_output="true" animate="true"]
+[evpx_faq_item question="Can I install both AC and DC charging on the same site?" answer="Yes, and for many mixed-use sites it's the right answer. AC covers long-dwell, everyday charging cost-effectively, while a smaller number of DC ports handle anyone who needs a fast top-up."]
+[evpx_faq_item question="How much does DC fast charging cost to install compared to AC?" answer="DC hardware and installation typically cost several times more than AC per port, driven mainly by the station itself, electrical infrastructure, and any utility service upgrades required. Get site-specific quotes before committing. The gap varies a lot by location and existing electrical capacity."]
+[evpx_faq_item question="Does charging speed damage the battery?" answer="Modern EV battery management systems are designed to handle DC fast charging safely. That said, relying on AC charging for routine, everyday use is generally considered gentler on long-term battery health than frequent DC fast charging."]
+[evpx_faq_item question="What's the single biggest mistake site owners make?" answer="Choosing charger power based on what sounds impressive rather than on actual dwell time and site capacity. It leads to overspending on DC where AC would have served drivers just as well, or underspending on DC where speed was actually the point."]
+[/evpx_faq]
+
+[evpx_cta title="Plan the charging system around how your site actually works." body="Every recommendation above starts from the same question: how long do vehicles actually stay? Answer that first, and the right mix of AC and DC becomes clear." button_label="Start the conversation" button_url="#" variant="dark"]
+
+[evpx_related heading="Related articles" source="category" count="3"]

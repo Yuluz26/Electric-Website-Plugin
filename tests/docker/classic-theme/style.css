@@ -1,0 +1,7 @@
+/*
+Theme Name: EVPX Classic Test
+Description: A bare classic (PHP-template) theme for the template checks in tests/docker/template-check.sh. Not shipped with the plugin.
+Version: 1.0
+License: GPL-2.0-or-later
+*/
+body { font: 16px/1.5 sans-serif; margin: 0; }

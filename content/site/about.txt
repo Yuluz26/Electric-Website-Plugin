@@ -1,0 +1,27 @@
+[evpx_header]
+
+[evpx_stage scene="grid" height="compact" eyebrow="About us" title="A small team that reads the *meter* before it sells the charger" lede="We were electrical contractors who kept being asked to fit chargers nobody had sized. So we started sizing them."]
+
+[evpx_section heading="Start with the supply, not the brochure" body="Most charging problems are electrical, not technical. A site has 200 amps spare and a plan for twelve fast chargers, or a car park has room for forty bays and nowhere to put the switchgear.
+
+We look at the supply, the way vehicles use the site and what you will want in five years, then choose the hardware. Sometimes that means fewer chargers than you asked for. It has never meant more than you needed." layout="media-right" artwork="grid-path" surface="flat" animate="true"]
+
+[evpx_stats eyebrow="How we work" heading="Fixed before we start" variant="dark"]
+[evpx_stat value="1" label="Point of contact" note="One person owns your job from survey to handover." symbol="user"]
+[evpx_stat value="100%" label="Fixed price" note="Agreed before anything is ordered." symbol="coins"]
+[evpx_stat value="13 weeks" label="Typical programme" note="From the first visit to live bays." symbol="calendar-blank"]
+[evpx_stat value="10 years" label="Design life" note="Chargers, cabling and switchgear are specified for it." symbol="timer"]
+[/evpx_stats]
+
+[evpx_decision_factors eyebrow="What we hold ourselves to" heading="Four habits" intro="They are dull, and they are why the sites keep working." animate="true"]
+[evpx_decision_factor title="Measure first" description="A day with a logger on the supply tells us more than any spreadsheet." question="What is actually spare at your connection?"]
+[evpx_decision_factor title="Say what we do not know" description="If a permit could take twelve weeks or twenty, we tell you both numbers." question="Which dates are firm and which are hopes?"]
+[evpx_decision_factor title="Leave the site tidy" description="Trenches closed, bays marked, cabinets locked and labelled. Your neighbours should not know we were there." question="Who is checking the finish?"]
+[evpx_decision_factor title="Answer the phone later too" description="A charger that stops in year three is still ours to fix, under a support contract or not." question="Who picks up when a bay is down?"]
+[/evpx_decision_factors]
+
+[evpx_quotes eyebrow="What clients say" auto="true"]
+{{quotes}}
+[/evpx_quotes]
+
+[evpx_footer]
